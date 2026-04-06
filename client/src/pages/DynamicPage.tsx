@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Home from './Home';
+import { COLOR_PALETTES } from '../config/colorPalettes';
 
 interface PageContent {
   id: number;
   name: string;
   slug: string;
+  palette_id?: string;
   content_index: {
     seo_title: string;
     seo_description: string;
@@ -44,6 +46,17 @@ export function useDynamicPage() {
       .then(data => { if (data) { setContent(data); setLoading(false); } })
       .catch(() => { setNotFound(true); setLoading(false); });
   }, [slug]);
+
+  // Apply palette CSS variables to :root when content loads
+  useEffect(() => {
+    if (!content?.palette_id || content.palette_id === 'mint') return;
+    const palette = COLOR_PALETTES.find(p => p.id === content.palette_id);
+    if (!palette) return;
+    const root = document.documentElement;
+    const entries = Object.entries(palette.variables);
+    entries.forEach(([key, value]) => root.style.setProperty(key, value));
+    return () => { entries.forEach(([key]) => root.style.removeProperty(key)); };
+  }, [content?.palette_id]);
 
   return { content, notFound, loading };
 }

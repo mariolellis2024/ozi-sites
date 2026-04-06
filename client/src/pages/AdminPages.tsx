@@ -5,12 +5,14 @@ import toast, { Toaster } from 'react-hot-toast';
 import DeletePageModal from '../components/ui/DeletePageModal';
 import RetentionChartModal from '../components/admin/RetentionChartModal';
 import { useSiteConfig } from '../context/SiteConfigContext';
+import { COLOR_PALETTES } from '../config/colorPalettes';
 
 interface Page {
   id: number;
   name: string;
   slug: string;
   status: string;
+  palette_id?: string;
   created_at: string;
 }
 
@@ -88,6 +90,7 @@ export default function AdminPages() {
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
   const [retentionTarget, setRetentionTarget] = useState<{ slug: string; name: string; videoId: string } | null>(null);
   const [stats, setStats] = useState<Record<string, any>>({});
+  const [savingPalette, setSavingPalette] = useState<number | null>(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('admin_token');
@@ -179,6 +182,22 @@ export default function AdminPages() {
     navigate('/admin');
   };
 
+  const handlePaletteChange = async (pageId: number, paletteId: string) => {
+    setSavingPalette(pageId);
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ palette_id: paletteId }),
+      });
+      if (!res.ok) throw new Error();
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, palette_id: paletteId } : p));
+      const palette = COLOR_PALETTES.find(c => c.id === paletteId);
+      toast.success(`Paleta alterada para ${palette?.name || paletteId}`);
+    } catch { toast.error('Erro ao salvar paleta'); }
+    finally { setSavingPalette(null); }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" toastOptions={{ style: { background: '#202020', color: '#fff', border: '1px solid rgba(255,255,255,0.08)' } }} />
@@ -217,7 +236,7 @@ export default function AdminPages() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                    {['Nome', 'Slug', 'Status', '👁 Visitas', '🖱 Modal', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
+                    {['Nome', 'Slug', 'Status', 'Cor', '👁 Visitas', '🖱 Modal', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
                       <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--color-text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                     ))}
                   </tr>
@@ -235,6 +254,32 @@ export default function AdminPages() {
                           color: page.status === 'active' ? 'var(--color-accent)' : '#ffc832',
                           padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.78rem', fontWeight: 600,
                         }}>{page.status === 'active' ? 'Ativo' : 'Rascunho'}</span>
+                      </td>
+                      {/* Palette picker */}
+                      <td style={{ padding: '14px 12px' }}>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', position: 'relative' }}>
+                          {COLOR_PALETTES.map(palette => {
+                            const isActive = (page.palette_id || 'mint') === palette.id;
+                            return (
+                              <button
+                                key={palette.id}
+                                title={palette.name}
+                                disabled={savingPalette === page.id}
+                                onClick={() => handlePaletteChange(page.id, palette.id)}
+                                style={{
+                                  width: isActive ? 24 : 20, height: isActive ? 24 : 20, borderRadius: '50%',
+                                  border: isActive ? '2px solid #fff' : '1.5px solid rgba(255,255,255,0.15)',
+                                  background: palette.swatch,
+                                  cursor: savingPalette === page.id ? 'wait' : 'pointer',
+                                  padding: 0, flexShrink: 0,
+                                  transition: 'all 0.2s ease',
+                                  boxShadow: isActive ? `0 0 8px ${palette.swatch}60` : 'none',
+                                  opacity: savingPalette === page.id ? 0.5 : 1,
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
                       </td>
                       <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Eye size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.total_visits)}</span>

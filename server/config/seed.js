@@ -21,11 +21,17 @@ export async function seed() {
         name VARCHAR(255) NOT NULL,
         slug VARCHAR(255) UNIQUE NOT NULL,
         status VARCHAR(20) DEFAULT 'active',
+        palette_id VARCHAR(50) DEFAULT 'mint',
         content_index JSONB DEFAULT '{}',
         content_obrigado JSONB DEFAULT '{}',
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
+    `);
+
+    // Ensure palette_id column exists (migration for existing DBs)
+    await pool.query(`
+      ALTER TABLE pages ADD COLUMN IF NOT EXISTS palette_id VARCHAR(50) DEFAULT 'mint'
     `);
 
     // Ensure settings table exists
