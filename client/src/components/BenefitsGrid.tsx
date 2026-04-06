@@ -183,10 +183,10 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
                 </div>
                 <h3>
                   {e ? (
-                    <EditableText fieldKey={b.titleKey} label={`Benefício ${i + 1}`}>
-                      {b.title}
+                    <EditableText fieldKey={b.titleKey} label={`Benefício ${i + 1}`} html>
+                      <span dangerouslySetInnerHTML={{ __html: b.title }} />
                     </EditableText>
-                  ) : b.title}
+                  ) : <span dangerouslySetInnerHTML={{ __html: b.title }} />}
                 </h3>
               </div>
             </ScrollFadeIn>
