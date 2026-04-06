@@ -89,12 +89,6 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSec
                   {ctaText || 'Quero Minha Plataforma Própria →'}
                 </a>
               )}
-              <div className="powered-badge">
-                <span className="powered-badge__label">Powered by</span>
-                <img src="/images/logo-hostinger-white.svg" alt="Hostinger" className="powered-badge__logo powered-badge__logo--hostinger" />
-                <span className="powered-badge__separator">/</span>
-                <img src="/images/logo-cakto-white.svg" alt="Cakto" className="powered-badge__logo powered-badge__logo--cakto" />
-              </div>
             </div>
           </div>
           <div className="hero-visual">
