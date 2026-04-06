@@ -23,59 +23,27 @@ router.post('/visit', async (req, res) => {
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
     const user_agent = req.headers['user-agent'] || '';
 
-    // Check if this SCK already visited this page recently (30min window)
-    const { rows: existing } = await pool.query(
-      `SELECT id FROM visits 
-       WHERE sck = $1 AND slug = $2 AND created_at > NOW() - INTERVAL '30 minutes'
-       ORDER BY created_at DESC LIMIT 1`,
-      [sck, slug || null]
+    const { rows } = await pool.query(
+      `INSERT INTO visits (sck, page_id, slug, utm_source, utm_medium, utm_campaign, utm_content, utm_term, src, xcod, fbclid, gclid, ip, user_agent, referrer, fbp, fbc)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+       RETURNING id`,
+      [sck, page_id || null, slug || null, utm_source || null, utm_medium || null, utm_campaign || null, utm_content || null, utm_term || null, src || null, xcod || null, fbclid || null, gclid || null, ip, user_agent, referrer || null, fbp || null, fbc || null]
     );
 
-    let visitId;
+    const visitId = rows[0].id;
 
-    if (existing.length > 0) {
-      // Same person, same page, within 30min → update with latest data
-      visitId = existing[0].id;
-      await pool.query(
-        `UPDATE visits SET 
-         ip = $1, user_agent = $2, 
-         fbp = COALESCE($3, fbp), fbc = COALESCE($4, fbc), 
-         referrer = COALESCE($5, referrer),
-         utm_source = COALESCE($6, utm_source),
-         utm_medium = COALESCE($7, utm_medium),
-         utm_campaign = COALESCE($8, utm_campaign),
-         utm_content = COALESCE($9, utm_content),
-         utm_term = COALESCE($10, utm_term),
-         fbclid = COALESCE($11, fbclid),
-         gclid = COALESCE($12, gclid),
-         src = COALESCE($13, src)
-         WHERE id = $14`,
-        [ip, user_agent, fbp || null, fbc || null, referrer || null,
-         utm_source || null, utm_medium || null, utm_campaign || null, 
-         utm_content || null, utm_term || null, fbclid || null, gclid || null,
-         src || null, visitId]
-      );
-    } else {
-      // New visit (different page or first time or >30min ago)
-      const { rows } = await pool.query(
-        `INSERT INTO visits (sck, page_id, slug, utm_source, utm_medium, utm_campaign, utm_content, utm_term, src, xcod, fbclid, gclid, ip, user_agent, referrer, fbp, fbc)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-         RETURNING id`,
-        [sck, page_id || null, slug || null, utm_source || null, utm_medium || null, utm_campaign || null, utm_content || null, utm_term || null, src || null, xcod || null, fbclid || null, gclid || null, ip, user_agent, referrer || null, fbp || null, fbc || null]
-      );
-      visitId = rows[0].id;
+    // Fire-and-forget: geo lookup in background
+    lookupGeo(visitId, ip).catch(() => {});
 
-      // Fire-and-forget: geo lookup in background (only for new visits)
-      lookupGeo(visitId, ip).catch(() => {});
-    }
-
-    // page_view event always fires (for the timeline)
+    // page_view event for the timeline (linked to this visit)
     pool.query(
-      'INSERT INTO events (sck, page_id, event_type) VALUES ($1,$2,$3)',
-      [sck, page_id || null, 'page_view']
+      'INSERT INTO events (sck, page_id, event_type, visit_id) VALUES ($1,$2,$3,$4)',
+      [sck, page_id || null, 'page_view', visitId]
     ).catch(() => {});
 
-    res.json({ success: true });
+    res.json({ success: true, visit_id: visitId });
+
+
   } catch (err) {
     console.error('[Track] Visit error:', err);
     res.status(500).json({ error: 'Internal error' });
@@ -88,15 +56,15 @@ router.post('/visit', async (req, res) => {
  */
 router.post('/event', async (req, res) => {
   try {
-    const { sck, page_id, event_type, metadata } = req.body;
+    const { sck, page_id, event_type, metadata, visit_id } = req.body;
 
     if (!sck || !event_type) {
       return res.status(400).json({ error: 'sck and event_type are required' });
     }
 
     await pool.query(
-      `INSERT INTO events (sck, page_id, event_type, metadata) VALUES ($1,$2,$3,$4)`,
-      [sck, page_id || null, event_type, metadata ? JSON.stringify(metadata) : '{}']
+      `INSERT INTO events (sck, page_id, event_type, metadata, visit_id) VALUES ($1,$2,$3,$4,$5)`,
+      [sck, page_id || null, event_type, metadata ? JSON.stringify(metadata) : '{}', visit_id || null]
     );
 
     res.json({ success: true });
@@ -229,22 +197,24 @@ router.get('/visits', authMiddleware, async (req, res) => {
     `;
     const { rows: visits } = await pool.query(visitQuery, [...params, limit, offset]);
 
-    // Fetch events scoped to each visit's time window (created_at → +30min)
-    // This prevents showing ALL historical events for a repeated SCK
-    const result = [];
-    for (const v of visits) {
+    // Fetch events linked to each visit by visit_id (with fallback to time-based for old data)
+    const visitIds = visits.map(v => v.id);
+    let eventsMap = {};
+    if (visitIds.length > 0) {
       const { rows: events } = await pool.query(
-        `SELECT event_type, created_at FROM events 
-         WHERE sck = $1 AND page_id IS NOT DISTINCT FROM $2 
-           AND created_at >= $3 AND created_at < $3 + INTERVAL '30 minutes'
-         ORDER BY created_at ASC`,
-        [v.sck, v.page_id, v.created_at]
+        `SELECT visit_id, event_type, created_at FROM events WHERE visit_id = ANY($1) ORDER BY created_at ASC`,
+        [visitIds]
       );
-      result.push({
-        ...v,
-        events: events.map(ev => ({ type: ev.event_type, at: ev.created_at })),
-      });
+      for (const ev of events) {
+        if (!eventsMap[ev.visit_id]) eventsMap[ev.visit_id] = [];
+        eventsMap[ev.visit_id].push({ type: ev.event_type, at: ev.created_at });
+      }
     }
+
+    const result = visits.map(v => ({
+      ...v,
+      events: eventsMap[v.id] || [],
+    }));
 
     res.json({ visits: result, total, page, limit, pages: Math.ceil(total / limit) });
   } catch (err) {

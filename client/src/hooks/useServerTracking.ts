@@ -79,14 +79,15 @@ export function getCheckoutUrl(baseUrl: string): string {
 }
 
 /**
- * Track a server-side event (modal_open, pix_click, card_click)
+ * Track a server-side event (comprar, pix_click, card_click)
  */
 export function trackServerEvent(eventType: string, pageId?: number, metadata?: Record<string, any>) {
   const sck = getSck();
+  const visit_id = sessionStorage.getItem('_visit_id') || undefined;
   fetch('/api/track/event', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sck, page_id: pageId, event_type: eventType, metadata }),
+    body: JSON.stringify({ sck, page_id: pageId, event_type: eventType, metadata, visit_id: visit_id ? parseInt(visit_id) : undefined }),
   }).catch(() => {});
 }
 
@@ -121,6 +122,13 @@ export function useServerTracking(pageId?: number, slug?: string) {
         fbp,
         fbc,
       }),
-    }).catch(() => {});
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.visit_id) {
+          sessionStorage.setItem('_visit_id', String(data.visit_id));
+        }
+      })
+      .catch(() => {});
   }, [pageId, slug]);
 }

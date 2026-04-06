@@ -100,6 +100,10 @@ export async function seed() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_page_type ON events(page_id, event_type)`);
 
+    // visit_id column for linking events to specific visits
+    await pool.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS visit_id BIGINT`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_visit_id ON events(visit_id)`);
+
     // Ensure page_templates table exists (saved page models)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS page_templates (
