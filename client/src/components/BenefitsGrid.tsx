@@ -130,7 +130,6 @@ const defaultBenefits = [
   { icon: '/images/icon-2.webp', title: 'Engajamento por IA' },
   { icon: '/images/icon-3.webp', title: 'Trilhas de Carreira' },
   { icon: '/images/icon-4.webp', title: 'Sistema Viral de Indicação' },
-  { icon: '/images/icon-5.webp', title: 'Commerce Dentro da Aula' },
 ];
 
 interface BenefitsGridProps {
