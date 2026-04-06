@@ -196,7 +196,7 @@ export default function BenefitsGrid({ dynamicContent: dc, onOpenModal }: Benefi
         <ScrollFadeIn>
           <VideoBlock
             videoId={src?.vsl_video_id || 'OvV-GvWhQ7s'}
-            orientation={src?.vsl_orientation || 'vertical'}
+            orientation={src?.vsl_orientation || 'horizontal'}
             thumbnail={src?.vsl_thumbnail}
             isEditing={!!e}
             onChangeVideoId={(id: string) => edit?.updateField('vsl_video_id', id)}
