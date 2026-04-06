@@ -155,7 +155,7 @@ router.post('/webhook', async (req, res) => {
     if (event === 'purchase_approved' && sck) {
       // Find the visit by SCK
       const { rows: visitRows } = await pool.query(
-        'SELECT id, ip, user_agent, fbp, fbc, geo_city, geo_state, geo_zip, geo_country, created_at FROM visits WHERE sck = $1 ORDER BY created_at DESC LIMIT 1',
+        'SELECT id, slug, referrer, ip, user_agent, fbp, fbc, geo_city, geo_state, geo_zip, geo_country, created_at FROM visits WHERE sck = $1 ORDER BY created_at DESC LIMIT 1',
         [sck]
       );
 
@@ -255,7 +255,7 @@ async function sendMetaPurchase({ visit, customer, address, amount, currency, sc
   // Browser IDs (NOT hashed)
   if (visit.fbp) user_data.fbp = visit.fbp;
   if (visit.fbc) user_data.fbc = visit.fbc;
-  if (sck) user_data.external_id = sck;
+  if (sck) user_data.external_id = sha256(sck);
 
   // PII (SHA-256 hashed, normalized) — Cakto data takes priority, geo from IP as fallback
   if (customer.email) user_data.em = sha256(customer.email);
@@ -273,7 +273,7 @@ async function sendMetaPurchase({ visit, customer, address, amount, currency, sc
   const country = address.country || visit.geo_country || 'br';
 
   if (city) user_data.ct = sha256(removeAccents(city));
-  if (state) user_data.st = sha256(state);
+  if (state) user_data.st = sha256(removeAccents(state));
   if (zip) user_data.zp = sha256(zip.replace(/\D/g, ''));
   user_data.country = sha256(country);
 
@@ -284,6 +284,7 @@ async function sendMetaPurchase({ visit, customer, address, amount, currency, sc
       event_name: 'Purchase',
       event_time: Math.floor(Date.now() / 1000),
       event_id: eventId,
+      event_source_url: visit.referrer || (visit.slug ? `https://${process.env.DOMAIN || 'localhost'}/${visit.slug}` : undefined),
       action_source: 'website',
       user_data,
       custom_data: {
