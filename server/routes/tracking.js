@@ -193,7 +193,7 @@ router.get('/visits', authMiddleware, async (req, res) => {
              v.created_at,
              s.meta_synced, s.meta_synced_at
       FROM visits v
-      LEFT JOIN sales s ON s.sck = v.sck AND s.meta_synced = true
+      LEFT JOIN sales s ON s.visit_id = v.id
       ${where}
       ORDER BY v.created_at DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}

@@ -95,33 +95,12 @@ router.post('/webhook', async (req, res) => {
     const utmTerm = data.utm_term || null;
     const src = data.src || null;
 
-    // Status mapping — normalize event name (Cakto may send different formats)
+    // Cakto agora só envia vendas aprovadas — todo webhook = purchase approved
     const eventLower = (event || '').toLowerCase().trim();
-    console.log(`[Cakto] Webhook received: event="${event}", eventLower="${eventLower}", sck="${sck || 'none'}"`);
+    console.log(`[Cakto] Webhook received: event="${event}", sck="${sck || 'none'}"`);
     
-    let status = 'unknown';
-    let isPurchase = false;
-    
-    // Purchase approved (EN + PT formats)
-    if (['purchase_approved', 'approved', 'payment_confirmed', 'payment_approved', 'confirmed',
-         'compra_aprovada', 'pagamento_aprovado', 'pagamento_confirmado'].includes(eventLower)) {
-      status = 'approved';
-      isPurchase = true;
-    }
-    else if (['purchase_refused', 'purchase_declined', 'refused', 'declined',
-              'compra_recusada', 'pagamento_recusado'].includes(eventLower)) status = 'refused';
-    else if (['pix_generated', 'pix_created', 'pix_gerado'].includes(eventLower)) status = 'pending';
-    else if (['boleto_generated', 'boleto_created', 'boleto_gerado'].includes(eventLower)) status = 'pending';
-    else if (['checkout_abandonment', 'abandoned', 'abandono', 'abandono_checkout'].includes(eventLower)) status = 'abandoned';
-    else if (['purchase_refunded', 'refunded', 'reembolso', 'compra_reembolsada'].includes(eventLower)) status = 'refunded';
-    else if (['chargeback', 'estorno'].includes(eventLower)) status = 'chargeback';
-    
-    // If status is still unknown but it looks like a purchase (has payment data), treat as approved
-    if (status === 'unknown' && data.amount && customer.email) {
-      console.log(`[Cakto] Unknown event "${event}" but has payment data — treating as approved`);
-      status = 'approved';
-      isPurchase = true;
-    }
+    const status = 'approved';
+    const isPurchase = true;
 
     // 3. Idempotent insert (skip if cakto_id already exists)
     if (caktoId) {
