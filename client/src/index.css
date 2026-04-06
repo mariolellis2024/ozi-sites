@@ -257,50 +257,23 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
   transform: scale(1.04);
 }
 
-/* Pause overlay — covers YouTube's native pause UI (title, channel, share) */
-.plyr-pause-overlay {
-  position: absolute; inset: 0; z-index: 4;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0, 0, 0, 0.35);
-  cursor: pointer; border-radius: inherit;
-  animation: plyrFadeIn 0.2s ease;
-}
-.plyr-pause-overlay .plyr-play-btn {
-  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
-  transition: transform 0.2s ease;
-}
-.plyr-pause-overlay:hover .plyr-play-btn {
-  transform: scale(1.1);
-}
-@keyframes plyrFadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* Plyr overrides for rounded corners */
+/* Plyr overrides for rounded corners + overflow */
 .plyr--video { border-radius: inherit; overflow: hidden; }
-.plyr__video-wrapper { border-radius: inherit; }
+.plyr__video-wrapper { border-radius: inherit; overflow: hidden; }
+.plyr__video-embed { overflow: hidden; }
 
-/* Force zoom mechanism to hide YouTube branding (title, logo, watermark) */
-.plyr--youtube .plyr__video-embed__container,
-.plyr__video-embed > .plyr__video-embed__container {
+/* Force zoom mechanism to hide YouTube branding (title, logo, watermark, controls)
+   Works in ALL states: playing, paused, stopped.
+   The iframe is expanded to 240% and repositioned so YouTube UI is outside overflow:hidden */
+.plyr--full-ui .plyr__video-embed > .plyr__video-embed__container {
   padding-bottom: 240% !important;
   position: relative !important;
   transform: translateY(-38.28125%) !important;
 }
 
-/* Hide YouTube pause overlay (title + share buttons that appear on pause) */
-.plyr__video-embed iframe {
-  pointer-events: none;
-}
-.plyr--youtube.plyr--paused .plyr__controls,
-.plyr--youtube.plyr--playing .plyr__controls {
-  pointer-events: auto;
-}
-.plyr--youtube .plyr__control--overlaid {
-  pointer-events: auto;
-}
+/* Ensure Plyr control bar sits above everything */
+.plyr--youtube .plyr__controls { z-index: 5; }
 
-/* Ensure Plyr control bar captures clicks over the iframe */
-.plyr--youtube .plyr__controls { pointer-events: auto; z-index: 5; }
-.plyr--youtube .plyr__control { pointer-events: auto; }
 
 
 /* ===== BENEFITS GRID ===== */
