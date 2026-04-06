@@ -24,7 +24,7 @@ export default function Navbar({ onOpenModal, dynamicContent: dc }: NavbarProps)
 
   return (
     <>
-      <nav className={`navbar${scrollY > 80 ? ' scrolled' : ''}`} id="navbar">
+      <nav className={`navbar${scrollY > 80 ? ' scrolled' : ''}`} id="navbar" style={e ? { top: 56 } : undefined}>
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <a href="#" className="nav-logo">
             <img src={logo_url} alt="Logo" />
