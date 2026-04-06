@@ -186,10 +186,16 @@ export default function AdminPages() {
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <div style={{ display: 'flex', gap: 8 }}>
-                          <button onClick={() => navigate(`/admin/pages/${page.id}`)} title="Editar" style={{
-                            padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
-                            background: 'transparent', color: 'var(--color-text-secondary)', cursor: 'pointer',
-                          }}><Pencil size={14} /></button>
+                          <button onClick={() => navigate(`/admin/pages/${page.id}/visual/index`)} title="Editar Landing Page" style={{
+                            padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                            background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
+                            fontSize: '0.75rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
+                          }}><Pencil size={12} /> Index</button>
+                          <button onClick={() => navigate(`/admin/pages/${page.id}/visual/obrigado`)} title="Editar Página de Obrigado" style={{
+                            padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                            background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
+                            fontSize: '0.75rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
+                          }}><Pencil size={12} /> Obrigado</button>
                           <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer" title="Abrir" style={{
                             padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
                             background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
