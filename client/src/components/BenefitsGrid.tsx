@@ -171,15 +171,6 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
           {benefits.map((b, i) => (
             <ScrollFadeIn key={i}>
               <div className="benefit-card">
-                <div className="benefit-icon">
-                  {e ? (
-                    <EditableImage fieldKey={b.iconKey}>
-                      <img src={b.icon} alt={b.title} width={48} height={48} loading="lazy" decoding="async" />
-                    </EditableImage>
-                  ) : (
-                    <img src={b.icon} alt={b.title} width={48} height={48} loading="lazy" decoding="async" />
-                  )}
-                </div>
                 <h3>
                   {e ? (
                     <EditableText fieldKey={b.titleKey} label={`Benefício ${i + 1}`} html>
@@ -187,6 +178,15 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
                     </EditableText>
                   ) : <span dangerouslySetInnerHTML={{ __html: b.title }} />}
                 </h3>
+                <div className="benefit-icon">
+                  {e ? (
+                    <EditableImage fieldKey={b.iconKey}>
+                      <img src={b.icon} alt="" loading="lazy" decoding="async" />
+                    </EditableImage>
+                  ) : (
+                    <img src={b.icon} alt="" loading="lazy" decoding="async" />
+                  )}
+                </div>
               </div>
             </ScrollFadeIn>
           ))}
