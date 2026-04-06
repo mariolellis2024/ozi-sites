@@ -131,7 +131,6 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
   const src = e ? edit.content : dc;
 
   const benefitsTitle = src?.benefits_title || 'O que só a Alanis tem.';
-  const motorImage = src?.motor_image || '/images/motor.webp';
 
   // Build benefits array from dynamic content or defaults
   const benefits = defaultBenefits.map((def, i) => {
@@ -180,15 +179,6 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
             </ScrollFadeIn>
           ))}
         </div>
-        <ScrollFadeIn>
-          {e ? (
-            <EditableImage fieldKey="motor_image">
-              <img src={motorImage} alt="Motor de Vendas da Alanis" className="motor-img" loading="lazy" decoding="async" width={900} />
-            </EditableImage>
-          ) : (
-            <img src={motorImage} alt="Motor de Vendas da Alanis" className="motor-img" loading="lazy" decoding="async" width={900} />
-          )}
-        </ScrollFadeIn>
         <ScrollFadeIn>
           <VideoBlock
             videoId={src?.vsl_video_id || '3t8-rLdcssE'}
