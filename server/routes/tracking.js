@@ -33,6 +33,12 @@ router.post('/visit', async (req, res) => {
     // Fire-and-forget: geo lookup in background (never blocks response)
     lookupGeo(rows[0].id, ip).catch(() => {});
 
+    // Also create a page_view event for the timeline
+    pool.query(
+      'INSERT INTO events (sck, page_id, event_type) VALUES ($1,$2,$3)',
+      [sck, page_id || null, 'page_view']
+    ).catch(() => {});
+
     res.json({ success: true });
   } catch (err) {
     console.error('[Track] Visit error:', err);
@@ -91,7 +97,7 @@ router.get('/stats-all', authMiddleware, async (_req, res) => {
     for (const row of visitRows) {
       stats[row.page_id] = {
         total_visits: row.total_visits,
-        modal_open: 0,
+        comprar: 0,
         pix_click: 0,
         card_click: 0,
       };
@@ -99,7 +105,7 @@ router.get('/stats-all', authMiddleware, async (_req, res) => {
 
     for (const row of eventRows) {
       if (!stats[row.page_id]) {
-        stats[row.page_id] = { total_visits: 0, modal_open: 0, pix_click: 0, card_click: 0 };
+        stats[row.page_id] = { total_visits: 0, comprar: 0, pix_click: 0, card_click: 0 };
       }
       if (row.event_type in stats[row.page_id]) {
         stats[row.page_id][row.event_type] = row.count;
@@ -138,7 +144,7 @@ router.get('/stats/:pageId', authMiddleware, async (req, res) => {
 
     res.json({
       total_visits: totalVisits,
-      modal_open: eventMap.modal_open || 0,
+      comprar: eventMap.comprar || 0,
       pix_click: eventMap.pix_click || 0,
       card_click: eventMap.card_click || 0,
       purchases: (await pool.query(`SELECT COUNT(*)::int AS total FROM visits WHERE page_id = $1 AND purchased = true`, [pageId])).rows[0]?.total || 0,

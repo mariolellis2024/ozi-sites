@@ -46,14 +46,15 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
     setModalOpen(true);
     document.body.style.overflow = 'hidden';
     trackModalOpen();
-    trackServerEvent('modal_open', pageId);
+    trackServerEvent('comprar', pageId);
   }, [pageId]);
 
   const closeModal = useCallback(() => {
     setModalOpen(false);
     document.body.style.overflow = '';
     trackModalClose();
-  }, []);
+    trackServerEvent('page_view', pageId);
+  }, [pageId]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
