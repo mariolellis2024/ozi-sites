@@ -107,6 +107,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
           'Anúncios de marcas → receita recorrente de anunciantes',
           'Trilhas pagas → bundles premium de conteúdo sequencial',
         ]}
+        dynamicContent={dc}
       />
 
       <FeatureSection
@@ -123,6 +124,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
           'Cursos VIP invisíveis para não-indicados, exclusividade real',
           'Sistema anti-fraude que garante indicações genuínas',
         ]}
+        dynamicContent={dc}
       />
 
       <FeatureSection
@@ -138,6 +140,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
           'Receita adicional sem nenhum esforço do criador',
           'Tracking de cliques e conversões por produto recomendado',
         ]}
+        dynamicContent={dc}
       />
 
       <FeatureSection
@@ -153,6 +156,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
           'Métricas de impressões e cliques em tempo real',
           'Alunos VIP podem ter anúncios removidos: benefício premium',
         ]}
+        dynamicContent={dc}
       />
 
       <FeatureSection
@@ -169,6 +173,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
           'Cursos em vídeo, áudio e livros interativos: aprende onde quiser',
           'Progresso salvo com timestamp: nunca perde onde parou',
         ]}
+        dynamicContent={dc}
       />
 
       <FeatureSection
@@ -185,6 +190,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
           'Hospedagem em 4K com proteção anti-pirataria',
           'Player dedicado para vídeo e áudio: sem depender de terceiros',
         ]}
+        dynamicContent={dc}
       />
 
       <FeatureSection
@@ -199,6 +205,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
           'Infraestrutura isolada por cliente: segurança enterprise',
           'Você é dono. Não inquilino. Dono.',
         ]}
+        dynamicContent={dc}
       />
 
       <QualificadorSection onOpenModal={openModal} dynamicContent={dc} />

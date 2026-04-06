@@ -11,20 +11,26 @@ interface FeatureSectionProps {
   imageAlt: string;
   title: React.ReactNode;
   items: string[];
+  dynamicContent?: Record<string, any>;
 }
 
-export default function FeatureSection({ id, reverse = false, image, imageAlt, title, items }: FeatureSectionProps) {
+export default function FeatureSection({ id, reverse = false, image, imageAlt, title, items, dynamicContent: dc }: FeatureSectionProps) {
   const edit = useEdit();
   const e = edit?.isEditing;
 
-  // In edit mode, use dynamic content from context (with fallback to props)
+  // In edit mode use context content, otherwise use dynamicContent from props
   const sectionKey = id.replace('section-', '');
-  const dynTitle = e ? edit.content[`${sectionKey}_title`] : undefined;
-  const dynImage = e ? edit.content[`${sectionKey}_image`] : undefined;
-  const dynItems = e ? edit.content[`${sectionKey}_items`] : undefined;
+  const src = e ? edit.content : dc;
+  const dynTitle = src?.[`${sectionKey}_title`];
+  const dynImage = src?.[`${sectionKey}_image`];
 
   const resolvedImage = dynImage || image;
-  const resolvedItems: string[] = dynItems ? (typeof dynItems === 'string' ? JSON.parse(dynItems) : dynItems) : items;
+
+  // Resolve items: check for individually saved items (e.g. monetizacao_item_0, monetizacao_item_1, ...)
+  const resolvedItems: string[] = items.map((defaultItem, i) => {
+    const saved = src?.[`${sectionKey}_item_${i}`];
+    return saved || defaultItem;
+  });
 
   const imgEl = (
     <img src={resolvedImage} alt={imageAlt} loading="lazy" decoding="async" style={{ width: '100%', borderRadius: 'var(--radius-medium)' }} />

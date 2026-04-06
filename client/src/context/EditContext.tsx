@@ -28,11 +28,7 @@ export function EditProvider({ children, pageId, pageType, initialContent }: Edi
   const [content, setContent] = useState<Record<string, any>>(initialContent);
   const token = localStorage.getItem('admin_token');
 
-  const updateField = useCallback(async (key: string, value: string) => {
-    const newContent = { ...content, [key]: value };
-    setContent(newContent);
-
-    // Persist to DB
+  const persistContent = useCallback(async (newContent: Record<string, any>) => {
     const body: Record<string, any> = {};
     if (pageType === 'index') body.content_index = newContent;
     else body.content_obrigado = newContent;
@@ -42,22 +38,26 @@ export function EditProvider({ children, pageId, pageType, initialContent }: Edi
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(body),
     });
-  }, [content, pageId, pageType, token]);
+  }, [pageId, pageType, token]);
+
+  const updateField = useCallback(async (key: string, value: any) => {
+    let saved: Record<string, any> = {};
+    setContent(prev => {
+      saved = { ...prev, [key]: value };
+      return saved;
+    });
+    // Wait for state to be set, then persist
+    await persistContent(saved);
+  }, [persistContent]);
 
   const batchUpdate = useCallback(async (fields: Record<string, string>) => {
-    const newContent = { ...content, ...fields };
-    setContent(newContent);
-
-    const body: Record<string, any> = {};
-    if (pageType === 'index') body.content_index = newContent;
-    else body.content_obrigado = newContent;
-
-    await fetch(`/api/pages/${pageId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(body),
+    let saved: Record<string, any> = {};
+    setContent(prev => {
+      saved = { ...prev, ...fields };
+      return saved;
     });
-  }, [content, pageId, pageType, token]);
+    await persistContent(saved);
+  }, [persistContent]);
 
   const uploadImage = useCallback(async (key: string, file: File) => {
     const formData = new FormData();
@@ -72,22 +72,15 @@ export function EditProvider({ children, pageId, pageType, initialContent }: Edi
     if (!res.ok) throw new Error('Upload failed');
     const { url } = await res.json();
 
-    // Update content with new image URL
-    const newContent = { ...content, [key]: url };
-    setContent(newContent);
-
-    const body: Record<string, any> = {};
-    if (pageType === 'index') body.content_index = newContent;
-    else body.content_obrigado = newContent;
-
-    await fetch(`/api/pages/${pageId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(body),
+    let saved: Record<string, any> = {};
+    setContent(prev => {
+      saved = { ...prev, [key]: url };
+      return saved;
     });
+    await persistContent(saved);
 
     return url;
-  }, [content, pageId, pageType, token]);
+  }, [token, persistContent]);
 
   return (
     <EditContext.Provider value={{ isEditing: true, pageId, pageType, content, setContent, updateField, batchUpdate, uploadImage }}>
