@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface Page {
@@ -38,6 +38,7 @@ function AdminSidebar({ active }: { active: string }) {
   const items = [
     { id: 'dashboard', label: 'Dashboard', icon: <Shield size={18} />, path: '/admin/dashboard' },
     { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
+    { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
     { id: 'password', label: 'Alterar Senha', icon: <KeyRound size={18} />, path: '/admin/dashboard' },
   ];
 

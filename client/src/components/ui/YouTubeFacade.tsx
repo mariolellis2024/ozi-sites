@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { trackVideoPlay } from '../../hooks/useGA4';
 
 interface YouTubeFacadeProps {
   videoId: string;
@@ -10,7 +11,8 @@ export default function YouTubeFacade({ videoId, title = 'Video' }: YouTubeFacad
 
   const loadVideo = useCallback(() => {
     setLoaded(true);
-  }, []);
+    trackVideoPlay(videoId);
+  }, [videoId]);
 
   if (loaded) {
     return (

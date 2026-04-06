@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import ScrollFadeIn from './ui/ScrollFadeIn';
+import { trackFAQ } from '../hooks/useGA4';
 
 interface FaqSectionProps {
   onOpenModal: () => void;
@@ -22,7 +23,9 @@ export default function FaqSection({ onOpenModal }: FaqSectionProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const toggle = (i: number) => {
-    setActiveIndex(activeIndex === i ? null : i);
+    const isOpening = activeIndex !== i;
+    setActiveIndex(isOpening ? i : null);
+    trackFAQ(faqs[i].q, isOpening ? 'open' : 'close');
   };
 
   return (

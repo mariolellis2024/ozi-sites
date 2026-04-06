@@ -10,6 +10,7 @@ import ComparisonSection from '../components/ComparisonSection';
 import FaqSection from '../components/FaqSection';
 import Footer from '../components/Footer';
 import PurchaseModal from '../components/PurchaseModal';
+import { trackModalOpen, trackModalClose } from '../hooks/useGA4';
 
 interface DynamicContent {
   content_index: {
@@ -40,11 +41,13 @@ export default function Home({ dynamicContent }: HomeProps) {
   const openModal = useCallback(() => {
     setModalOpen(true);
     document.body.style.overflow = 'hidden';
+    trackModalOpen();
   }, []);
 
   const closeModal = useCallback(() => {
     setModalOpen(false);
     document.body.style.overflow = '';
+    trackModalClose();
   }, []);
 
   useEffect(() => {

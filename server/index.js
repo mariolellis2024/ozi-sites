@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';
 import pagesRouter from './routes/pages.js';
+import settingsRouter from './routes/settings.js';
 import { seed } from './config/seed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/pages', pagesRouter);
+app.use('/api/settings', settingsRouter);
 
 // Serve React static build
 const clientDist = path.join(__dirname, '..', 'client', 'dist');

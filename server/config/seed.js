@@ -28,6 +28,16 @@ export async function seed() {
       )
     `);
 
+    // Ensure settings table exists (key-value store for integrations)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id SERIAL PRIMARY KEY,
+        key VARCHAR(255) UNIQUE NOT NULL,
+        value JSONB DEFAULT '{}',
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
     console.log('✅ Database tables ready');
   } catch (err) {
     console.error('❌ Seed error:', err.message);
