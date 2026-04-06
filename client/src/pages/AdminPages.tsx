@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings, Eye, MousePointerClick } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { useSiteConfig } from '../context/SiteConfigContext';
@@ -11,6 +11,14 @@ interface Page {
   slug: string;
   status: string;
   created_at: string;
+}
+
+/** Format a number compactly: 0, 12, 1.2k, 12.4k, 1.3M */
+function fmtNum(n?: number): string {
+  if (!n) return '0';
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return n.toString();
 }
 
 function AdminNav({ email, onLogout }: { email: string; onLogout: () => void }) {
@@ -74,6 +82,7 @@ export default function AdminPages() {
   const [newSlug, setNewSlug] = useState('');
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
+  const [stats, setStats] = useState<Record<string, any>>({});
   const navigate = useNavigate();
 
   const token = localStorage.getItem('admin_token');
@@ -82,7 +91,15 @@ export default function AdminPages() {
   useEffect(() => {
     if (!token) { navigate('/admin'); return; }
     fetchPages();
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch('/api/track/stats-all', { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setStats(await res.json());
+    } catch {}
+  };
 
   const fetchPages = async () => {
     try {
@@ -164,7 +181,7 @@ export default function AdminPages() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                    {['Nome', 'Slug', 'Status', 'Criado em', 'Ações'].map(h => (
+                    {['Nome', 'Slug', 'Status', '👁 Visitas', '🖱 Modal', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
                       <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--color-text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                     ))}
                   </tr>
@@ -183,8 +200,17 @@ export default function AdminPages() {
                           padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.78rem', fontWeight: 600,
                         }}>{page.status === 'active' ? 'Ativo' : 'Rascunho'}</span>
                       </td>
-                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
-                        {new Date(page.created_at).toLocaleDateString('pt-BR')}
+                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Eye size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.total_visits)}</span>
+                      </td>
+                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><MousePointerClick size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.modal_open)}</span>
+                      </td>
+                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#75fbc6', fontWeight: 600 }}>
+                        {fmtNum(stats[page.id]?.pix_click)}
+                      </td>
+                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#6ea8fe', fontWeight: 600 }}>
+                        {fmtNum(stats[page.id]?.card_click)}
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <div style={{ display: 'flex', gap: 8 }}>

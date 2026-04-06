@@ -10,6 +10,7 @@ import FaqSection from '../components/FaqSection';
 import Footer from '../components/Footer';
 import PurchaseModal from '../components/PurchaseModal';
 import { trackModalOpen, trackModalClose } from '../hooks/useGA4';
+import { useServerTracking, trackServerEvent } from '../hooks/useServerTracking';
 
 interface DynamicContent {
   content_index: {
@@ -30,18 +31,23 @@ interface DynamicContent {
 
 interface HomeProps {
   dynamicContent?: DynamicContent;
+  pageId?: number;
+  slug?: string;
 }
 
-export default function Home({ dynamicContent }: HomeProps) {
+export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
   const dc = dynamicContent?.content_index;
   const [modalOpen, setModalOpen] = useState(false);
 
+  // Server-side tracking
+  useServerTracking(pageId, slug);
 
   const openModal = useCallback(() => {
     setModalOpen(true);
     document.body.style.overflow = 'hidden';
     trackModalOpen();
-  }, []);
+    trackServerEvent('modal_open', pageId);
+  }, [pageId]);
 
   const closeModal = useCallback(() => {
     setModalOpen(false);
@@ -200,7 +206,7 @@ export default function Home({ dynamicContent }: HomeProps) {
       <ComparisonSection onOpenModal={openModal} />
       <FaqSection onOpenModal={openModal} />
       <Footer />
-      <PurchaseModal isOpen={modalOpen} onClose={closeModal} dynamicContent={dc} />
+      <PurchaseModal isOpen={modalOpen} onClose={closeModal} dynamicContent={dc} pageId={pageId} />
     </>
   );
 }

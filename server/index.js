@@ -8,6 +8,7 @@ import pagesRouter from './routes/pages.js';
 import settingsRouter from './routes/settings.js';
 import uploadRouter from './routes/upload.js';
 import metaRouter from './routes/meta.js';
+import trackingRouter from './routes/tracking.js';
 import { seed } from './config/seed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,6 +23,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/pages', pagesRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/meta', metaRouter);
+app.use('/api/track', trackingRouter);
 app.use('/api', uploadRouter);
 
 // Serve React static build

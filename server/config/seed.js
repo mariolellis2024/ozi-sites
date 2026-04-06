@@ -38,6 +38,58 @@ export async function seed() {
       )
     `);
 
+    // Ensure visits table exists (server-side tracking)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS visits (
+        id BIGSERIAL PRIMARY KEY,
+        sck VARCHAR(20) NOT NULL,
+        page_id INTEGER,
+        slug VARCHAR(255),
+        utm_source VARCHAR(255),
+        utm_medium VARCHAR(255),
+        utm_campaign VARCHAR(255),
+        utm_content VARCHAR(255),
+        utm_term VARCHAR(255),
+        src VARCHAR(255),
+        xcod VARCHAR(255),
+        fbclid VARCHAR(512),
+        gclid VARCHAR(512),
+        ip VARCHAR(45),
+        user_agent TEXT,
+        referrer TEXT,
+        fbp VARCHAR(255),
+        fbc VARCHAR(512),
+        purchased BOOLEAN DEFAULT FALSE,
+        purchase_data JSONB,
+        purchased_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Indexes for visits (idempotent)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_visits_sck ON visits(sck)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_visits_page_id ON visits(page_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_visits_created_at ON visits(created_at DESC)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_visits_page_created ON visits(page_id, created_at DESC)`);
+
+    // Ensure events table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS events (
+        id BIGSERIAL PRIMARY KEY,
+        sck VARCHAR(20) NOT NULL,
+        page_id INTEGER,
+        event_type VARCHAR(50) NOT NULL,
+        metadata JSONB DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Indexes for events (idempotent)
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_sck ON events(sck)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_page_id ON events(page_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_page_type ON events(page_id, event_type)`);
+
     // Seed page template if not exists
     const { rows: tmpl } = await pool.query("SELECT id FROM settings WHERE key = 'page_template'");
     if (tmpl.length === 0) {

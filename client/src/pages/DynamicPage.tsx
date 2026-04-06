@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import Home from './Home';
 
 interface PageContent {
+  id: number;
   name: string;
   slug: string;
   content_index: {
@@ -79,5 +80,5 @@ export default function DynamicPage() {
   if (metaDesc) metaDesc.setAttribute('content', content.content_index.seo_description);
 
   // Render the Home component with dynamic content overrides
-  return <Home dynamicContent={content} />;
+  return <Home dynamicContent={content} pageId={content.id} slug={content.slug} />;
 }

@@ -144,7 +144,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 router.get('/p/:slug', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      "SELECT name, slug, content_index, content_obrigado FROM pages WHERE slug = $1 AND status = 'active'",
+      "SELECT id, name, slug, content_index, content_obrigado FROM pages WHERE slug = $1 AND status = 'active'",
       [req.params.slug]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Página não encontrada' });
