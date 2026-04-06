@@ -286,6 +286,7 @@ export default function ComparisonSection({ onOpenModal, dynamicContent: dc }: C
   const alanisTagline = src?.comparison_alanis_tagline || 'Plataforma completa';
   const outrasTitle = src?.comparison_outras_title || 'Outras plataformas';
   const outrasTagline = src?.comparison_outras_tagline || 'Funcionalidade limitada';
+  const scoreLabel = src?.comparison_score_label || 'funcionalidades';
 
   // Items: from saved content or defaults
   const items: ComparisonItem[] = (src?.comparison_items || defaultItems).map((item: any) => ({
@@ -383,7 +384,11 @@ export default function ComparisonSection({ onOpenModal, dynamicContent: dc }: C
             <div className="comp-col__footer">
               <div className="comp-score">
                 <span className="comp-score__number">{alanisScore}</span>
-                <span className="comp-score__label">de {items.length} funcionalidades</span>
+                <span className="comp-score__label">de {items.length}{' '}
+                  {e ? (
+                    <InlineEdit value={scoreLabel} label="Nome do Score" onSave={(v) => edit!.updateField('comparison_score_label', v)} />
+                  ) : scoreLabel}
+                </span>
               </div>
               <div className="comp-score__bar">
                 <div className="comp-score__fill" style={{ '--score': `${items.length > 0 ? Math.round(alanisScore / items.length * 100) : 0}%` } as React.CSSProperties} />
@@ -431,7 +436,11 @@ export default function ComparisonSection({ onOpenModal, dynamicContent: dc }: C
             <div className="comp-col__footer">
               <div className="comp-score">
                 <span className="comp-score__number comp-score__number--red">{outrasScore}</span>
-                <span className="comp-score__label">de {items.length} funcionalidades</span>
+                <span className="comp-score__label">de {items.length}{' '}
+                  {e ? (
+                    <InlineEdit value={scoreLabel} label="Nome do Score" onSave={(v) => edit!.updateField('comparison_score_label', v)} />
+                  ) : scoreLabel}
+                </span>
               </div>
               <div className="comp-score__bar">
                 <div className="comp-score__fill comp-score__fill--red" style={{ '--score': `${items.length > 0 ? Math.round(outrasScore / items.length * 100) : 0}%` } as React.CSSProperties} />
