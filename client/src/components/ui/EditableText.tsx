@@ -8,16 +8,20 @@ interface EditableTextProps {
   label?: string;
   children: ReactNode;
   html?: boolean;
+  /** If provided, overrides the default save behavior */
+  onCustomSave?: (value: string) => void;
+  /** If provided, use this as the current value instead of reading from edit context */
+  customValue?: string;
 }
 
-export default function EditableText({ fieldKey, label, children, html }: EditableTextProps) {
+export default function EditableText({ fieldKey, label, children, html, onCustomSave, customValue }: EditableTextProps) {
   const edit = useEdit();
   const [showModal, setShowModal] = useState(false);
   const [hover, setHover] = useState(false);
 
   if (!edit?.isEditing) return <>{children}</>;
 
-  const currentValue = edit.content[fieldKey] || '';
+  const currentValue = customValue ?? edit.content[fieldKey] ?? '';
 
   return (
     <>
@@ -48,9 +52,17 @@ export default function EditableText({ fieldKey, label, children, html }: Editab
         fieldLabel={label || fieldKey}
         value={currentValue}
         allowHtml={html}
-        onSave={(val) => { edit.updateField(fieldKey, val); setShowModal(false); }}
+        onSave={(val) => {
+          if (onCustomSave) {
+            onCustomSave(val);
+          } else {
+            edit.updateField(fieldKey, val);
+          }
+          setShowModal(false);
+        }}
         onClose={() => setShowModal(false)}
       />
     </>
   );
 }
+

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 import ScrollFadeIn from './ui/ScrollFadeIn';
 import EditableText from './ui/EditableText';
 import EditableImage from './ui/EditableImage';
@@ -67,12 +67,17 @@ export default function TimelineSection({ dynamicContent: dc }: TimelineSectionP
 
   const sectionTitle = src?.timeline_title || '5 passos para transformar sua operação.';
 
-  const steps = defaultSteps.map((def, i) => ({
-    number: def.number,
-    image: src?.[`step_${i + 1}_image`] || def.image,
-    items: def.items.map((item, j) => src?.[`step_${i + 1}_item_${j}`] || item),
-    imageKey: `step_${i + 1}_image`,
-  }));
+  const steps = defaultSteps.map((def, i) => {
+    const stepNum = i + 1;
+    const savedItems = src?.[`step_${stepNum}_items`];
+    return {
+      number: def.number,
+      image: src?.[`step_${stepNum}_image`] || def.image,
+      items: Array.isArray(savedItems) ? savedItems : def.items.map((item, j) => src?.[`step_${stepNum}_item_${j}`] || item),
+      imageKey: `step_${stepNum}_image`,
+      itemsKey: `step_${stepNum}_items`,
+    };
+  });
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -137,12 +142,41 @@ export default function TimelineSection({ dynamicContent: dc }: TimelineSectionP
         )}
         <ul className="checklist">
           {step.items.map((item, j) => (
-            <li key={j} className="check-item">
+            <li key={j} className="check-item" style={{ position: 'relative' }}>
               <Check size={20} />
               {e ? (
-                <EditableText fieldKey={`step_${step.number}_item_${j}`} label={`Passo ${step.number}, Item ${j + 1}`}>
-                  <span>{item}</span>
-                </EditableText>
+                <>
+                  <EditableText
+                    fieldKey={`__inline_step_${step.number}_${j}`}
+                    label={`Passo ${step.number}, Item ${j + 1}`}
+                    onCustomSave={(val) => {
+                      const newItems = [...step.items];
+                      newItems[j] = val;
+                      edit!.updateField(step.itemsKey, newItems);
+                    }}
+                    customValue={item}
+                  >
+                    <span>{item}</span>
+                  </EditableText>
+                  <button
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      edit!.updateField(step.itemsKey, step.items.filter((_, k) => k !== j));
+                    }}
+                    title="Remover item"
+                    style={{
+                      position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)',
+                      width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer',
+                      background: 'rgba(255,107,107,0.15)', color: '#ff6b6b',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      opacity: 0.6, transition: 'opacity 150ms',
+                    }}
+                    onMouseEnter={ev => { ev.currentTarget.style.opacity = '1'; }}
+                    onMouseLeave={ev => { ev.currentTarget.style.opacity = '0.6'; }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </>
               ) : (
                 <span>{item}</span>
               )}
