@@ -134,15 +134,17 @@ const defaultBenefits = [
 
 interface BenefitsGridProps {
   dynamicContent?: Record<string, any>;
+  onOpenModal?: () => void;
 }
 
 
-export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) {
+export default function BenefitsGrid({ dynamicContent: dc, onOpenModal }: BenefitsGridProps) {
   const edit = useEdit();
   const e = edit?.isEditing;
   const src = e ? edit.content : dc;
 
   const benefitsTitle = src?.benefits_title || 'O que só a Alanis tem.';
+  const vslCtaText = src?.vsl_cta_text || 'Quero Começar Agora →';
 
   // Build benefits array from dynamic content or defaults
   const benefits = defaultBenefits.map((def, i) => {
@@ -201,6 +203,15 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
             onChangeOrientation={(o: 'vertical' | 'horizontal') => edit?.updateField('vsl_orientation', o)}
             onChangeThumbnail={(url: string) => edit?.updateField('vsl_thumbnail', url)}
           />
+        </ScrollFadeIn>
+        <ScrollFadeIn>
+          <div style={{ textAlign: 'center', marginTop: 32 }}>
+            <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal?.(); }} className="btn-primary">
+              {e ? (
+                <EditableText fieldKey="vsl_cta_text" label="Botão abaixo do vídeo">{vslCtaText}</EditableText>
+              ) : vslCtaText}
+            </a>
+          </div>
         </ScrollFadeIn>
       </div>
     </section>

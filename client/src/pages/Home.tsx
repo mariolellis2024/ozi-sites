@@ -92,7 +92,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
 
       <HeroSection onOpenModal={openModal} dynamicContent={dc} />
 
-      <BenefitsGrid dynamicContent={dc} />
+      <BenefitsGrid dynamicContent={dc} onOpenModal={openModal} />
 
       <FeatureSection
         id="section-monetizacao"
