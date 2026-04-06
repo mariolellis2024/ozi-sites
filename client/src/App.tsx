@@ -12,6 +12,7 @@ import AdminTemplate from './pages/AdminTemplate';
 import AdminSettings from './pages/AdminSettings';
 import AdminTracking from './pages/AdminTracking';
 import AdminModels from './pages/AdminModels';
+import AdminSales from './pages/AdminSales';
 import VisualEditor from './pages/VisualEditor';
 import DynamicPage from './pages/DynamicPage';
 import DynamicObrigado from './pages/DynamicObrigado';
@@ -37,6 +38,7 @@ function AppRoutes() {
       <Route path="/admin/settings" element={<AdminSettings />} />
       <Route path="/admin/tracking" element={<AdminTracking />} />
       <Route path="/admin/models" element={<AdminModels />} />
+      <Route path="/admin/sales" element={<AdminSales />} />
 
       {/* Public - dynamic (catch-all, must be last) */}
       <Route path="/:slug" element={<DynamicPage />} />

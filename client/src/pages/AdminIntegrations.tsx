@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, Save, CheckCircle, ExternalLink } from 'lucide-react';
+import { BarChart3, Save, CheckCircle, ExternalLink, Webhook, Copy } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { AdminNav, AdminSidebar } from './AdminPages';
 
@@ -20,6 +20,11 @@ export default function AdminIntegrations() {
   const [savedPixel, setSavedPixel] = useState('');
   const [savingMeta, setSavingMeta] = useState(false);
 
+  // Cakto state
+  const [caktoSecret, setCaktoSecret] = useState('');
+  const [savedCakto, setSavedCakto] = useState('');
+  const [savingCakto, setSavingCakto] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,8 +33,9 @@ export default function AdminIntegrations() {
     Promise.all([
       fetch('/api/settings/ga4', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
       fetch('/api/settings/meta', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
+      fetch('/api/settings/cakto', { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
     ])
-      .then(([ga4Data, metaData]) => {
+      .then(([ga4Data, metaData, caktoData]) => {
         const mid = ga4Data.value?.measurement_id || '';
         setMeasurementId(mid);
         setSavedGa4(mid);
@@ -39,6 +45,10 @@ export default function AdminIntegrations() {
         setPixelId(pid);
         setAccessToken(tok);
         setSavedPixel(pid);
+
+        const csec = caktoData.value?.webhook_secret || '';
+        setCaktoSecret(csec);
+        setSavedCakto(csec);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -95,6 +105,23 @@ export default function AdminIntegrations() {
 
   const handleLogout = () => { localStorage.clear(); navigate('/admin'); };
 
+  const handleSaveCakto = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = caktoSecret.trim();
+    setSavingCakto(true);
+    try {
+      const res = await fetch('/api/settings/cakto', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ value: { webhook_secret: clean } }),
+      });
+      if (!res.ok) { toast.error('Erro ao salvar'); return; }
+      toast.success(clean ? 'Cakto webhook ativado!' : 'Cakto webhook desativado');
+      setSavedCakto(clean);
+    } catch { toast.error('Erro de conexão'); }
+    finally { setSavingCakto(false); }
+  };
+
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '14px 16px', borderRadius: 'var(--radius-small)',
     border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.04)',
@@ -104,6 +131,8 @@ export default function AdminIntegrations() {
 
   const ga4Active = !!savedGa4;
   const metaActive = !!savedPixel;
+  const caktoActive = !!savedCakto;
+  const webhookUrl = `${window.location.origin}/api/cakto/webhook`;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)', display: 'flex', flexDirection: 'column' }}>
@@ -315,6 +344,97 @@ export default function AdminIntegrations() {
 
             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--color-border)', fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
               🔒 O Access Token é armazenado apenas no servidor e nunca exposto ao browser. Apenas o Pixel ID é enviado ao frontend.
+            </div>
+          </div>
+
+          {/* ═══════ Cakto Webhooks Card ═══════ */}
+          <div style={{
+            borderRadius: 'var(--radius-medium)', border: '1px solid var(--color-border)',
+            background: 'var(--color-bg-secondary)', overflow: 'hidden',
+            gridColumn: '1 / -1',
+          }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '20px 24px', borderBottom: '1px solid var(--color-border)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{
+                  width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'linear-gradient(135deg, #FF6B2B, #E84D0E)',
+                }}>
+                  <Webhook size={22} color="#fff" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Cakto Webhooks</h3>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', margin: '2px 0 0' }}>
+                    Receba vendas, pix gerados e abandonos em tempo real
+                  </p>
+                </div>
+              </div>
+              <StatusBadge active={caktoActive} />
+            </div>
+
+            <form onSubmit={handleSaveCakto} style={{ padding: 24 }}>
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: 8, fontWeight: 500 }}>
+                  URL do Webhook (copie e cole no painel da Cakto)
+                </label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input value={webhookUrl} readOnly style={{ ...inputStyle, flex: 1, opacity: 0.7 }} />
+                  <button type="button" onClick={() => { navigator.clipboard.writeText(webhookUrl); toast.success('URL copiada!'); }} style={{
+                    padding: '12px 16px', borderRadius: 'var(--radius-small)',
+                    border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.04)',
+                    color: 'var(--color-text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                    fontSize: '0.85rem', fontFamily: 'var(--font-body)',
+                  }}>
+                    <Copy size={14} /> Copiar
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: 8, fontWeight: 500 }}>
+                  Webhook Secret
+                </label>
+                <input
+                  value={caktoSecret}
+                  onChange={e => setCaktoSecret(e.target.value)}
+                  placeholder="Cole o secret configurado na Cakto"
+                  style={inputStyle}
+                  disabled={loading}
+                />
+                <p style={{ fontSize: '0.78rem', color: 'var(--color-text-light)', marginTop: 8 }}>
+                  Encontre em: Cakto → Apps → Webhooks → seu webhook → campo "Secret".
+                  {' '}
+                  <a href="https://app.cakto.com.br" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                    Abrir Cakto <ExternalLink size={10} />
+                  </a>
+                </p>
+              </div>
+
+              <TrackingInfo items={[
+                'purchase_approved (venda)', 'pix_generated (pix gerado)', 'checkout_abandonment (abandono)',
+                'SCK lookup (vincula visita)', 'Meta CAPI Purchase (auto)', 'PII normalizado (SHA-256)',
+                'Nome → fn + ln (split)', 'Phone → +55 (E.164)', 'Endereço completo',
+              ]} />
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+                {savedCakto && (
+                  <button type="button" onClick={() => setCaktoSecret('')} style={{
+                    padding: '12px 20px', borderRadius: 'var(--radius-small)', border: '1px solid rgba(255,107,107,0.3)',
+                    background: 'transparent', color: '#ff6b6b', cursor: 'pointer', fontSize: '0.9rem', fontFamily: 'var(--font-body)',
+                  }}>
+                    Desativar
+                  </button>
+                )}
+                <button type="submit" disabled={savingCakto} className="btn-primary" style={{ flex: 1, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Save size={16} /> {savingCakto ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </form>
+
+            <div style={{ padding: '16px 24px', borderTop: '1px solid var(--color-border)', fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
+              📋 Quando uma venda for aprovada e tiver um SCK vinculado, o sistema envia automaticamente um evento "Purchase" para o Meta CAPI com os dados PII do comprador.
             </div>
           </div>
           </div>

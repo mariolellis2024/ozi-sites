@@ -101,7 +101,50 @@ export async function seed() {
       )
     `);
 
-    // Seed page template if not exists
+    // Ensure sales table exists (Cakto webhook data)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS sales (
+        id BIGSERIAL PRIMARY KEY,
+        cakto_id VARCHAR(255) UNIQUE,
+        ref_id VARCHAR(100),
+        event VARCHAR(50) NOT NULL,
+        status VARCHAR(50),
+        customer_name VARCHAR(255),
+        customer_email VARCHAR(255),
+        customer_phone VARCHAR(50),
+        customer_doc VARCHAR(20),
+        address_street VARCHAR(255),
+        address_number VARCHAR(20),
+        address_complement VARCHAR(100),
+        address_neighborhood VARCHAR(100),
+        address_city VARCHAR(100),
+        address_state VARCHAR(10),
+        address_zip VARCHAR(20),
+        address_country VARCHAR(10) DEFAULT 'BR',
+        payment_method VARCHAR(50),
+        payment_amount DECIMAL(10,2),
+        payment_currency VARCHAR(10) DEFAULT 'BRL',
+        payment_installments INTEGER DEFAULT 1,
+        offer_id VARCHAR(100),
+        offer_name VARCHAR(255),
+        sck VARCHAR(20),
+        utm_source VARCHAR(255),
+        utm_medium VARCHAR(255),
+        utm_campaign VARCHAR(255),
+        utm_content VARCHAR(255),
+        utm_term VARCHAR(255),
+        src VARCHAR(255),
+        meta_synced BOOLEAN DEFAULT FALSE,
+        meta_synced_at TIMESTAMP,
+        visit_id BIGINT,
+        raw_payload JSONB,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_sck ON sales(sck)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_event ON sales(event)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_created ON sales(created_at DESC)`);
+
     const { rows: tmpl } = await pool.query("SELECT id FROM settings WHERE key = 'page_template'");
     if (tmpl.length === 0) {
       const defaultTemplate = {
