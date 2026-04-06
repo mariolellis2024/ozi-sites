@@ -15,7 +15,7 @@ export function useVideoRetention(slug: string, videoId: string) {
 
   /** Get SCK from cookies */
   const getSck = useCallback((): string | null => {
-    const match = document.cookie.match(/(?:^|;\s*)sck=([^;]*)/);
+    const match = document.cookie.match(/(?:^|; )_sck=([^;]+)/);
     return match ? decodeURIComponent(match[1]) : null;
   }, []);
 
@@ -89,6 +89,11 @@ export function useVideoRetention(slug: string, videoId: string) {
       flush();
     });
     plyr.on('ended', () => stopTracking());
+
+    // If player is already playing (autoplay), start tracking now
+    if (plyr.playing) {
+      startTracking();
+    }
   }, [startTracking, stopTracking, recordSegment, flush]);
 
   /** Flush on page exit (beforeunload) */
