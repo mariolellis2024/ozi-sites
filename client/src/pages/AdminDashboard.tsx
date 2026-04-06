@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, ChevronDown, Eye, MousePointerClick, CreditCard, ShoppingCart, TrendingDown } from 'lucide-react';
+import { ChevronDown, Eye, MousePointerClick, CreditCard, ShoppingCart, TrendingDown } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { AdminNav, AdminSidebar } from './AdminPages';
 
@@ -128,27 +128,12 @@ export default function AdminDashboard() {
       <Toaster position="top-right" toastOptions={{ style: { background: '#202020', color: '#fff', border: '1px solid rgba(255,255,255,0.08)' } }} />
       <AdminNav email={user.email} onLogout={handleLogout} />
 
-      <div style={{ display: 'flex', flex: 1 }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <AdminSidebar active="dashboard" />
 
-        <main style={{ flex: 1, padding: 32, maxWidth: 960 }}>
-          {/* Welcome */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32, padding: 24,
-            borderRadius: 'var(--radius-medium)', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
-          }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: '50%', background: 'rgba(117, 251, 198, 0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)', flexShrink: 0,
-            }}><Shield size={22} /></div>
-            <div>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>Bem-vindo, Super Admin</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', margin: '4px 0 0' }}>{user.email}</p>
-            </div>
-          </div>
-
+        <main style={{ flex: 1, padding: 24, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Page Selector */}
-          <div style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 16, flexShrink: 0 }}>
             <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
               Selecionar Página
             </label>
@@ -210,7 +195,8 @@ export default function AdminDashboard() {
           {/* Funnel Chart */}
           {loadingStats ? (
             <div style={{
-              padding: 60, textAlign: 'center', color: 'var(--color-text-light)',
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--color-text-light)',
               background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-medium)',
               border: '1px solid var(--color-border)',
             }}>
@@ -218,16 +204,17 @@ export default function AdminDashboard() {
             </div>
           ) : stats && funnelStages.length > 0 ? (
             <div style={{
-              padding: 32, borderRadius: 'var(--radius-medium)',
+              flex: 1, padding: '20px 24px', borderRadius: 'var(--radius-medium)',
               background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+              display: 'flex', flexDirection: 'column', overflow: 'auto', minHeight: 0,
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-                <TrendingDown size={20} style={{ color: 'var(--color-accent)' }} />
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Funil de Conversão</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexShrink: 0 }}>
+                <TrendingDown size={18} style={{ color: 'var(--color-accent)' }} />
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Funil de Conversão</h3>
                 {stats.total_visits > 0 && (
                   <span style={{
-                    marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--color-text-light)',
-                    background: 'rgba(117,251,198,0.08)', padding: '4px 10px', borderRadius: 'var(--radius-full)',
+                    marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--color-text-light)',
+                    background: 'rgba(117,251,198,0.08)', padding: '3px 10px', borderRadius: 'var(--radius-full)',
                   }}>
                     Taxa geral: {convRate(stats.purchases, stats.total_visits)}
                   </span>
@@ -235,7 +222,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Funnel Bars */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
                 {funnelStages.map((stage, i) => {
                   const barPercent = Math.max((stage.value / maxValue) * 100, 3);
                   const prevValue = i === 0 ? stage.value : funnelStages[i - 1].value;
@@ -248,15 +235,15 @@ export default function AdminDashboard() {
                       {/* Drop indicator between stages */}
                       {i > 0 && (
                         <div style={{
-                          display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, marginTop: -8,
+                          display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, marginTop: -4,
                           paddingLeft: 36,
                         }}>
                           <div style={{
-                            width: 1, height: 16, background: 'var(--color-border)',
+                            width: 1, height: 10, background: 'var(--color-border)',
                           }} />
                           <span style={{
-                            fontSize: '0.72rem', color: 'var(--color-text-light)',
-                            background: 'rgba(255,255,255,0.04)', padding: '2px 8px',
+                            fontSize: '0.7rem', color: 'var(--color-text-light)',
+                            background: 'rgba(255,255,255,0.04)', padding: '1px 8px',
                             borderRadius: 'var(--radius-full)',
                           }}>
                             {dropRate} de conversão
@@ -267,7 +254,7 @@ export default function AdminDashboard() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         {/* Icon */}
                         <div style={{
-                          width: 36, height: 36, borderRadius: 8, display: 'flex',
+                          width: 32, height: 32, borderRadius: 6, display: 'flex',
                           alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                           background: `${stage.color}15`, color: stage.color,
                         }}>
@@ -278,19 +265,19 @@ export default function AdminDashboard() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
                             display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
-                            marginBottom: 6,
+                            marginBottom: 4,
                           }}>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-text-primary)' }}>
                               {stage.label}
                             </span>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: stage.color }}>
+                            <span style={{ fontSize: '1rem', fontWeight: 700, color: stage.color }}>
                               {fmtNum(stage.value)}
                             </span>
                           </div>
 
                           {/* Bar */}
                           <div style={{
-                            width: '100%', height: 28, borderRadius: 6,
+                            width: '100%', height: 22, borderRadius: 5,
                             background: 'rgba(255,255,255,0.04)', overflow: 'hidden',
                             position: 'relative',
                           }}>
@@ -326,16 +313,16 @@ export default function AdminDashboard() {
               {/* Summary Cards */}
               {stats.total_visits > 0 && (
                 <div style={{
-                  display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginTop: 28,
-                  paddingTop: 24, borderTop: '1px solid var(--color-border)',
+                  display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginTop: 16,
+                  paddingTop: 16, borderTop: '1px solid var(--color-border)', flexShrink: 0,
                 }}>
                   {funnelStages.map(stage => (
                     <div key={stage.label} style={{
-                      padding: '14px 16px', borderRadius: 'var(--radius-small)',
+                      padding: '10px 12px', borderRadius: 'var(--radius-small)',
                       background: `${stage.color}08`, border: `1px solid ${stage.color}20`,
                       textAlign: 'center',
                     }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: stage.color }}>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 700, color: stage.color }}>
                         {fmtNum(stage.value)}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 4 }}>
@@ -364,7 +351,8 @@ export default function AdminDashboard() {
             </div>
           ) : !selectedPageId ? (
             <div style={{
-              padding: 60, textAlign: 'center', color: 'var(--color-text-light)',
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--color-text-light)',
               background: 'var(--color-bg-secondary)', borderRadius: 'var(--radius-medium)',
               border: '1px solid var(--color-border)',
             }}>
