@@ -12,6 +12,7 @@ export function useVideoRetention(slug: string, videoId: string) {
   const heartbeatRef = useRef<number | null>(null);
   const plyrRef = useRef<any>(null);
   const activeRef = useRef(false);
+  const lastSegmentRef = useRef<number>(-1);
 
   /** Get SCK from cookies */
   const getSck = useCallback((): string | null => {
@@ -19,7 +20,9 @@ export function useVideoRetention(slug: string, videoId: string) {
     return match ? decodeURIComponent(match[1]) : null;
   }, []);
 
-  /** Record current playback position as a segment 0-99 */
+  /** Record current playback position as a segment 0-99.
+   *  Fills ALL segments from last recorded position to current,
+   *  so continuous playback produces a smooth retention curve. */
   const recordSegment = useCallback(() => {
     const plyr = plyrRef.current;
     if (!plyr) return;
@@ -27,8 +30,14 @@ export function useVideoRetention(slug: string, videoId: string) {
       const duration = plyr.duration;
       const currentTime = plyr.currentTime;
       if (!duration || duration <= 0 || currentTime < 0) return;
-      const segment = Math.min(99, Math.floor((currentTime / duration) * 100));
-      segmentsRef.current.add(segment);
+      const currentSeg = Math.min(99, Math.floor((currentTime / duration) * 100));
+
+      // Fill from (lastSegment + 1) to currentSegment inclusive
+      const start = lastSegmentRef.current < 0 ? 0 : lastSegmentRef.current;
+      for (let i = start; i <= currentSeg; i++) {
+        segmentsRef.current.add(i);
+      }
+      lastSegmentRef.current = currentSeg;
     } catch { /* ignore destroyed player */ }
   }, []);
 
@@ -82,6 +91,7 @@ export function useVideoRetention(slug: string, videoId: string) {
   /** Attach to a Plyr instance */
   const attachPlayer = useCallback((plyr: any) => {
     plyrRef.current = plyr;
+    lastSegmentRef.current = -1; // Reset for new playback session
 
     plyr.on('playing', () => startTracking());
     plyr.on('pause', () => {
