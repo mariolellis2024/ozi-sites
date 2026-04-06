@@ -19,8 +19,12 @@ function uuid(): string {
   });
 }
 
-/** Get or create a persistent visitor ID (external_id) */
+/** Get external_id from SCK cookie (same used by server for Purchase events) */
 function getExternalId(): string {
+  // Use SCK as external_id so browser events and server Purchase events match
+  const sckMatch = document.cookie.match(/(?:^|; )_sck=([^;]+)/);
+  if (sckMatch) return sckMatch[1];
+  // Fallback: generate a persistent ID if SCK doesn't exist yet
   let id = localStorage.getItem('_meta_ext_id');
   if (!id) {
     id = uuid();

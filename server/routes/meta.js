@@ -54,7 +54,7 @@ router.post('/event', async (req, res) => {
     // Add browser identifiers (not hashed)
     if (fbp) user_data.fbp = fbp;
     if (fbc) user_data.fbc = fbc;
-    if (external_id) user_data.external_id = external_id;
+    if (external_id) user_data.external_id = sha256(external_id);
 
     // Hash PII if provided (email, phone, name)
     if (clientUserData) {
