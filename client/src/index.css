@@ -356,7 +356,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 /* ===== CASE ===== */
 #section-case { padding: 7rem 0; background: var(--color-bg-secondary); }
 .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-.case-text h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; }
+.case-text h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; letter-spacing: -0.5px; line-height: 1.2; }
 .case-text h2 .accent { color: var(--color-accent); }
 .case-text p { font-size: 1.125rem; color: var(--color-text-secondary); margin-bottom: 32px; line-height: 1.7; }
 .case-image { width: 100%; display: flex; align-items: center; justify-content: center; }
