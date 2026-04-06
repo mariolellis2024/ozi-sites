@@ -215,25 +215,22 @@ router.get('/visits', authMiddleware, async (req, res) => {
     `;
     const { rows: visits } = await pool.query(visitQuery, [...params, limit, offset]);
 
-    // Fetch events for these visits (by sck)
-    const scks = visits.map(v => v.sck);
-    let eventsMap = {};
-    if (scks.length > 0) {
+    // Fetch events scoped to each visit's time window (created_at → +30min)
+    // This prevents showing ALL historical events for a repeated SCK
+    const result = [];
+    for (const v of visits) {
       const { rows: events } = await pool.query(
-        `SELECT sck, event_type, created_at FROM events WHERE sck = ANY($1) ORDER BY created_at ASC`,
-        [scks]
+        `SELECT event_type, created_at FROM events 
+         WHERE sck = $1 AND page_id IS NOT DISTINCT FROM $2 
+           AND created_at >= $3 AND created_at < $3 + INTERVAL '30 minutes'
+         ORDER BY created_at ASC`,
+        [v.sck, v.page_id, v.created_at]
       );
-      for (const ev of events) {
-        if (!eventsMap[ev.sck]) eventsMap[ev.sck] = [];
-        eventsMap[ev.sck].push({ type: ev.event_type, at: ev.created_at });
-      }
+      result.push({
+        ...v,
+        events: events.map(ev => ({ type: ev.event_type, at: ev.created_at })),
+      });
     }
-
-    // Attach events to visits
-    const result = visits.map(v => ({
-      ...v,
-      events: eventsMap[v.sck] || [],
-    }));
 
     res.json({ visits: result, total, page, limit, pages: Math.ceil(total / limit) });
   } catch (err) {
