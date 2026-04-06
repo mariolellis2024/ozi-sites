@@ -184,20 +184,23 @@ router.get('/visits', authMiddleware, async (req, res) => {
     const { rows: countRows } = await pool.query(countQuery, params);
     const total = countRows[0].total;
 
-    // Fetch visits
+    // Fetch visits with meta sync status from sales
     const visitQuery = `
       SELECT v.id, v.sck, v.page_id, v.slug, v.utm_source, v.utm_medium, v.utm_campaign,
              v.utm_content, v.utm_term, v.src, v.xcod, v.fbclid, v.gclid,
              v.ip, v.referrer, v.fbp, v.fbc, v.purchased, v.purchase_data, v.purchased_at,
              v.geo_city, v.geo_state, v.geo_zip, v.geo_country, v.geo_isp, v.geo_lat, v.geo_lon, v.geo_source,
-             v.created_at
-      FROM visits v ${where}
+             v.created_at,
+             s.meta_synced, s.meta_synced_at
+      FROM visits v
+      LEFT JOIN sales s ON s.sck = v.sck AND s.meta_synced = true
+      ${where}
       ORDER BY v.created_at DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `;
     const { rows: visits } = await pool.query(visitQuery, [...params, limit, offset]);
 
-    // Fetch events linked to each visit by visit_id (with fallback to time-based for old data)
+    // Fetch events linked to each visit by visit_id
     const visitIds = visits.map(v => v.id);
     let eventsMap = {};
     if (visitIds.length > 0) {

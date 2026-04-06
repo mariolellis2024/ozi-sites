@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Filter, Eye, MousePointerClick, CreditCard, CheckCircle, XCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, Eye, MousePointerClick, CreditCard, CheckCircle, XCircle, Send } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import { AdminNav, AdminSidebar } from './AdminPages';
 
@@ -40,6 +40,8 @@ interface Visit {
   geo_source: string | null;
   created_at: string;
   events: VisitEvent[];
+  meta_synced: boolean | null;
+  meta_synced_at: string | null;
 }
 
 function EventBadge({ type }: { type: string }) {
@@ -146,7 +148,7 @@ export default function AdminTracking() {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1000 }}>
                 <thead>
                   <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                    {['SCK', 'Página', 'Localização', 'UTM Source', 'UTM Campaign', 'SRC', 'Eventos', 'Compra', 'Data'].map(h => (
+                    {['SCK', 'Página', 'Localização', 'UTM Source', 'UTM Campaign', 'SRC', 'Eventos', 'Compra', 'Meta', 'Data'].map(h => (
                       <th key={h} style={{
                         padding: '10px 12px', textAlign: 'left', fontSize: '0.72rem', color: 'var(--color-text-light)',
                         fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
@@ -156,9 +158,9 @@ export default function AdminTracking() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={9} style={{ ...cellStyle, textAlign: 'center', padding: 40 }}>Carregando...</td></tr>
+                    <tr><td colSpan={10} style={{ ...cellStyle, textAlign: 'center', padding: 40 }}>Carregando...</td></tr>
                   ) : visits.length === 0 ? (
-                    <tr><td colSpan={9} style={{ ...cellStyle, textAlign: 'center', padding: 40, color: 'var(--color-text-light)' }}>Nenhuma visita encontrada</td></tr>
+                    <tr><td colSpan={10} style={{ ...cellStyle, textAlign: 'center', padding: 40, color: 'var(--color-text-light)' }}>Nenhuma visita encontrada</td></tr>
                   ) : visits.map(v => (
                     <>
                       <tr
@@ -215,6 +217,23 @@ export default function AdminTracking() {
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'rgba(255,255,255,0.2)', fontSize: '0.78rem' }}>
                               <XCircle size={13} /> Não
                             </span>
+                          )}
+                        </td>
+                        <td style={cellStyle}>
+                          {v.meta_synced ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#75fbc6', fontSize: '0.72rem', fontWeight: 600 }}
+                              title={v.meta_synced_at ? `Sincronizado em ${new Date(v.meta_synced_at).toLocaleString('pt-BR')}` : 'Sincronizado'}
+                            >
+                              <Send size={12} /> Enviado
+                            </span>
+                          ) : v.purchased ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#ffa64d', fontSize: '0.72rem' }}
+                              title="Compra registrada mas Meta CAPI não sincronizou"
+                            >
+                              <XCircle size={12} /> Pendente
+                            </span>
+                          ) : (
+                            <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.72rem' }}>—</span>
                           )}
                         </td>
                         <td style={{ ...cellStyle, whiteSpace: 'nowrap', fontSize: '0.78rem' }}>
