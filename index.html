@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a1a">
+  <title>Alanis | A Área de Membros do Futuro</title>
+  <meta name="description"
+    content="A plataforma que transforma conteúdo em máquina de crescimento. 6 fontes de receita, analytics nível YouTube e sistema viral integrado.">
+
+  <link rel="icon" type="image/webp" href="images/favicon.webp">
+
+  <!-- DNS prefetch / preconnect -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
+  <link rel="dns-prefetch" href="https://cdn.utmify.com.br">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Preload critical resources -->
+  <link rel="preload" as="image" type="image/webp" href="images/hero-1.webp" fetchpriority="high">
+  <link rel="preload" as="style" href="css/styles.css?v=42">
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" media="print" onload="this.media='all'">
+
+  <link rel="stylesheet" href="css/styles.css?v=42">
+
+</head>
+
+<body>
+
+  <!-- Hidden SVG symbol definitions for reuse -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 10 8 14 16 6" />
+    </symbol>
+    <symbol id="icon-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="5 8 10 13 15 8" />
+    </symbol>
+  </svg>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#" class="nav-logo"><img src="images/logo.webp" alt="Alanis"></a>
+      <ul class="nav-links">
+        <li><a href="#section-quick-benefits">Funcionalidades</a></li>
+        <li><a href="#section-comparativo">Diferenciais</a></li>
+        <li><a href="#section-faq">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="#" onclick="openPurchaseModal(event)" class="btn-primary">Quero a Minha Alanis</a>
+        <button class="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#section-quick-benefits">Funcionalidades</a>
+    <a href="#section-comparativo">Diferenciais</a>
+    <a href="#section-faq">FAQ</a>
+    <a href="#" class="btn-login"
+      style="border:1px solid var(--color-border); padding:12px 32px; border-radius:var(--radius-full);">Login</a>
+    <a href="#" onclick="openPurchaseModal(event)" class="btn-primary">Garantir Minha Cópia</a>
+  </div>
+
+  <!-- ===== HERO (Dobra 1) ===== -->
+  <section id="section-hero">
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>A área de membros<br>que transforma as suas aulas em <span
+              class="accent">uma máquina de dinheiro.</span></h1>
+          <p class="subheadline">Enquanto áreas de membros "estilo Netflix" confundem seus alunos e matam seu
+            faturamento, a
+            <img src="images/logo.webp" alt="Alanis" style="height:1em;vertical-align:-3px;display:inline;"> guia cada
+            aluno pelo caminho certo, com 6 fontes de receita extras, engajamento por IA e um sistema
+            viral que cresce sozinho.
+          </p>
+          <div class="hero-cta-group">
+            <a href="#" onclick="openPurchaseModal(event)" class="btn-primary">Quero Minha Plataforma Própria →</a>
+            <div class="powered-badge">
+              <span class="powered-badge__label">Powered by</span>
+              <img src="images/logo-hostinger-white.svg" alt="Hostinger"
+                class="powered-badge__logo powered-badge__logo--hostinger">
+              <span class="powered-badge__separator">/</span>
+              <img src="images/logo-cakto-white.svg" alt="Cakto" class="powered-badge__logo powered-badge__logo--cakto">
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <img src="images/hero-1.webp" alt="Alanis Platform" class="hero-image" loading="eager" fetchpriority="high" width="560" height="350" style="width:100%;max-width:560px;border-radius:var(--radius-medium);">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BENEFITS GRID (Dobra 2) ===== -->
+  <section id="section-quick-benefits">
+    <div class="container">
+      <h2 class="benefits-headline fade-up">O que só a <img src="images/logo.webp" alt="Alanis"
+          style="height:1em;vertical-align:-3px;display:inline;"> tem.</h2>
+      <div class="benefits-grid stagger-children">
+        <div class="benefit-card fade-up">
+          <div class="benefit-icon">
+            <img src="images/icon-1.webp" alt="6 Fontes de Receita" width="48" height="48" loading="lazy" decoding="async">
+          </div>
+          <h3>6 Fontes de Receita</h3>
+        </div>
+        <div class="benefit-card fade-up">
+          <div class="benefit-icon">
+            <img src="images/icon-2.webp" alt="Engajamento por IA" width="48" height="48" loading="lazy" decoding="async">
+          </div>
+          <h3>Engajamento por IA</h3>
+        </div>
+        <div class="benefit-card fade-up">
+          <div class="benefit-icon">
+            <img src="images/icon-3.webp" alt="Trilhas de Carreira" width="48" height="48" loading="lazy" decoding="async">
+          </div>
+          <h3>Trilhas de Carreira</h3>
+        </div>
+        <div class="benefit-card fade-up">
+          <div class="benefit-icon">
+            <img src="images/icon-4.webp" alt="Sistema Viral de Indicação" width="48" height="48" loading="lazy" decoding="async">
+          </div>
+          <h3>Sistema Viral de Indicação</h3>
+        </div>
+        <div class="benefit-card fade-up">
+          <div class="benefit-icon">
+            <img src="images/icon-5.webp" alt="Commerce Dentro da Aula" width="48" height="48" loading="lazy" decoding="async">
+          </div>
+          <h3>Commerce Dentro da Aula</h3>
+        </div>
+      </div>
+      <!-- Motor de Vendas -->
+      <img src="images/motor.webp" alt="Motor de Vendas da Alanis" class="motor-img fade-up" loading="lazy" decoding="async" width="900" height="auto">
+      <!-- VSL Video -->
+      <div class="vsl-wrapper fade-up">
+        <div class="vsl-facade" id="vslFacade" role="button" tabindex="0" aria-label="Reproduzir vídeo">
+          <img src="https://i.ytimg.com/vi/3t8-rLdcssE/hqdefault.jpg"
+               alt="Alanis – Apresentação" loading="lazy" decoding="async">
+          <svg class="vsl-play-btn" viewBox="0 0 68 48" width="68" aria-hidden="true">
+            <path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#212121" fill-opacity="0.8"/>
+            <path d="M45 24L27 14v20" fill="#fff"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE: MONETIZAÇÃO (Dobra 3) ===== -->
+  <section id="section-monetizacao" class="feature-section">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-image">
+          <img src="images/01-a.webp" alt="Diagrama Receitas" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+        <div class="feature-text fade-up">
+          <h2>Sua concorrência tem 1 forma de ganhar dinheiro. <span class="accent">Você vai ter 6</span>.</h2>
+          <ul class="checklist stagger-children">
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Cursos gratuitos → atraem a base sem custo</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>VIP por indicação → crescimento orgânico e viral</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Cursos pagos → receita direta com checkout integrado</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Módulos pagos avulsos → monetize partes de um curso, não só o todo</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Anúncios de marcas → receita recorrente de anunciantes</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Trilhas pagas → bundles premium de conteúdo sequencial</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- ===== FEATURE: REFERRAL (Dobra 4) ===== -->
+  <section id="section-referral" class="feature-section">
+    <div class="container">
+      <div class="feature-grid reverse">
+        <div class="feature-text fade-up">
+          <h2>Cada aluno traz 5 novos. <span class="accent">Sem gastar um centavo em ads</span>.</h2>
+          <ul class="checklist stagger-children">
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Aluno indica amigos → desbloqueia cursos VIP exclusivos</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Crescimento exponencial sem custo de aquisição</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Dashboard de indicações com tracking em tempo real</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Gamificação inteligente que motiva mais indicações</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Cursos VIP invisíveis para não-indicados, exclusividade real</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Sistema anti-fraude que garante indicações genuínas</span></li>
+          </ul>
+        </div>
+        <div class="feature-image">
+          <img src="images/02-a.webp" alt="Diagrama Viral Loop" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE: COMMERCE (Dobra 5) ===== -->
+  <section id="section-commerce" class="feature-section">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-image">
+          <img src="images/03-a.webp" alt="Mockup Commerce" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+        <div class="feature-text fade-up">
+          <h2>A aula menciona um produto? <span class="accent">O botão de compra já aparece na hora, dentro do
+              video</span>.</h2>
+          <ul class="checklist stagger-children">
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>IA identifica cada produto mencionado na transcrição da aula</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Botões de compra automáticos: Amazon, Mercado Livre, links próprios</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>O administrador escolhe quais produtos promover</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Scraping inteligente traz as melhores ofertas em tempo real</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Receita adicional sem nenhum esforço do criador</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Tracking de cliques e conversões por produto recomendado</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE: ANÚNCIOS (Dobra 6) ===== -->
+  <section id="section-anuncios" class="feature-section">
+    <div class="container">
+      <div class="feature-grid reverse">
+        <div class="feature-text fade-up">
+          <h2><span class="accent">Ganhe dinheiro</span> até com alunos que nunca pagaram um centavo.</h2>
+          <ul class="checklist stagger-children">
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Anúncios em vídeo pré-aula: marcas pagam para exibir antes do seu conteúdo</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Banners e imagens patrocinadas dentro da plataforma</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Gestão completa de anunciantes e campanhas no painel admin</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Métricas de impressões e cliques em tempo real</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Alunos VIP podem ter anúncios removidos: benefício premium</span></li>
+          </ul>
+        </div>
+        <div class="feature-image">
+          <img src="images/04.webp" alt="Mockup Anúncios" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE: TRILHAS (Dobra 7) ===== -->
+  <section id="section-trilhas" class="feature-section">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-image">
+          <img src="images/05-a.webp" alt="Mockup Trilhas" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+        <div class="feature-text fade-up">
+          <h2>Chega da <span style="color:#ff0049;">confusão "Netflix"</span>. Aqui, <span class="accent">cada aluno
+              sabe exatamente o próximo passo</span>.
+          </h2>
+          <ul class="checklist stagger-children">
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Trilhas de carreira com sequência definida: o aluno nunca fica perdido</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Dashboard orientado à ação: o próximo passo é sempre óbvio</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Desafios diários com streak e freeze: engajamento que vicia</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Quiz com nota mínima de aprovação: garante que aprendeu de verdade</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Tarefas práticas com entrega de URL: o aluno age, não só assiste</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Cursos em vídeo, áudio e livros interativos: aprende onde quiser</span></li>
+
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Progresso salvo com timestamp: nunca perde onde parou</span></li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE: ANALYTICS (Dobra 8) ===== -->
+  <section id="section-analytics" class="feature-section">
+    <div class="container">
+      <div class="feature-grid reverse">
+        <div class="feature-text fade-up">
+          <h2>Analytics por aula. Crie intervenções antes dos pontos de saída e <span class="accent">mantenha seus
+              alunos na aula</span>.</h2>
+          <ul class="checklist stagger-children">
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Veja exatamente onde cada aluno abandona a aula</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Insira quiz ou interação 15 segundos antes do ponto de desistência</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Identifique quais aulas precisam ser refeitas: com dados, não achismo</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Transcrição automática de todas as aulas via IA</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Hospedagem em 4K com proteção anti-pirataria</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Player dedicado para vídeo e áudio: sem depender de terceiros</span></li>
+          </ul>
+        </div>
+        <div class="feature-image">
+          <img src="images/06-a.webp" alt="Dashboard Analytics" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE: WHITE LABEL (Dobra 9) ===== -->
+  <section id="section-whitelabel" class="feature-section">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature-image">
+          <img src="images/07.webp" alt="Mockup White Label" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+        <div class="feature-text fade-up">
+          <h2>Aqui, a plataforma é SUA. <span style="color:#ff0049 !important;">Não alugada</span>. <span
+              class="accent">Sua</span>.</h2>
+          <ul class="checklist stagger-children">
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>100% com sua marca, seu domínio, sua identidade</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>PWA instalável: seus alunos terão um "app" com seu ícone</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Arquitetura clonável e exportável: white label real</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Infraestrutura isolada por cliente: segurança enterprise</span></li>
+            <li class="check-item fade-up"><svg class="icon-check">
+                <use href="#icon-check" />
+              </svg><span>Você é dono. Não inquilino. Dono.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== QUALIFICADOR (Dobra 10) ===== -->
+  <section id="section-qualificador">
+    <div class="container">
+      <div class="qualificador-card fade-up">
+        <h2>Fatura mais de R$ 10k/mês com conteúdo digital?</h2>
+        <p>A <img src="images/logo.webp" alt="Alanis"
+            style="display:inline;height:18px;vertical-align:-2px;filter:brightness(0);margin:0 2px;"> é
+          para quem leva educação digital a sério. Se você já fatura e quer multiplicar seus resultados com
+          uma plataforma que trabalha por você, vamos conversar.</p>
+        <a href="#" onclick="openPurchaseModal(event)" class="btn-dark">Quero Minha Plataforma Própria</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TIMELINE (Dobra 11) ===== -->
+  <section id="section-como-funciona">
+    <div class="section-watermark">5 PASSOS</div>
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2>5 passos para transformar sua operação.</h2>
+      </div>
+      <div class="timeline">
+        <div class="timeline-line"></div>
+        <div class="timeline-line-fill"></div>
+
+        <!-- Step 1 -->
+        <div class="timeline-step">
+          <div class="step-content fade-up">
+            <div class="step-number">1</div>
+            <img src="images/passo-1.webp" alt="Adquira o instalador" class="step-illustration" loading="lazy" decoding="async">
+            <ul class="checklist">
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Código próprio, resultado de 1 ano de desenvolvimento intenso</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Validado pelos maiores infoprodutores do mercado</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Pagou uma vez, é seu para sempre, sem mensalidades</span></li>
+            </ul>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="timeline-step">
+          <div class="timeline-dot"></div>
+          <div class="step-content fade-up">
+            <div class="step-number">2</div>
+            <img src="images/passo-2.webp" alt="Instale no seu servidor" class="step-illustration" loading="lazy" decoding="async">
+            <ul class="checklist">
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Siga o guia amigável</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Em 30 minutos sua Alanis está no ar e funcionando</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Instalação tão simples que qualquer pessoa consegue</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="timeline-step">
+          <div class="step-content fade-up">
+            <div class="step-number">3</div>
+            <img src="images/passo-3.webp" alt="Configure sua marca" class="step-illustration" loading="lazy" decoding="async">
+            <ul class="checklist">
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Coloque sua logo, cores e domínio, 100% white label</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Integre seu Pixel do Facebook e ferramentas de analytics</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Conecte com a Cakto para processar pagamentos na hora</span></li>
+            </ul>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="timeline-step">
+          <div class="timeline-dot"></div>
+          <div class="step-content fade-up">
+            <div class="step-number">4</div>
+            <img src="images/passo-4.webp" alt="Cadastre seu conteúdo" class="step-illustration" loading="lazy" decoding="async">
+            <ul class="checklist">
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Upload de vídeos, áudios, PDFs e materiais de forma intuitiva</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Organize em trilhas de carreira com sequência definida</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Crie cursos, módulos e aulas em poucos cliques</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="timeline-step">
+          <div class="step-content fade-up">
+            <div class="step-number">5</div>
+            <img src="images/passo-5.webp" alt="Motor de vendas" class="step-illustration" loading="lazy" decoding="async">
+            <ul class="checklist">
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Leve seus alunos para a plataforma e a Alanis vende para você</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>6 fontes de receita ativas 24h por dia, no automático</span></li>
+              <li class="check-item"><svg class="icon-check">
+                  <use href="#icon-check" />
+                </svg><span>Sistema de indicação viral que multiplica sua base sozinho</span></li>
+            </ul>
+          </div>
+          <div class="timeline-dot"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CASE OZI (Dobra 12) ===== -->
+  <section id="section-case">
+    <div class="container">
+      <div class="case-grid">
+        <div class="case-text fade-up">
+          <h2>A <img src="images/ozi.webp" alt="OZI Audiovisual"
+              style="height:0.75em;vertical-align:-1px;display:inline;">
+            já escolheu a <img src="images/logo.webp" alt="Alanis"
+              style="height:1em;vertical-align:-6px;display:inline;">.<br><span class="accent">E você?</span></h2>
+          <p>A OZI Audiovisual, referência em educação audiovisual no Brasil, migrou para a Alanis e descobriu um novo
+            nível de engajamento e receita. Quando os melhores escolhem, o caminho fica claro.</p>
+          <a href="#" onclick="openPurchaseModal(event)" class="btn-primary">Quero Faturar Mais →</a>
+        </div>
+        <div class="case-image fade-left">
+          <img src="images/ozi-site.webp" alt="OZI Audiovisual" loading="lazy" decoding="async" style="width:100%;border-radius:var(--radius-medium);">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMPARATIVO (Dobra 13) ===== -->
+  <section id="section-comparativo">
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2><img src="images/logo.webp" alt="Alanis" style="height:1em;vertical-align:-6px;display:inline;"> vs <span
+            style="color:#FF0049;">o
+            resto do mercado</span>.</h2>
+        <p class="section-subtitle">Funcionalidade por funcionalidade, a diferença fica clara.</p>
+      </div>
+
+      <div class="comp-cards fade-up">
+        <!-- COLUNA ALANIS -->
+        <div class="comp-col comp-col--alanis">
+          <div class="comp-col__header">
+            <div class="comp-col__badge">Recomendado</div>
+            <img src="images/logo.webp" alt="Alanis" class="comp-col__logo">
+            <p class="comp-col__tagline">Plataforma completa</p>
+          </div>
+          <div class="comp-col__body">
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.892 9.614c0-.402.323-.728.722-.728H9.47c.4 0 .723.326.723.728a.726.726 0 0 1-.723.729H5.614a.726.726 0 0 1-.722-.729"/><path fill-rule="evenodd" d="M21.188 10.004q-.094-.005-.2-.004h-2.773C15.944 10 14 11.736 14 14s1.944 4 4.215 4h2.773q.106.001.2-.004c.923-.056 1.739-.757 1.808-1.737c.004-.064.004-.133.004-.197v-4.124c0-.064 0-.133-.004-.197c-.069-.98-.885-1.68-1.808-1.737m-3.217 5.063c.584 0 1.058-.478 1.058-1.067c0-.59-.474-1.067-1.058-1.067s-1.06.478-1.06 1.067c0 .59.475 1.067 1.06 1.067" clip-rule="evenodd"/><path d="M21.14 10.002c0-1.181-.044-2.448-.798-3.355a4 4 0 0 0-.233-.256c-.749-.748-1.698-1.08-2.87-1.238C16.099 5 14.644 5 12.806 5h-2.112C8.856 5 7.4 5 6.26 5.153c-1.172.158-2.121.49-2.87 1.238c-.748.749-1.08 1.698-1.238 2.87C2 10.401 2 11.856 2 13.694v.112c0 1.838 0 3.294.153 4.433c.158 1.172.49 2.121 1.238 2.87c.749.748 1.698 1.08 2.87 1.238c1.14.153 2.595.153 4.433.153h2.112c1.838 0 3.294 0 4.433-.153c1.172-.158 2.121-.49 2.87-1.238q.305-.308.526-.66c.45-.72.504-1.602.504-2.45l-.15.001h-2.774C15.944 18 14 16.264 14 14s1.944-4 4.215-4h2.773q.079 0 .151.002" opacity=".5"/><path d="M10.101 2.572L8 3.992l-1.733 1.16C7.405 5 8.859 5 10.694 5h2.112c1.838 0 3.294 0 4.433.153q.344.045.662.114L16 4l-2.113-1.428a3.42 3.42 0 0 0-3.786 0"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Fontes de receita</span>
+                <span class="comp-feature__desc">Monetize de 6 formas diferentes</span>
+              </div>
+              <div class="comp-feature__status">
+                <span class="comp-value-pill comp-value-pill--green">6</span>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.293 9.293C3 9.586 3 10.057 3 11v6c0 .943 0 1.414.293 1.707S4.057 19 5 19s1.414 0 1.707-.293S7 17.943 7 17v-6c0-.943 0-1.414-.293-1.707S5.943 9 5 9s-1.414 0-1.707.293"/><path d="M17.293 2.293C17 2.586 17 3.057 17 4v13c0 .943 0 1.414.293 1.707S18.057 19 19 19s1.414 0 1.707-.293S21 17.943 21 17V4c0-.943 0-1.414-.293-1.707S19.943 2 19 2s-1.414 0-1.707.293" opacity=".4"/><path d="M10 7c0-.943 0-1.414.293-1.707S11.057 5 12 5s1.414 0 1.707.293S14 6.057 14 7v10c0 .943 0 1.414-.293 1.707S12.943 19 12 19s-1.414 0-1.707-.293S10 17.943 10 17z" opacity=".7"/><path d="M3 21.25a.75.75 0 0 0 0 1.5h18a.75.75 0 0 0 0-1.5z"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Analytics por aula</span>
+                <span class="comp-feature__desc">Saiba onde cada aluno abandona</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-check-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                  <polyline points="7 12 10.5 15.5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="check-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.205 7.562a.75.75 0 0 0-.993-1.124A8.73 8.73 0 0 0 3.25 13a.75.75 0 0 0 1.5 0a7.23 7.23 0 0 1 2.455-5.438m10.583-1.124a.75.75 0 0 0-.993 1.124A7.23 7.23 0 0 1 19.25 13a.75.75 0 0 0 1.5 0a8.73 8.73 0 0 0-2.962-6.562m-7.601 13.584a.75.75 0 1 0-.374 1.452a8.8 8.8 0 0 0 4.374 0a.75.75 0 1 0-.374-1.452A7.3 7.3 0 0 1 12 20.25a7.3 7.3 0 0 1-1.813-.228" opacity=".5"/><path d="M9 6a3 3 0 1 0 6 0a3 3 0 0 0-6 0M2.5 18a3 3 0 1 0 6 0a3 3 0 0 0-6 0m16 3a3 3 0 1 1 0-6a3 3 0 0 1 0 6"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Sistema viral de indicação</span>
+                <span class="comp-feature__desc">Cada aluno traz novos alunos</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-check-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                  <polyline points="7 12 10.5 15.5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="check-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3.04 2.292a.75.75 0 1 0-.498 1.416l.262.091c.667.235 1.106.39 1.429.549c.303.149.437.27.525.398c.09.132.16.314.2.677c.04.38.041.875.041 1.615V9.64h15.725c.33-1.658.485-2.5.052-3.063C20.332 6 18.815 6 17.13 6H6.492a9 9 0 0 0-.044-.738c-.053-.497-.17-.95-.452-1.362c-.284-.416-.662-.682-1.102-.899c-.412-.202-.936-.386-1.553-.603z" clip-rule="evenodd"/><path d="m20.2 12.187l.5-2.424l.024-.123H5c0 2.941.063 3.912.93 4.826c.866.914 2.26.914 5.05.914h5.302c1.561 0 2.342 0 2.893-.45c.552-.45.71-1.214 1.025-2.743" opacity=".5"/><path d="M7.5 18a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3m9 0a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Commerce dentro da aula</span>
+                <span class="comp-feature__desc">Botão de compra automático no vídeo</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-check-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                  <polyline points="7 12 10.5 15.5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="check-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16 6H8c-2.828 0-4.243 0-5.121.879C2 7.757 2 9.172 2 12v4c0 2.828 0 4.243.879 5.121C3.757 22 5.172 22 8 22h8z" clip-rule="evenodd"/><path d="M22 12v4c0 2.828 0 4.242-.879 5.121c-.825.825-2.123.876-4.621.879H16V6h.5c2.498.003 3.796.053 4.621.878C22 7.758 22 9.171 22 12m-8.584-6l2.153-2.512a.75.75 0 0 0-1.138-.976L12 5.348L9.57 2.512a.75.75 0 0 0-1.14.976L10.585 6z" opacity=".5"/><path d="M19 11a1 1 0 1 1 0 2a1 1 0 0 1 0-2m0 4a1 1 0 1 1 0 2a1 1 0 0 1 0-2"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Anúncios nativos</span>
+                <span class="comp-feature__desc">Receita com anunciantes parceiros</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-check-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                  <polyline points="7 12 10.5 15.5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="check-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M18.5 14c-1.933 0-3.5 1.458-3.5 3.257c0 1.785 1.117 3.868 2.86 4.613c.406.173.874.173 1.28 0c1.743-.745 2.86-2.828 2.86-4.613C22 15.458 20.433 14 18.5 14M5.5 2C3.567 2 2 3.458 2 5.257C2 7.042 3.117 9.125 4.86 9.87c.406.173.874.173 1.28 0C7.883 9.125 9 7.042 9 5.257C9 3.458 7.433 2 5.5 2" clip-rule="evenodd" opacity=".5"/><path d="M19.5 17.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-13-12a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/><path fill-rule="evenodd" d="M11.25 5a.75.75 0 0 1 .75-.75h4.132c2.751 0 3.797 3.593 1.476 5.07l-10.41 6.625c-1.056.672-.58 2.305.67 2.305h2.321l-.22-.22a.75.75 0 1 1 1.061-1.06l1.5 1.5a.75.75 0 0 1 0 1.06l-1.5 1.5a.75.75 0 1 1-1.06-1.06l.22-.22H7.867c-2.751 0-3.797-3.593-1.476-5.07l10.411-6.625c1.055-.672.58-2.305-.671-2.305H12a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Trilhas de carreira</span>
+                <span class="comp-feature__desc">Sequência definida, sem confusão</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-check-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                  <polyline points="7 12 10.5 15.5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="check-draw" />
+                </svg>
+              </div>
+            </div>
+
+
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10" clip-rule="evenodd" opacity=".5"/><path d="m15.414 13.059l-4.72 2.787C9.934 16.294 9 15.71 9 14.786V9.214c0-.924.934-1.507 1.694-1.059l4.72 2.787c.781.462.781 1.656 0 2.118"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Multiformatos</span>
+                <span class="comp-feature__desc">Vídeo, áudio, livro, quiz e desafio</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-check-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                  <polyline points="7 12 10.5 15.5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="check-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.832 21.801c3.126-.626 7.168-2.875 7.168-8.69c0-5.291-3.873-8.815-6.658-10.434c-.619-.36-1.342.113-1.342.828v1.828c0 1.442-.606 4.074-2.29 5.169c-.86.559-1.79-.278-1.894-1.298l-.086-.838c-.1-.974-1.092-1.565-1.87-.971C4.461 8.46 3 10.33 3 13.11C3 20.221 8.289 22 10.933 22q.232 0 .484-.015c.446-.056 0 .099 1.415-.185" opacity=".5"/><path d="M8 18.444c0 2.62 2.111 3.43 3.417 3.542c.446-.056 0 .099 1.415-.185C13.871 21.434 15 20.492 15 18.444c0-1.297-.819-2.098-1.46-2.473c-.196-.115-.424.03-.441.256c-.056.718-.746 1.29-1.215.744c-.415-.482-.59-1.187-.59-1.638v-.59c0-.354-.357-.59-.663-.408C9.495 15.008 8 16.395 8 18.445"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Desafios tipo Duolingo</span>
+                <span class="comp-feature__desc">Engajamento gamificado diário</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-check-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                  <polyline points="7 12 10.5 15.5 17 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="check-draw" />
+                </svg>
+              </div>
+            </div>
+
+          </div>
+          <div class="comp-col__footer">
+            <div class="comp-score">
+              <span class="comp-score__number">9</span>
+              <span class="comp-score__label">de 9 funcionalidades</span>
+            </div>
+            <div class="comp-score__bar">
+              <div class="comp-score__fill" style="--score: 100%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUNA OUTRAS -->
+        <div class="comp-col comp-col--outras">
+          <div class="comp-col__header">
+            <span class="comp-col__title-text">Outras plataformas</span>
+            <p class="comp-col__tagline">Funcionalidade limitada</p>
+          </div>
+          <div class="comp-col__body">
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.892 9.614c0-.402.323-.728.722-.728H9.47c.4 0 .723.326.723.728a.726.726 0 0 1-.723.729H5.614a.726.726 0 0 1-.722-.729"/><path fill-rule="evenodd" d="M21.188 10.004q-.094-.005-.2-.004h-2.773C15.944 10 14 11.736 14 14s1.944 4 4.215 4h2.773q.106.001.2-.004c.923-.056 1.739-.757 1.808-1.737c.004-.064.004-.133.004-.197v-4.124c0-.064 0-.133-.004-.197c-.069-.98-.885-1.68-1.808-1.737m-3.217 5.063c.584 0 1.058-.478 1.058-1.067c0-.59-.474-1.067-1.058-1.067s-1.06.478-1.06 1.067c0 .59.475 1.067 1.06 1.067" clip-rule="evenodd"/><path d="M21.14 10.002c0-1.181-.044-2.448-.798-3.355a4 4 0 0 0-.233-.256c-.749-.748-1.698-1.08-2.87-1.238C16.099 5 14.644 5 12.806 5h-2.112C8.856 5 7.4 5 6.26 5.153c-1.172.158-2.121.49-2.87 1.238c-.748.749-1.08 1.698-1.238 2.87C2 10.401 2 11.856 2 13.694v.112c0 1.838 0 3.294.153 4.433c.158 1.172.49 2.121 1.238 2.87c.749.748 1.698 1.08 2.87 1.238c1.14.153 2.595.153 4.433.153h2.112c1.838 0 3.294 0 4.433-.153c1.172-.158 2.121-.49 2.87-1.238q.305-.308.526-.66c.45-.72.504-1.602.504-2.45l-.15.001h-2.774C15.944 18 14 16.264 14 14s1.944-4 4.215-4h2.773q.079 0 .151.002" opacity=".5"/><path d="M10.101 2.572L8 3.992l-1.733 1.16C7.405 5 8.859 5 10.694 5h2.112c1.838 0 3.294 0 4.433.153q.344.045.662.114L16 4l-2.113-1.428a3.42 3.42 0 0 0-3.786 0"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Fontes de receita</span>
+                <span class="comp-feature__desc">Apenas taxa sobre vendas</span>
+              </div>
+              <div class="comp-feature__status">
+                <span class="comp-value-pill comp-value-pill--red">1</span>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.293 9.293C3 9.586 3 10.057 3 11v6c0 .943 0 1.414.293 1.707S4.057 19 5 19s1.414 0 1.707-.293S7 17.943 7 17v-6c0-.943 0-1.414-.293-1.707S5.943 9 5 9s-1.414 0-1.707.293"/><path d="M17.293 2.293C17 2.586 17 3.057 17 4v13c0 .943 0 1.414.293 1.707S18.057 19 19 19s1.414 0 1.707-.293S21 17.943 21 17V4c0-.943 0-1.414-.293-1.707S19.943 2 19 2s-1.414 0-1.707.293" opacity=".4"/><path d="M10 7c0-.943 0-1.414.293-1.707S11.057 5 12 5s1.414 0 1.707.293S14 6.057 14 7v10c0 .943 0 1.414-.293 1.707S12.943 19 12 19s-1.414 0-1.707-.293S10 17.943 10 17z" opacity=".7"/><path d="M3 21.25a.75.75 0 0 0 0 1.5h18a.75.75 0 0 0 0-1.5z"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Analytics por aula</span>
+                <span class="comp-feature__desc">Sem dados granulares</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-cross-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.15" />
+                  <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                  <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.205 7.562a.75.75 0 0 0-.993-1.124A8.73 8.73 0 0 0 3.25 13a.75.75 0 0 0 1.5 0a7.23 7.23 0 0 1 2.455-5.438m10.583-1.124a.75.75 0 0 0-.993 1.124A7.23 7.23 0 0 1 19.25 13a.75.75 0 0 0 1.5 0a8.73 8.73 0 0 0-2.962-6.562m-7.601 13.584a.75.75 0 1 0-.374 1.452a8.8 8.8 0 0 0 4.374 0a.75.75 0 1 0-.374-1.452A7.3 7.3 0 0 1 12 20.25a7.3 7.3 0 0 1-1.813-.228" opacity=".5"/><path d="M9 6a3 3 0 1 0 6 0a3 3 0 0 0-6 0M2.5 18a3 3 0 1 0 6 0a3 3 0 0 0-6 0m16 3a3 3 0 1 1 0-6a3 3 0 0 1 0 6"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Sistema viral de indicação</span>
+                <span class="comp-feature__desc">Não oferece</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-cross-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.15" />
+                  <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                  <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3.04 2.292a.75.75 0 1 0-.498 1.416l.262.091c.667.235 1.106.39 1.429.549c.303.149.437.27.525.398c.09.132.16.314.2.677c.04.38.041.875.041 1.615V9.64h15.725c.33-1.658.485-2.5.052-3.063C20.332 6 18.815 6 17.13 6H6.492a9 9 0 0 0-.044-.738c-.053-.497-.17-.95-.452-1.362c-.284-.416-.662-.682-1.102-.899c-.412-.202-.936-.386-1.553-.603z" clip-rule="evenodd"/><path d="m20.2 12.187l.5-2.424l.024-.123H5c0 2.941.063 3.912.93 4.826c.866.914 2.26.914 5.05.914h5.302c1.561 0 2.342 0 2.893-.45c.552-.45.71-1.214 1.025-2.743" opacity=".5"/><path d="M7.5 18a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3m9 0a1.5 1.5 0 1 1 0 3a1.5 1.5 0 0 1 0-3"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Commerce dentro da aula</span>
+                <span class="comp-feature__desc">Não oferece</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-cross-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.15" />
+                  <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                  <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16 6H8c-2.828 0-4.243 0-5.121.879C2 7.757 2 9.172 2 12v4c0 2.828 0 4.243.879 5.121C3.757 22 5.172 22 8 22h8z" clip-rule="evenodd"/><path d="M22 12v4c0 2.828 0 4.242-.879 5.121c-.825.825-2.123.876-4.621.879H16V6h.5c2.498.003 3.796.053 4.621.878C22 7.758 22 9.171 22 12m-8.584-6l2.153-2.512a.75.75 0 0 0-1.138-.976L12 5.348L9.57 2.512a.75.75 0 0 0-1.14.976L10.585 6z" opacity=".5"/><path d="M19 11a1 1 0 1 1 0 2a1 1 0 0 1 0-2m0 4a1 1 0 1 1 0 2a1 1 0 0 1 0-2"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Anúncios nativos</span>
+                <span class="comp-feature__desc">Não oferece</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-cross-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.15" />
+                  <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                  <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M18.5 14c-1.933 0-3.5 1.458-3.5 3.257c0 1.785 1.117 3.868 2.86 4.613c.406.173.874.173 1.28 0c1.743-.745 2.86-2.828 2.86-4.613C22 15.458 20.433 14 18.5 14M5.5 2C3.567 2 2 3.458 2 5.257C2 7.042 3.117 9.125 4.86 9.87c.406.173.874.173 1.28 0C7.883 9.125 9 7.042 9 5.257C9 3.458 7.433 2 5.5 2" clip-rule="evenodd" opacity=".5"/><path d="M19.5 17.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0m-13-12a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/><path fill-rule="evenodd" d="M11.25 5a.75.75 0 0 1 .75-.75h4.132c2.751 0 3.797 3.593 1.476 5.07l-10.41 6.625c-1.056.672-.58 2.305.67 2.305h2.321l-.22-.22a.75.75 0 1 1 1.061-1.06l1.5 1.5a.75.75 0 0 1 0 1.06l-1.5 1.5a.75.75 0 1 1-1.06-1.06l.22-.22H7.867c-2.751 0-3.797-3.593-1.476-5.07l10.411-6.625c1.055-.672.58-2.305-.671-2.305H12a.75.75 0 0 1-.75-.75" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Trilhas de carreira</span>
+                <span class="comp-feature__desc">Não oferece</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-cross-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.15" />
+                  <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                  <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                </svg>
+              </div>
+            </div>
+
+
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10" clip-rule="evenodd" opacity=".5"/><path d="m15.414 13.059l-4.72 2.787C9.934 16.294 9 15.71 9 14.786V9.214c0-.924.934-1.507 1.694-1.059l4.72 2.787c.781.462.781 1.656 0 2.118"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Multiformatos</span>
+                <span class="comp-feature__desc">Apenas vídeo (parcial)</span>
+              </div>
+              <div class="comp-feature__status">
+                <span class="comp-value-pill comp-value-pill--yellow">Parcial</span>
+              </div>
+            </div>
+
+            <div class="comp-feature">
+              <div class="comp-feature__icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.832 21.801c3.126-.626 7.168-2.875 7.168-8.69c0-5.291-3.873-8.815-6.658-10.434c-.619-.36-1.342.113-1.342.828v1.828c0 1.442-.606 4.074-2.29 5.169c-.86.559-1.79-.278-1.894-1.298l-.086-.838c-.1-.974-1.092-1.565-1.87-.971C4.461 8.46 3 10.33 3 13.11C3 20.221 8.289 22 10.933 22q.232 0 .484-.015c.446-.056 0 .099 1.415-.185" opacity=".5"/><path d="M8 18.444c0 2.62 2.111 3.43 3.417 3.542c.446-.056 0 .099 1.415-.185C13.871 21.434 15 20.492 15 18.444c0-1.297-.819-2.098-1.46-2.473c-.196-.115-.424.03-.441.256c-.056.718-.746 1.29-1.215.744c-.415-.482-.59-1.187-.59-1.638v-.59c0-.354-.357-.59-.663-.408C9.495 15.008 8 16.395 8 18.445"/></svg>
+              </div>
+              <div class="comp-feature__info">
+                <span class="comp-feature__name">Desafios tipo Duolingo</span>
+                <span class="comp-feature__desc">Não oferece</span>
+              </div>
+              <div class="comp-feature__status">
+                <svg class="comp-cross-svg" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity="0.15" />
+                  <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                  <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    class="cross-draw" />
+                </svg>
+              </div>
+            </div>
+
+          </div>
+          <div class="comp-col__footer">
+            <div class="comp-score">
+              <span class="comp-score__number comp-score__number--red">1</span>
+              <span class="comp-score__label">de 9 funcionalidades</span>
+            </div>
+            <div class="comp-score__bar">
+              <div class="comp-score__fill comp-score__fill--red" style="--score: 11%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="comparison-note">Baseado em análise competitiva de Fevereiro 2026.</p>
+      <div style="text-align:center;margin-top:32px;">
+        <a href="#" onclick="openPurchaseModal(event)" class="btn-primary">Quero a Minha Alanis →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ (Dobra 14) ===== -->
+  <section id="section-faq">
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2>Perguntas Frequentes</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>O que é a Alanis?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">A Alanis é uma plataforma de educação profissional com monetização nativa.
+              Diferente de áreas de membros genéricas, a Alanis foi construída para entregar resultado real para o aluno
+              e receita diversificada para o criador, com trilhas de carreira, analytics avançados, sistema viral de
+              indicação e 6 fontes de receita integradas.</div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>Como a Alanis é diferente da The Members, Cademí, Kiwify, Hotmart e outras?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Essas plataformas são áreas de membros genéricas com uma única fonte de
+              receita (taxa sobre vendas). A Alanis oferece 6 fontes de receita, sistema viral de indicação, commerce
+              dentro da aula, anúncios nativos, trilhas de carreira estruturadas e um analytics preditivo que identifica
+              o momento exato de evasão, aplicando automaticamente uma intervenção 15 segundos antes da saída para
+              garantir uma retenção impossível de alcançar em qualquer outra plataforma no Brasil.</div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>Quanto custa?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">O investimento é simbólico porque nossa tecnologia é sustentada por uma
+              comunidade de milhares de empresas e infoprodutores. Ao rodar o sistema em sua própria VPS, eliminamos
+              custos intermediários de infraestrutura, permitindo que você acesse uma ferramenta de elite por uma fração
+              do valor de mercado.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>Posso migrar minha plataforma atual para a Alanis?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Pode e deve! A sua área de membros é sua e o processo de migração é super
+              simples.</div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>Como funciona o sistema de indicação/referral?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">O aluno indica amigos usando um link exclusivo. Quando os indicados se
+              cadastram, o aluno que indicou desbloqueia cursos VIP exclusivos. Isso cria um ciclo viral: cada aluno
+              traz novos alunos, que trazem mais alunos, sem custo de aquisição para você.</div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>Como funcionam os anúncios dentro das aulas?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Marcas e empresas pagam para exibir anúncios em vídeo antes das suas aulas,
+              similar ao modelo do YouTube. Você gerencia tudo pelo painel admin, com métricas de impressões e cliques
+              em tempo real. Alunos podem pagar para não verem anúncios, assim como na Netflix e nos maiores jogos do
+              mundo.</div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>A Alanis funciona em celular?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Sim. A Alanis é uma PWA (Progressive Web App) que seus alunos podem instalar
+              no celular como se fosse um app nativo, com seu ícone e sua marca. Funciona em qualquer dispositivo:
+              desktop, tablet e smartphone.</div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>Quanto tempo leva para configurar tudo?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Depende do volume de conteúdo, mas a maioria dos criadores tem a plataforma
+              operacional em 1 ou 2 dias no máximo.</div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <div class="faq-question">
+            <span>Posso ter minha própria marca na plataforma?</span>
+            <svg class="faq-chevron">
+              <use href="#icon-chevron" />
+            </svg>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">100%. A Alanis é white label: sua marca, seu domínio, suas cores, seu logo.
+              Seus alunos nunca veem a marca Alanis. Tudo é 100% personalizado para a sua identidade.</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:48px;" class="fade-up">
+        <a href="#" class="btn-primary" onclick="openPurchaseModal(event)" data-track="faq-cta">QUERO FATURAR MAIS →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER (Dobra 15) ===== -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo"><img src="images/logo.webp" alt="Alanis" style="height:32px;"></a>
+          <p>Alanis, a plataforma de educação profissional com monetização nativa. Transforme conteúdo em máquina de
+            vendas e sorrisos.</p>
+          <div class="footer-social">
+            <a href="https://www.instagram.com/alanis.digital1/" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" />
+                <circle cx="12" cy="12" r="5" />
+                <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+              </svg>
+            </a>
+
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Menu</h4>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#section-quick-benefits">Funcionalidades</a></li>
+            <li><a href="#section-comparativo">Diferenciais</a></li>
+            <li><a href="#section-faq">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Informações</h4>
+          <ul>
+            <li><a href="#">Termos de uso</a></li>
+            <li><a href="#">Privacidade</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contato</h4>
+          <ul>
+            <li><a href="mailto:contato@alanis.digital">contato@alanis.digital</a></li>
+            <li><a
+                href="https://wa.me/5511984866827?text=Ol%C3%A1%2C%20quero%20garantir%20minha%20c%C3%B3pia%20da%20Alanis."
+                target="_blank">WhatsApp</a></li>
+            <li><a href="#">Telefone</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Alanis. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== PURCHASE MODAL ===== -->
+  <div id="purchase-modal" class="purchase-modal" aria-hidden="true">
+    <div class="purchase-modal__backdrop"></div>
+    <div class="purchase-modal__container">
+      <button class="purchase-modal__close" aria-label="Fechar">&times;</button>
+      <div class="purchase-modal__header">
+        <h3 class="purchase-modal__title">Garanta sua <img src="images/logo.webp" alt="Alanis"
+            style="height:1em;vertical-align:-3px;display:inline;"></h3>
+        <p class="purchase-modal__subtitle">Escolha a melhor forma de pagamento</p>
+      </div>
+      <div class="purchase-modal__options">
+        <!-- PIX Option -->
+        <a href="https://pay.cakto.com.br/eenyazw" class="purchase-modal__option purchase-modal__option--pix">
+          <div class="purchase-modal__badge">🔥 Melhor oferta</div>
+          <div class="purchase-modal__icon-wrap">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path
+                d="M13.17 2.32a2.74 2.74 0 0 0-2.34 0l-3.56 1.7a.5.5 0 0 0 0 .9l5.73 2.74 5.73-2.74a.5.5 0 0 0 0-.9l-3.56-1.7ZM19 8.27l-5.5 2.63v6.83a.5.5 0 0 0 .67.47L19 16.04a1 1 0 0 0 .5-.87V8.74a.5.5 0 0 0-.5-.47ZM5 8.27l5.5 2.63v6.83a.5.5 0 0 1-.67.47L5 16.04a1 1 0 0 1-.5-.87V8.74A.5.5 0 0 1 5 8.27Z" />
+            </svg>
+          </div>
+          <span class="purchase-modal__method">Pix</span>
+          <div class="purchase-modal__price">
+            <span class="purchase-modal__amount">R$ 297,00</span>
+            <span class="purchase-modal__detail">pagamento único — sua pra sempre</span>
+          </div>
+          <span class="purchase-modal__savings">Economize R$ 396,36</span>
+          <span class="purchase-modal__cta-text">Pagar com Pix →</span>
+        </a>
+        <!-- Credit Card Option -->
+        <a href="https://pay.cakto.com.br/33wcy9w_791231" class="purchase-modal__option purchase-modal__option--card">
+          <div class="purchase-modal__icon-wrap">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="5" width="20" height="14" rx="2" />
+              <line x1="2" y1="10" x2="22" y2="10" />
+            </svg>
+          </div>
+          <span class="purchase-modal__method">Cartão de Crédito</span>
+          <div class="purchase-modal__price">
+            <span class="purchase-modal__amount">12x R$ 57,78</span>
+            <span class="purchase-modal__detail">no cartão</span>
+          </div>
+          <span class="purchase-modal__cta-text">Pagar com Cartão →</span>
+        </a>
+      </div>
+      <p class="purchase-modal__guarantee">🔒 Pagamento 100% seguro · Acesso imediato após confirmação</p>
+    </div>
+  </div>
+
+
+  <!-- Google Analytics (deferred to not block rendering) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SXNRPTW6T3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SXNRPTW6T3');
+  </script>
+
+  <!-- UTMify (deferred) -->
+  <script>window.pixelId = "69a8879b60f26cde4a10d8d8";</script>
+  <script defer src="https://cdn.utmify.com.br/scripts/pixel/pixel.js"></script>
+  <script defer src="https://cdn.utmify.com.br/scripts/utms/latest.js"
+    data-utmify-prevent-xcod-sck data-utmify-prevent-subids></script>
+
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "w2i7znf8y3");
+  </script>
+
+  <script defer src="js/main.js?v=42"></script>
+</body>
+
+</html>
