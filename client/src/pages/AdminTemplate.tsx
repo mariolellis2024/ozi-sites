@@ -4,6 +4,7 @@ import { Copy, Eye, Calendar } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { AdminNav, AdminSidebar } from './AdminPages';
 import TemplatePreviewModal from '../components/ui/TemplatePreviewModal';
+import { COLOR_PALETTES } from '../config/colorPalettes';
 
 interface BaseTemplate {
   id: number;
@@ -22,6 +23,9 @@ export default function AdminTemplate() {
   const [templates, setTemplates] = useState<BaseTemplate[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Selected palette per template (default: first palette)
+  const [selectedPalettes, setSelectedPalettes] = useState<Record<number, string>>({});
+
   // Preview
   const [previewTemplate, setPreviewTemplate] = useState<BaseTemplate | null>(null);
   const [previewType, setPreviewType] = useState<'index' | 'obrigado'>('index');
@@ -35,7 +39,12 @@ export default function AdminTemplate() {
     try {
       const res = await fetch('/api/base-templates', { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) throw new Error();
-      setTemplates(await res.json());
+      const data = await res.json();
+      setTemplates(data);
+      // Initialize default palette selection
+      const defaults: Record<number, string> = {};
+      data.forEach((t: BaseTemplate) => { defaults[t.id] = COLOR_PALETTES[0].id; });
+      setSelectedPalettes(defaults);
     } catch { toast.error('Erro ao carregar templates'); }
     finally { setLoading(false); }
   };
@@ -43,6 +52,10 @@ export default function AdminTemplate() {
   const openPreview = (tpl: BaseTemplate, type: 'index' | 'obrigado') => {
     setPreviewTemplate(tpl);
     setPreviewType(type);
+  };
+
+  const selectPalette = (templateId: number, paletteId: string) => {
+    setSelectedPalettes(prev => ({ ...prev, [templateId]: paletteId }));
   };
 
   const handleLogout = () => { localStorage.clear(); navigate('/admin'); };
@@ -61,7 +74,7 @@ export default function AdminTemplate() {
           <div style={{ marginBottom: 28 }}>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Templates</h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: 4 }}>
-              Templates de design usados como base ao criar novas páginas. Visualize o preview de cada um.
+              Templates de design usados como base ao criar novas páginas. Escolha uma cor e visualize o preview.
             </p>
           </div>
 
@@ -79,67 +92,112 @@ export default function AdminTemplate() {
               </p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 20 }}>
-              {templates.map(tpl => (
-                <div key={tpl.id} style={{
-                  borderRadius: 'var(--radius-medium)',
-                  border: '1px solid rgba(117,251,198,0.25)',
-                  background: 'var(--color-bg-secondary)', overflow: 'hidden',
-                }}>
-                  {/* Card header */}
-                  <div style={{ padding: '24px 24px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                      <div style={{
-                        width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-                        background: 'rgba(117,251,198,0.1)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'var(--color-accent)',
-                      }}>
-                        <Copy size={20} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
-                          {tpl.name}
-                        </h3>
-                        {tpl.description && (
-                          <p style={{ fontSize: '0.78rem', color: 'var(--color-text-light)', margin: '3px 0 0' }}>
-                            {tpl.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--color-text-light)' }}>
-                      <Calendar size={11} /> {formatDate(tpl.created_at)}
-                    </div>
-                  </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 20 }}>
+              {templates.map(tpl => {
+                const activePalette = selectedPalettes[tpl.id] || COLOR_PALETTES[0].id;
+                const paletteObj = COLOR_PALETTES.find(p => p.id === activePalette)!;
 
-                  {/* Preview buttons */}
-                  <div style={{
-                    display: 'flex', gap: 8, padding: '12px 24px 16px',
-                    borderTop: '1px solid var(--color-border)',
-                    background: 'rgba(0,0,0,0.1)',
+                return (
+                  <div key={tpl.id} style={{
+                    borderRadius: 'var(--radius-medium)',
+                    border: '1px solid rgba(117,251,198,0.25)',
+                    background: 'var(--color-bg-secondary)', overflow: 'hidden',
                   }}>
-                    <button onClick={() => openPreview(tpl, 'index')} style={{
-                      flex: 1, padding: '10px 14px', borderRadius: 'var(--radius-small)',
-                      border: '1px solid rgba(117,251,198,0.25)', background: 'rgba(117,251,198,0.06)',
-                      color: 'var(--color-accent)', cursor: 'pointer', fontSize: '0.82rem',
-                      fontWeight: 600, fontFamily: 'var(--font-body)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    {/* Card header */}
+                    <div style={{ padding: '24px 24px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                          background: 'rgba(117,251,198,0.1)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'var(--color-accent)',
+                        }}>
+                          <Copy size={20} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
+                            {tpl.name}
+                          </h3>
+                          {tpl.description && (
+                            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-light)', margin: '3px 0 0' }}>
+                              {tpl.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.72rem', color: 'var(--color-text-light)' }}>
+                        <Calendar size={11} /> {formatDate(tpl.created_at)}
+                      </div>
+                    </div>
+
+                    {/* Palette picker */}
+                    <div style={{
+                      padding: '12px 24px',
+                      borderTop: '1px solid var(--color-border)',
+                      background: 'rgba(0,0,0,0.08)',
                     }}>
-                      <Eye size={14} /> Preview Index
-                    </button>
-                    <button onClick={() => openPreview(tpl, 'obrigado')} style={{
-                      flex: 1, padding: '10px 14px', borderRadius: 'var(--radius-small)',
-                      border: '1px solid rgba(117,180,251,0.25)', background: 'rgba(117,180,251,0.06)',
-                      color: '#75b4fb', cursor: 'pointer', fontSize: '0.82rem',
-                      fontWeight: 600, fontFamily: 'var(--font-body)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-text-light)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Paleta de cores
+                      </div>
+                      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        {COLOR_PALETTES.map(palette => (
+                          <button
+                            key={palette.id}
+                            title={palette.name}
+                            onClick={() => selectPalette(tpl.id, palette.id)}
+                            style={{
+                              width: 32, height: 32, borderRadius: '50%',
+                              border: activePalette === palette.id ? '3px solid var(--color-text-primary)' : '2px solid var(--color-border)',
+                              background: palette.swatchBg,
+                              cursor: 'pointer',
+                              position: 'relative',
+                              transition: 'all 0.2s ease',
+                              transform: activePalette === palette.id ? 'scale(1.15)' : 'scale(1)',
+                              boxShadow: activePalette === palette.id ? `0 0 12px ${palette.swatch}40` : 'none',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              padding: 0,
+                            }}
+                          >
+                            <div style={{
+                              width: 18, height: 18, borderRadius: '50%',
+                              background: palette.swatch,
+                            }} />
+                          </button>
+                        ))}
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', marginLeft: 4 }}>
+                          {paletteObj.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Preview buttons */}
+                    <div style={{
+                      display: 'flex', gap: 8, padding: '12px 24px 16px',
+                      borderTop: '1px solid var(--color-border)',
+                      background: 'rgba(0,0,0,0.1)',
                     }}>
-                      <Eye size={14} /> Preview Obrigado
-                    </button>
+                      <button onClick={() => openPreview(tpl, 'index')} style={{
+                        flex: 1, padding: '10px 14px', borderRadius: 'var(--radius-small)',
+                        border: `1px solid ${paletteObj.swatch}40`, background: `${paletteObj.swatch}0a`,
+                        color: paletteObj.swatch, cursor: 'pointer', fontSize: '0.82rem',
+                        fontWeight: 600, fontFamily: 'var(--font-body)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      }}>
+                        <Eye size={14} /> Preview Index
+                      </button>
+                      <button onClick={() => openPreview(tpl, 'obrigado')} style={{
+                        flex: 1, padding: '10px 14px', borderRadius: 'var(--radius-small)',
+                        border: '1px solid rgba(117,180,251,0.25)', background: 'rgba(117,180,251,0.06)',
+                        color: '#75b4fb', cursor: 'pointer', fontSize: '0.82rem',
+                        fontWeight: 600, fontFamily: 'var(--font-body)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      }}>
+                        <Eye size={14} /> Preview Obrigado
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </main>
@@ -153,6 +211,7 @@ export default function AdminTemplate() {
         templateName={previewTemplate?.name || ''}
         previewType={previewType}
         source="base"
+        paletteId={previewTemplate ? (selectedPalettes[previewTemplate.id] || COLOR_PALETTES[0].id) : undefined}
       />
     </div>
   );
