@@ -17,6 +17,7 @@ import AdminPassword from './pages/AdminPassword';
 import VisualEditor from './pages/VisualEditor';
 import DynamicPage from './pages/DynamicPage';
 import DynamicObrigado from './pages/DynamicObrigado';
+import TemplatePreview from './pages/TemplatePreview';
 
 function AppRoutes() {
   // Initialize GA4 tracking (only fires on public pages)
@@ -41,6 +42,7 @@ function AppRoutes() {
       <Route path="/admin/models" element={<AdminModels />} />
       <Route path="/admin/sales" element={<AdminSales />} />
       <Route path="/admin/password" element={<AdminPassword />} />
+      <Route path="/admin/preview/template/:id/:type" element={<TemplatePreview />} />
 
       {/* Public - dynamic (catch-all, must be last) */}
       <Route path="/:slug" element={<DynamicPage />} />

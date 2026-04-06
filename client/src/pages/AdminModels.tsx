@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Copy, Trash2, RotateCcw, Calendar } from 'lucide-react';
+import { Copy, Trash2, RotateCcw, Calendar, Eye } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { AdminNav, AdminSidebar } from './AdminPages';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import TemplatePreviewModal from '../components/ui/TemplatePreviewModal';
 
 interface Template {
   id: number;
@@ -24,6 +25,10 @@ export default function AdminModels() {
   const [restoreTarget, setRestoreTarget] = useState<Template | null>(null);
   const [restoreName, setRestoreName] = useState('');
   const [restoreSlug, setRestoreSlug] = useState('');
+
+  // Preview modal state
+  const [previewTemplate, setPreviewTemplate] = useState<Template | null>(null);
+  const [previewType, setPreviewType] = useState<'index' | 'obrigado'>('index');
 
   useEffect(() => {
     if (!token) { navigate('/admin'); return; }
@@ -66,6 +71,11 @@ export default function AdminModels() {
     } catch { toast.error('Erro ao restaurar'); }
   };
 
+  const openPreview = (tpl: Template, type: 'index' | 'obrigado') => {
+    setPreviewTemplate(tpl);
+    setPreviewType(type);
+  };
+
   const handleLogout = () => { localStorage.clear(); navigate('/admin'); };
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -87,9 +97,9 @@ export default function AdminModels() {
 
         <main style={{ flex: 1, padding: 32 }}>
           <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Modelos Salvos</h1>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Modelos Base</h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: 4 }}>
-              Páginas salvas como modelo antes de serem deletadas. Restaure quando quiser.
+              Páginas salvas como modelo. Restaure ou visualize o preview.
             </p>
           </div>
 
@@ -110,12 +120,13 @@ export default function AdminModels() {
               </p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
               {templates.map(tpl => (
                 <div key={tpl.id} style={{
                   borderRadius: 'var(--radius-medium)', border: '1px solid var(--color-border)',
                   background: 'var(--color-bg-secondary)', overflow: 'hidden',
                 }}>
+                  {/* Card header */}
                   <div style={{ padding: '20px 24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                       <div style={{
@@ -139,8 +150,35 @@ export default function AdminModels() {
                       {Object.keys(tpl.content_index || {}).length} campos index • {Object.keys(tpl.content_obrigado || {}).length} campos obrigado
                     </div>
                   </div>
+
+                  {/* Preview buttons */}
                   <div style={{
-                    display: 'flex', gap: 8, padding: '12px 24px',
+                    display: 'flex', gap: 8, padding: '10px 24px',
+                    borderTop: '1px solid var(--color-border)', background: 'rgba(0,0,0,0.1)',
+                  }}>
+                    <button onClick={() => openPreview(tpl, 'index')} style={{
+                      flex: 1, padding: '8px 12px', borderRadius: 'var(--radius-small)',
+                      border: '1px solid rgba(117,251,198,0.2)', background: 'rgba(117,251,198,0.04)',
+                      color: 'var(--color-accent)', cursor: 'pointer', fontSize: '0.8rem',
+                      fontWeight: 600, fontFamily: 'var(--font-body)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                    }}>
+                      <Eye size={13} /> Index
+                    </button>
+                    <button onClick={() => openPreview(tpl, 'obrigado')} style={{
+                      flex: 1, padding: '8px 12px', borderRadius: 'var(--radius-small)',
+                      border: '1px solid rgba(117,180,251,0.2)', background: 'rgba(117,180,251,0.04)',
+                      color: '#75b4fb', cursor: 'pointer', fontSize: '0.8rem',
+                      fontWeight: 600, fontFamily: 'var(--font-body)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                    }}>
+                      <Eye size={13} /> Obrigado
+                    </button>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div style={{
+                    display: 'flex', gap: 8, padding: '10px 24px',
                     borderTop: '1px solid var(--color-border)', background: 'rgba(0,0,0,0.15)',
                   }}>
                     <button onClick={() => { setRestoreTarget(tpl); setRestoreName(tpl.name); setRestoreSlug(tpl.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')); }} style={{
@@ -179,6 +217,15 @@ export default function AdminModels() {
         danger
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      {/* Preview Modal */}
+      <TemplatePreviewModal
+        isOpen={!!previewTemplate}
+        onClose={() => setPreviewTemplate(null)}
+        templateId={previewTemplate?.id || 0}
+        templateName={previewTemplate?.name || ''}
+        previewType={previewType}
       />
 
       {/* Restore Modal */}

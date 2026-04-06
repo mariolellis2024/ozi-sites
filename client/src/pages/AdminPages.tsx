@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings, Eye, MousePointerClick, Activity, Copy, DollarSign } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, MousePointerClick, Activity, Copy, DollarSign } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import DeletePageModal from '../components/ui/DeletePageModal';
 import RetentionChartModal from '../components/admin/RetentionChartModal';
@@ -49,8 +49,7 @@ function AdminSidebar({ active }: { active: string }) {
   const items = [
     { id: 'dashboard', label: 'Dashboard', icon: <Shield size={18} />, path: '/admin/dashboard' },
     { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
-    { id: 'models', label: 'Modelos', icon: <Copy size={18} />, path: '/admin/models' },
-    { id: 'template', label: 'Modelo Base', icon: <LayoutTemplate size={18} />, path: '/admin/template' },
+    { id: 'models', label: 'Modelos Base', icon: <Copy size={18} />, path: '/admin/models' },
     { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
     { id: 'tracking', label: 'Tracking', icon: <Activity size={18} />, path: '/admin/tracking' },
     { id: 'sales', label: 'Vendas', icon: <DollarSign size={18} />, path: '/admin/sales' },
