@@ -272,7 +272,18 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 }
 
 /* Ensure Plyr control bar sits above everything */
-.plyr--youtube .plyr__controls { z-index: 5; }
+.plyr--youtube .plyr__controls { z-index: 5; pointer-events: auto; }
+
+/* Block mouse from reaching YouTube iframe — prevents YouTube from showing
+   its native title, logo, and controls on hover/pause. Plyr's own overlays
+   (play-large button, control bar) are positioned above and receive events. */
+.plyr__video-embed iframe,
+.plyr__video-embed .plyr__video-embed__container {
+  pointer-events: none !important;
+}
+/* Plyr elements that MUST remain clickable */
+.plyr__control--overlaid { pointer-events: auto !important; }
+.plyr__controls .plyr__control { pointer-events: auto !important; }
 
 /* Big play button — accent color */
 .plyr__control--overlaid {
@@ -289,8 +300,6 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 .plyr__progress input[type="range"]::-webkit-slider-thumb { display: none; }
 .plyr__progress input[type="range"]::-moz-range-thumb { display: none; }
 .plyr__progress input[type="range"]::-ms-thumb { display: none; }
-
-
 
 
 /* ===== BENEFITS GRID ===== */
