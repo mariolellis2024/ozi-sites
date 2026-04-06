@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useGA4 } from './hooks/useGA4';
 import { SiteConfigProvider } from './context/SiteConfigContext';
-import Home from './pages/Home';
-import Obrigado from './pages/Obrigado';
+import Splash from './pages/Splash';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPages from './pages/AdminPages';
@@ -20,9 +19,8 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public - static */}
-      <Route path="/" element={<Home />} />
-      <Route path="/obrigado" element={<Obrigado />} />
+      {/* Root - splash (logo only) */}
+      <Route path="/" element={<Splash />} />
 
       {/* Admin */}
       <Route path="/admin" element={<AdminLogin />} />
