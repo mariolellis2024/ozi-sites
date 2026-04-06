@@ -257,33 +257,28 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
   transform: scale(1.04);
 }
 
-/* Plyr overrides for rounded corners + overflow */
+/* ===== PLYR PLAYER OVERRIDES (from Alanis) ===== */
+
+/* Plyr wrapper fills its container */
+.plyr-yt-wrap { width: 100%; height: 100%; background: #000; }
+.plyr-yt-wrap .plyr { width: 100%; height: 100%; }
+
+/* Hide YouTube branding via iframe crop —
+   Expands iframe to 200% height and shifts up 50%.
+   The overflow:hidden on the container clips the YouTube
+   title (top), logo (bottom), and native controls.
+   Works in ALL states: playing, paused, stopped. */
+.plyr-yt-wrap .plyr__video-embed iframe {
+  top: -50% !important;
+  height: 200% !important;
+}
+
+/* Rounded corners + overflow */
 .plyr--video { border-radius: inherit; overflow: hidden; }
 .plyr__video-wrapper { border-radius: inherit; overflow: hidden; }
-.plyr__video-embed { overflow: hidden; }
-
-/* Force zoom mechanism to hide YouTube branding (title, logo, watermark, controls)
-   Works in ALL states: playing, paused, stopped.
-   The iframe is expanded to 240% and repositioned so YouTube UI is outside overflow:hidden */
-.plyr--full-ui .plyr__video-embed > .plyr__video-embed__container {
-  padding-bottom: 240% !important;
-  position: relative !important;
-  transform: translateY(-38.28125%) !important;
-}
 
 /* Ensure Plyr control bar sits above everything */
-.plyr--youtube .plyr__controls { z-index: 5; pointer-events: auto; }
-
-/* Block mouse from reaching YouTube iframe — prevents YouTube from showing
-   its native title, logo, and controls on hover/pause. Plyr's own overlays
-   (play-large button, control bar) are positioned above and receive events. */
-.plyr__video-embed iframe,
-.plyr__video-embed .plyr__video-embed__container {
-  pointer-events: none !important;
-}
-/* Plyr elements that MUST remain clickable */
-.plyr__control--overlaid { pointer-events: auto !important; }
-.plyr__controls .plyr__control { pointer-events: auto !important; }
+.plyr--youtube .plyr__controls { z-index: 5; }
 
 /* Big play button — accent color */
 .plyr__control--overlaid {
@@ -300,6 +295,8 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 .plyr__progress input[type="range"]::-webkit-slider-thumb { display: none; }
 .plyr__progress input[type="range"]::-moz-range-thumb { display: none; }
 .plyr__progress input[type="range"]::-ms-thumb { display: none; }
+
+
 
 
 /* ===== BENEFITS GRID ===== */
