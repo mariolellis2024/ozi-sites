@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import ScrollFadeIn from './ui/ScrollFadeIn';
 import EditableText from './ui/EditableText';
@@ -159,7 +160,7 @@ function IconPickerModal({ isOpen, currentIcon, onSelect, onClose }: {
     ? iconNames.filter(n => n.toLowerCase().includes(search.toLowerCase()))
     : iconNames;
 
-  return (
+  return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }} onClick={onClose} />
       <div style={{
@@ -192,15 +193,16 @@ function IconPickerModal({ isOpen, currentIcon, onSelect, onClose }: {
                 color: name === currentIcon ? '#75fbc6' : 'rgba(255,255,255,0.6)',
                 transition: 'all 150ms',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(117,251,198,0.1)'; e.currentTarget.style.color = '#75fbc6'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = name === currentIcon ? 'rgba(117,251,198,0.15)' : 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = name === currentIcon ? '#75fbc6' : 'rgba(255,255,255,0.6)'; }}
+              onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(117,251,198,0.1)'; ev.currentTarget.style.color = '#75fbc6'; }}
+              onMouseLeave={ev => { ev.currentTarget.style.background = name === currentIcon ? 'rgba(117,251,198,0.15)' : 'rgba(255,255,255,0.04)'; ev.currentTarget.style.color = name === currentIcon ? '#75fbc6' : 'rgba(255,255,255,0.6)'; }}
             >
               {iconMap[name]}
             </button>
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
