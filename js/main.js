@@ -160,7 +160,7 @@ if (vslFacade) {
   function loadYouTube() {
     const wrapper = vslFacade.parentElement;
     const iframe = document.createElement('iframe');
-    iframe.src = 'https://www.youtube.com/embed/3t8-rLdcssE?rel=0&autoplay=1';
+    iframe.src = 'https://www.youtube.com/embed/OvV-GvWhQ7s?rel=0&autoplay=1';
     iframe.className = 'vsl-player';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
