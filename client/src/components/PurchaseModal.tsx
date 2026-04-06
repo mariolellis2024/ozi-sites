@@ -33,17 +33,27 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
   const enrichedPixLink = getCheckoutUrl(pixLink);
   const enrichedCardLink = getCheckoutUrl(cardLink);
 
+  /** Extract numeric value from price string like "R$ 297,00" or "12x R$ 57,78" */
+  const parsePrice = (s: string): number => {
+    // Take the last number pattern (handles "12x R$ 57,78" → 57.78)
+    const matches = s.match(/[\d.,]+/g);
+    if (!matches) return 0;
+    const last = matches[matches.length - 1];
+    // Brazilian format: 1.234,56 → 1234.56
+    return parseFloat(last.replace(/\./g, '').replace(',', '.')) || 0;
+  };
+
   const handlePixClick = () => {
     trackPaymentSelect('pix');
     trackLead('pix_click');
-    trackMetaEvent('InitiateCheckout', { content_name: 'pix', value: pixPrice, currency: 'BRL' });
+    trackMetaEvent('InitiateCheckout', { content_name: 'pix', value: parsePrice(pixPrice), currency: 'BRL' });
     trackServerEvent('pix_click', pageId);
   };
 
   const handleCardClick = () => {
     trackPaymentSelect('card');
     trackLead('card_click');
-    trackMetaEvent('InitiateCheckout', { content_name: 'card', value: cardPrice, currency: 'BRL' });
+    trackMetaEvent('InitiateCheckout', { content_name: 'card', value: parsePrice(cardPrice), currency: 'BRL' });
     trackServerEvent('card_click', pageId);
   };
 
