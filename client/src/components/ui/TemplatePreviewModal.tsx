@@ -4,7 +4,7 @@ import { X, Eye, Monitor, Smartphone } from 'lucide-react';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  templateId: number;
+  templateId: number | string;
   templateName: string;
   previewType: 'index' | 'obrigado';
 }

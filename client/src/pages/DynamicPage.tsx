@@ -75,7 +75,7 @@ export default function DynamicPage() {
   }
 
   // Update document title
-  document.title = content.content_index.seo_title;
+  document.title = content.name || content.content_index.seo_title;
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.setAttribute('content', content.content_index.seo_description);
 

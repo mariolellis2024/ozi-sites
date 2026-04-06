@@ -4,11 +4,31 @@ import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-// GET /api/templates — list all saved templates
+// GET /api/templates — list all saved templates (includes base template as first item)
 router.get('/', authMiddleware, async (_req, res) => {
   try {
+    // Fetch base template from settings
+    const { rows: settingsRows } = await pool.query("SELECT value FROM settings WHERE key = 'page_template'");
+    const baseTemplate = settingsRows.length > 0 ? settingsRows[0].value : null;
+
+    // Fetch saved templates
     const { rows } = await pool.query('SELECT * FROM page_templates ORDER BY created_at DESC');
-    res.json(rows);
+
+    // Prepend the base template as a fixed first entry
+    const result = [];
+    if (baseTemplate) {
+      result.push({
+        id: 'base',
+        name: 'Modelo Base',
+        content_index: baseTemplate.content_index || {},
+        content_obrigado: baseTemplate.content_obrigado || {},
+        created_at: settingsRows[0]?.updated_at || new Date().toISOString(),
+        isBase: true,
+      });
+    }
+    result.push(...rows);
+
+    res.json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro interno' });
@@ -73,13 +93,27 @@ router.post('/:id/restore', authMiddleware, async (req, res) => {
 // GET /api/templates/:id/preview/:type — get template content for preview
 router.get('/:id/preview/:type', authMiddleware, async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM page_templates WHERE id = $1', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ error: 'Modelo não encontrado' });
+    const { id, type } = req.params;
+    let contentIndex, contentObrigado, name;
 
-    const type = req.params.type; // 'index' or 'obrigado'
-    const content = type === 'obrigado' ? rows[0].content_obrigado : rows[0].content_index;
+    if (id === 'base') {
+      // Fetch from settings
+      const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'page_template'");
+      if (rows.length === 0) return res.status(404).json({ error: 'Modelo base não configurado' });
+      const val = rows[0].value;
+      contentIndex = val.content_index || {};
+      contentObrigado = val.content_obrigado || {};
+      name = 'Modelo Base';
+    } else {
+      const { rows } = await pool.query('SELECT * FROM page_templates WHERE id = $1', [id]);
+      if (rows.length === 0) return res.status(404).json({ error: 'Modelo não encontrado' });
+      contentIndex = rows[0].content_index;
+      contentObrigado = rows[0].content_obrigado;
+      name = rows[0].name;
+    }
 
-    res.json({ name: rows[0].name, type, content: content || {} });
+    const content = type === 'obrigado' ? contentObrigado : contentIndex;
+    res.json({ name, type, content: content || {} });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao carregar preview' });
