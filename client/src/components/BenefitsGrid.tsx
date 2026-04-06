@@ -161,10 +161,10 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
         <ScrollFadeIn>
           <h2 className="benefits-headline">
             {e ? (
-              <EditableText fieldKey="benefits_title" label="Título da seção">
-                {benefitsTitle}
+              <EditableText fieldKey="benefits_title" label="Título da seção" html>
+                <span dangerouslySetInnerHTML={{ __html: benefitsTitle }} />
               </EditableText>
-            ) : benefitsTitle}
+            ) : <span dangerouslySetInnerHTML={{ __html: benefitsTitle }} />}
           </h2>
         </ScrollFadeIn>
         <div className="benefits-grid stagger-children">
