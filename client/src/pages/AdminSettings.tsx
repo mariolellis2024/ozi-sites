@@ -1,63 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Shield, BarChart3, LayoutTemplate, Settings, Upload, Save } from 'lucide-react';
+import { Upload, Save } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import { useSiteConfig } from '../context/SiteConfigContext';
+import { AdminNav, AdminSidebar } from './AdminPages';
 
-/* ─── Admin Nav ─── */
-function AdminNav({ email, onLogout }: { email: string; onLogout: () => void }) {
-  const { logo_url } = useSiteConfig();
-  return (
-    <header style={{
-      height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 32px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <img src={logo_url} alt="Logo" style={{ height: 28 }} />
-        <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', fontWeight: 500, borderLeft: '1px solid var(--color-border)', paddingLeft: 12 }}>Admin</span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>{email}</span>
-        <button onClick={onLogout} style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 'var(--radius-small)',
-          border: '1px solid var(--color-border)', background: 'transparent', color: 'var(--color-text-secondary)',
-          fontSize: '0.85rem', cursor: 'pointer',
-        }}><LogOut size={14} /> Sair</button>
-      </div>
-    </header>
-  );
-}
-
-/* ─── Admin Sidebar ─── */
-function AdminSidebar({ active }: { active: string }) {
-  const navigate = useNavigate();
-  const items = [
-    { id: 'dashboard', label: 'Dashboard', icon: <Shield size={18} />, path: '/admin/dashboard' },
-    { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
-    { id: 'template', label: 'Modelo Base', icon: <LayoutTemplate size={18} />, path: '/admin/template' },
-    { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
-    { id: 'settings', label: 'Configurações', icon: <Settings size={18} />, path: '/admin/settings' },
-    { id: 'password', label: 'Alterar Senha', icon: <KeyRound size={18} />, path: '/admin/dashboard' },
-  ];
-
-  return (
-    <nav style={{
-      width: 220, borderRight: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)',
-      padding: '24px 0', display: 'flex', flexDirection: 'column', gap: 4,
-    }}>
-      {items.map(item => (
-        <button key={item.id} onClick={() => navigate(item.path)} style={{
-          display: 'flex', alignItems: 'center', gap: 10, padding: '10px 24px', width: '100%',
-          background: active === item.id ? 'rgba(117, 251, 198, 0.08)' : 'transparent',
-          border: 'none', color: active === item.id ? 'var(--color-accent)' : 'var(--color-text-secondary)',
-          cursor: 'pointer', fontSize: '0.88rem', fontWeight: active === item.id ? 600 : 400,
-          borderRight: active === item.id ? '2px solid var(--color-accent)' : '2px solid transparent',
-          fontFamily: 'var(--font-body)',
-        }}>{item.icon} {item.label}</button>
-      ))}
-    </nav>
-  );
-}
 
 /* ─── Image Upload Field ─── */
 function ImageField({ label, currentUrl, onUpload }: { label: string; currentUrl: string; onUpload: (file: File) => Promise<void> }) {
