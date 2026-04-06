@@ -282,7 +282,7 @@ export const COLOR_PALETTES: ColorPalette[] = [
       '--color-hover-subtle': 'rgba(0, 0, 0, 0.03)',
       '--color-icon-bg': 'rgba(0, 0, 0, 0.04)',
       '--color-score-bar-bg': 'rgba(0, 0, 0, 0.06)',
-      '--logo-filter': 'brightness(0)',
+      '--logo-filter': 'brightness(0) invert(14%) sepia(10%) saturate(700%) hue-rotate(350deg)',
       '--shadow-small': '0 2px 8px rgba(0, 0, 0, 0.04)',
       '--shadow-medium': '0 4px 24px rgba(0, 0, 0, 0.06)',
       '--shadow-large': '0 8px 48px rgba(0, 0, 0, 0.08)',
