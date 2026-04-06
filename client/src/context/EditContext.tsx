@@ -7,6 +7,7 @@ interface EditContextType {
   content: Record<string, any>;
   setContent: (c: Record<string, any>) => void;
   updateField: (key: string, value: string) => Promise<void>;
+  batchUpdate: (fields: Record<string, string>) => Promise<void>;
   uploadImage: (key: string, file: File) => Promise<string>;
 }
 
@@ -32,6 +33,21 @@ export function EditProvider({ children, pageId, pageType, initialContent }: Edi
     setContent(newContent);
 
     // Persist to DB
+    const body: Record<string, any> = {};
+    if (pageType === 'index') body.content_index = newContent;
+    else body.content_obrigado = newContent;
+
+    await fetch(`/api/pages/${pageId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+  }, [content, pageId, pageType, token]);
+
+  const batchUpdate = useCallback(async (fields: Record<string, string>) => {
+    const newContent = { ...content, ...fields };
+    setContent(newContent);
+
     const body: Record<string, any> = {};
     if (pageType === 'index') body.content_index = newContent;
     else body.content_obrigado = newContent;
@@ -74,7 +90,7 @@ export function EditProvider({ children, pageId, pageType, initialContent }: Edi
   }, [content, pageId, pageType, token]);
 
   return (
-    <EditContext.Provider value={{ isEditing: true, pageId, pageType, content, setContent, updateField, uploadImage }}>
+    <EditContext.Provider value={{ isEditing: true, pageId, pageType, content, setContent, updateField, batchUpdate, uploadImage }}>
       {children}
     </EditContext.Provider>
   );

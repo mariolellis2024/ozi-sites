@@ -37,12 +37,15 @@ function CheckoutPanel({ onClose }: { onClose: () => void }) {
   };
 
   const save = () => {
-    edit.updateField('pix_link', pix_link);
-    edit.updateField('pix_price', pix_price);
-    edit.updateField('pix_detail', pix_detail);
-    edit.updateField('card_link', card_link);
-    edit.updateField('card_price', card_price);
-    edit.updateField('card_detail', card_detail);
+    // Batch update all checkout fields at once to avoid stale closure overwrites
+    edit.batchUpdate({
+      pix_link,
+      pix_price,
+      pix_detail,
+      card_link,
+      card_price,
+      card_detail,
+    });
     toast.success('Checkout atualizado!');
     onClose();
   };

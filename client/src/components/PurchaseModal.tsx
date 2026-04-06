@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { trackPaymentSelect, trackLead } from '../hooks/useGA4';
 import { trackMetaEvent } from '../hooks/useMetaPixel';
 import { trackServerEvent, getCheckoutUrl } from '../hooks/useServerTracking';
@@ -20,6 +21,8 @@ interface PurchaseModalProps {
 }
 
 export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pageId }: PurchaseModalProps) {
+  const [redirecting, setRedirecting] = useState<'pix' | 'card' | null>(null);
+
   if (!isOpen) return null;
 
   const pixLink = dc?.pix_link || 'https://pay.cakto.com.br/eenyazw';
@@ -43,18 +46,26 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
     return parseFloat(last.replace(/\./g, '').replace(',', '.')) || 0;
   };
 
-  const handlePixClick = () => {
+  const handlePixClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (redirecting) return;
+    setRedirecting('pix');
     trackPaymentSelect('pix');
     trackLead('pix_click');
     trackMetaEvent('InitiateCheckout', { content_name: 'pix', value: parsePrice(pixPrice), currency: 'BRL' });
     trackServerEvent('pix_click', pageId);
+    setTimeout(() => { window.location.href = enrichedPixLink; }, 350);
   };
 
-  const handleCardClick = () => {
+  const handleCardClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (redirecting) return;
+    setRedirecting('card');
     trackPaymentSelect('card');
     trackLead('card_click');
     trackMetaEvent('InitiateCheckout', { content_name: 'card', value: parsePrice(cardPrice), currency: 'BRL' });
     trackServerEvent('card_click', pageId);
+    setTimeout(() => { window.location.href = enrichedCardLink; }, 350);
   };
 
   return (
@@ -72,7 +83,7 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
         </div>
         <div className="purchase-modal__options">
           {/* PIX */}
-          <a href={enrichedPixLink} className="purchase-modal__option purchase-modal__option--pix" onClick={handlePixClick}>
+          <a href={enrichedPixLink} className="purchase-modal__option purchase-modal__option--pix" onClick={handlePixClick} style={{ opacity: redirecting ? 0.6 : 1, pointerEvents: redirecting ? 'none' : 'auto', transition: 'opacity 150ms' }}>
             <div className="purchase-modal__badge">🔥 Melhor oferta</div>
             <div className="purchase-modal__icon-wrap">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -85,10 +96,10 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
               <span className="purchase-modal__detail">{pixDetail}</span>
             </div>
             <span className="purchase-modal__savings">Economize R$ 396,36</span>
-            <span className="purchase-modal__cta-text">Pagar com Pix →</span>
+            <span className="purchase-modal__cta-text">{redirecting === 'pix' ? '⏳ Redirecionando...' : 'Pagar com Pix →'}</span>
           </a>
           {/* Cartão */}
-          <a href={enrichedCardLink} className="purchase-modal__option purchase-modal__option--card" onClick={handleCardClick}>
+          <a href={enrichedCardLink} className="purchase-modal__option purchase-modal__option--card" onClick={handleCardClick} style={{ opacity: redirecting ? 0.6 : 1, pointerEvents: redirecting ? 'none' : 'auto', transition: 'opacity 150ms' }}>
             <div className="purchase-modal__icon-wrap">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -100,7 +111,7 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
               <span className="purchase-modal__amount">{cardPrice}</span>
               <span className="purchase-modal__detail">{cardDetail}</span>
             </div>
-            <span className="purchase-modal__cta-text">Pagar com Cartão →</span>
+            <span className="purchase-modal__cta-text">{redirecting === 'card' ? '⏳ Redirecionando...' : 'Pagar com Cartão →'}</span>
           </a>
         </div>
         <p className="purchase-modal__guarantee">🔒 Pagamento 100% seguro · Acesso imediato após confirmação</p>
