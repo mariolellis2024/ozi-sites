@@ -58,6 +58,7 @@
   --color-overlay-bg: rgba(0, 0, 0, 0.75);
   --color-mobile-menu-bg: rgba(6, 6, 24, 0.97);
   --color-text-muted: #6b6b7d;
+  --logo-filter: brightness(0) invert(1);
 }
 
 /* ===== BASE ===== */
@@ -213,10 +214,10 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 .mobile-hero-logo { display: none; }
 .hero-cta-group { display: inline-flex; flex-direction: column; align-items: center; margin-top: 8px; }
 .powered-badge { display: inline-flex; align-items: center; gap: 12px; margin-top: 24px; padding: 12px 0; transform: scale(0.7); transform-origin: center; }
-.powered-badge__label { font-size: 0.8rem; color: #FFFFFF; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
-.powered-badge__logo { height: 24px; width: auto; display: inline-block; filter: brightness(0) invert(1); }
+.powered-badge__label { font-size: 0.8rem; color: var(--color-text-secondary); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
+.powered-badge__logo { height: 24px; width: auto; display: inline-block; filter: var(--logo-filter); }
 .powered-badge__logo--hostinger, .powered-badge__logo--easypanel, .powered-badge__logo--cakto { height: 28px; }
-.powered-badge__separator { font-size: 1.1rem; color: #FFFFFF; font-weight: 300; }
+.powered-badge__separator { font-size: 1.1rem; color: var(--color-text-primary); font-weight: 300; }
 
 /* ===== MOTOR + VSL ===== */
 .motor-img { display: block; width: 100%; max-width: 900px; margin: 48px auto; border-radius: var(--radius-small); }

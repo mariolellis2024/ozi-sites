@@ -51,6 +51,7 @@
   --color-hover-subtle: rgba(255, 255, 255, 0.03);
   --color-icon-bg: rgba(255, 255, 255, 0.04);
   --color-score-bar-bg: rgba(255, 255, 255, 0.06);
+  --logo-filter: brightness(0) invert(1);
   --font-heading: 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
   --text-hero: 3.5rem;
@@ -507,7 +508,7 @@ button {
   height: 24px;
   width: auto;
   display: inline-block;
-  filter: brightness(0) invert(1);
+  filter: var(--logo-filter);
 }
 
 .powered-badge__logo--hostinger {
