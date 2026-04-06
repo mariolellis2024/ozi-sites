@@ -42,7 +42,7 @@ function AppRoutes() {
       <Route path="/admin/models" element={<AdminModels />} />
       <Route path="/admin/sales" element={<AdminSales />} />
       <Route path="/admin/password" element={<AdminPassword />} />
-      <Route path="/admin/preview/template/:id/:type" element={<TemplatePreview />} />
+      <Route path="/admin/preview/template/:source/:id/:type" element={<TemplatePreview />} />
 
       {/* Public - dynamic (catch-all, must be last) */}
       <Route path="/:slug" element={<DynamicPage />} />

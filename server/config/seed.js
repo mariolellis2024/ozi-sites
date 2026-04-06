@@ -127,6 +127,31 @@ export async function seed() {
       )
     `);
 
+    // Ensure base_templates table exists (fixed design templates)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS base_templates (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT DEFAULT '',
+        content_index JSONB DEFAULT '{}',
+        content_obrigado JSONB DEFAULT '{}',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
+    // Seed "Página Aberta" if no base templates exist
+    const { rows: btCheck } = await pool.query('SELECT id FROM base_templates LIMIT 1');
+    if (btCheck.length === 0) {
+      // Try to clone from the existing page_template setting
+      const { rows: stRows } = await pool.query("SELECT value FROM settings WHERE key = 'page_template'");
+      const tplData = stRows.length > 0 ? stRows[0].value : {};
+      await pool.query(
+        `INSERT INTO base_templates (name, description, content_index, content_obrigado) VALUES ($1, $2, $3, $4)`,
+        ['Página Aberta', 'Template padrão para páginas de venda', tplData.content_index || '{}', tplData.content_obrigado || '{}']
+      );
+      console.log('  ✅ Base template "Página Aberta" seeded');
+    }
+
     // Ensure sales table exists (Cakto webhook data)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sales (

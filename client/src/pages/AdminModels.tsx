@@ -227,6 +227,7 @@ export default function AdminModels() {
         templateId={previewTemplate?.id || 0}
         templateName={previewTemplate?.name || ''}
         previewType={previewType}
+        source="saved"
       />
 
       {/* Restore Modal */}

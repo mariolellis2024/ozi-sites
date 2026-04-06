@@ -7,14 +7,15 @@ interface Props {
   templateId: number | string;
   templateName: string;
   previewType: 'index' | 'obrigado';
+  source?: 'base' | 'saved';  // 'base' = base_templates, 'saved' = page_templates
 }
 
-export default function TemplatePreviewModal({ isOpen, onClose, templateId, templateName, previewType }: Props) {
+export default function TemplatePreviewModal({ isOpen, onClose, templateId, templateName, previewType, source = 'saved' }: Props) {
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
 
   if (!isOpen) return null;
 
-  const previewUrl = `/admin/preview/template/${templateId}/${previewType}`;
+  const previewUrl = `/admin/preview/template/${source}/${templateId}/${previewType}`;
 
   return (
     <div style={{

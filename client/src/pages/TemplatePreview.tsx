@@ -5,17 +5,17 @@ import { useParams } from 'react-router-dom';
  * TemplatePreview — renders a template's content as a read-only landing page preview.
  * Loaded inside an iframe from the TemplatePreviewModal.
  *
- * Route: /admin/preview/template/:id/:type
+ * Route: /admin/preview/template/:source/:id/:type
+ * - source = 'base' (base_templates) or 'saved' (page_templates)
  * - type = 'index' → renders the landing page (Home)
  * - type = 'obrigado' → renders the thank-you page
  */
 export default function TemplatePreview() {
-  const { id, type } = useParams<{ id: string; type: string }>();
+  const { source, id, type } = useParams<{ source: string; id: string; type: string }>();
   const [content, setContent] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Dynamically import the page components to avoid bundling them in the main chunk
   const [HomeComponent, setHomeComponent] = useState<any>(null);
   const [ObrigadoComponent, setObrigadoComponent] = useState<any>(null);
 
@@ -23,13 +23,17 @@ export default function TemplatePreview() {
     const token = localStorage.getItem('admin_token');
     if (!token) { setError('Não autenticado'); setLoading(false); return; }
 
-    fetch(`/api/templates/${id}/preview/${type}`, {
+    // Choose API based on source
+    const apiUrl = source === 'base'
+      ? `/api/base-templates/${id}/preview/${type}`
+      : `/api/templates/${id}/preview/${type}`;
+
+    fetch(apiUrl, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => {
         setContent(data.content || {});
-        // Load the right component
         if (data.type === 'obrigado') {
           import('./DynamicObrigadoVisual').then(mod => setObrigadoComponent(() => mod.default));
         } else {
@@ -38,7 +42,7 @@ export default function TemplatePreview() {
       })
       .catch(() => setError('Erro ao carregar preview'))
       .finally(() => setLoading(false));
-  }, [id, type]);
+  }, [source, id, type]);
 
   if (loading) {
     return (
@@ -67,7 +71,6 @@ export default function TemplatePreview() {
   }
 
   if (type === 'index' && HomeComponent && content) {
-    // Home expects dynamicContent with content_index shape
     return <HomeComponent dynamicContent={{ content_index: content }} />;
   }
 
