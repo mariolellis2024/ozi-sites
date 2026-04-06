@@ -54,7 +54,7 @@ function AdminSidebar({ active }: { active: string }) {
     { id: 'tracking', label: 'Tracking', icon: <Activity size={18} />, path: '/admin/tracking' },
     { id: 'sales', label: 'Vendas', icon: <DollarSign size={18} />, path: '/admin/sales' },
     { id: 'settings', label: 'Configurações', icon: <Settings size={18} />, path: '/admin/settings' },
-    { id: 'password', label: 'Alterar Senha', icon: <KeyRound size={18} />, path: '/admin/dashboard' },
+    { id: 'password', label: 'Alterar Senha', icon: <KeyRound size={18} />, path: '/admin/password' },
   ];
 
   return (

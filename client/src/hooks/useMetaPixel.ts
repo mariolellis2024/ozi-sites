@@ -39,21 +39,6 @@ function getCookie(name: string): string | undefined {
   return match?.[2];
 }
 
-/** Capture and persist UTM parameters from URL */
-function captureUtms(): Record<string, string> {
-  const params = new URLSearchParams(window.location.search);
-  const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
-  const stored = JSON.parse(sessionStorage.getItem('_meta_utms') || '{}');
-
-  // Merge — new URL params override stored
-  let updated = false;
-  for (const key of utmKeys) {
-    const val = params.get(key);
-    if (val) { stored[key] = val; updated = true; }
-  }
-  if (updated) sessionStorage.setItem('_meta_utms', JSON.stringify(stored));
-  return stored;
-}
 
 /** Get fbc from cookie or fbclid URL param */
 function getFbc(): string | undefined {
@@ -79,7 +64,6 @@ async function sendServerEvent(
   customData?: Record<string, any>,
   userData?: Record<string, string>,
 ) {
-  const utms = captureUtms();
   try {
     await fetch('/api/meta/event', {
       method: 'POST',
@@ -92,7 +76,7 @@ async function sendServerEvent(
         fbc: getFbc(),
         external_id: getExternalId(),
         user_data: userData,
-        custom_data: { ...utms, ...customData },
+        custom_data: customData || undefined,
       }),
     });
   } catch {
@@ -112,12 +96,10 @@ export function trackMetaEvent(
   if (window.location.pathname.startsWith('/admin')) return;
 
   const eventId = uuid();
-  const utms = captureUtms();
-  const mergedData = { ...utms, ...customData };
 
   // Browser-side pixel
   if (window.fbq) {
-    window.fbq('track', eventName, mergedData, { eventID: eventId });
+    window.fbq('track', eventName, customData || {}, { eventID: eventId });
   }
 
   // Server-side CAPI
