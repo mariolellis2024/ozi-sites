@@ -53,8 +53,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
     setModalOpen(false);
     document.body.style.overflow = '';
     trackModalClose();
-    trackServerEvent('page_view', pageId);
-  }, [pageId]);
+  }, []);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {

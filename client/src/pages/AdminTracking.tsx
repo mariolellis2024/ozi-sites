@@ -46,6 +46,7 @@ function EventBadge({ type }: { type: string }) {
   const configs: Record<string, { bg: string; color: string; icon: any; label: string }> = {
     page_view: { bg: 'rgba(160,160,255,0.12)', color: '#a0a0ff', icon: <Eye size={10} />, label: 'Visualização' },
     comprar: { bg: 'rgba(255,200,50,0.12)', color: '#ffc832', icon: <MousePointerClick size={10} />, label: 'Comprar' },
+    modal_open: { bg: 'rgba(255,200,50,0.12)', color: '#ffc832', icon: <MousePointerClick size={10} />, label: 'Comprar' },
     pix_click: { bg: 'rgba(117,251,198,0.12)', color: '#75fbc6', icon: <CreditCard size={10} />, label: 'Pix' },
     card_click: { bg: 'rgba(110,168,254,0.12)', color: '#6ea8fe', icon: <CreditCard size={10} />, label: 'Cartão' },
   };
