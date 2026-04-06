@@ -144,4 +144,67 @@ router.get('/stats/:pageId', authMiddleware, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/track/visits — Paginated list of all visits with their events
+ * Admin only. Query params: page (default 1), limit (default 50), slug (optional filter)
+ */
+router.get('/visits', authMiddleware, async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = (page - 1) * limit;
+    const slugFilter = req.query.slug || null;
+
+    // Build WHERE clause
+    const conditions = [];
+    const params = [];
+    if (slugFilter) {
+      params.push(slugFilter);
+      conditions.push(`v.slug = $${params.length}`);
+    }
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    // Count total
+    const countQuery = `SELECT COUNT(*)::int AS total FROM visits v ${where}`;
+    const { rows: countRows } = await pool.query(countQuery, params);
+    const total = countRows[0].total;
+
+    // Fetch visits
+    const visitQuery = `
+      SELECT v.id, v.sck, v.page_id, v.slug, v.utm_source, v.utm_medium, v.utm_campaign,
+             v.utm_content, v.utm_term, v.src, v.xcod, v.fbclid, v.gclid,
+             v.ip, v.referrer, v.fbp, v.fbc, v.purchased, v.purchase_data, v.purchased_at, v.created_at
+      FROM visits v ${where}
+      ORDER BY v.created_at DESC
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+    `;
+    const { rows: visits } = await pool.query(visitQuery, [...params, limit, offset]);
+
+    // Fetch events for these visits (by sck)
+    const scks = visits.map(v => v.sck);
+    let eventsMap = {};
+    if (scks.length > 0) {
+      const { rows: events } = await pool.query(
+        `SELECT sck, event_type, created_at FROM events WHERE sck = ANY($1) ORDER BY created_at ASC`,
+        [scks]
+      );
+      for (const ev of events) {
+        if (!eventsMap[ev.sck]) eventsMap[ev.sck] = [];
+        eventsMap[ev.sck].push({ type: ev.event_type, at: ev.created_at });
+      }
+    }
+
+    // Attach events to visits
+    const result = visits.map(v => ({
+      ...v,
+      events: eventsMap[v.sck] || [],
+    }));
+
+    res.json({ visits: result, total, page, limit, pages: Math.ceil(total / limit) });
+  } catch (err) {
+    console.error('[Track] Visits list error:', err);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 export default router;

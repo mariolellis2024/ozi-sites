@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings, Eye, MousePointerClick } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings, Eye, MousePointerClick, Activity } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { useSiteConfig } from '../context/SiteConfigContext';
@@ -50,6 +50,7 @@ function AdminSidebar({ active }: { active: string }) {
     { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
     { id: 'template', label: 'Modelo Base', icon: <LayoutTemplate size={18} />, path: '/admin/template' },
     { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
+    { id: 'tracking', label: 'Tracking', icon: <Activity size={18} />, path: '/admin/tracking' },
     { id: 'settings', label: 'Configurações', icon: <Settings size={18} />, path: '/admin/settings' },
     { id: 'password', label: 'Alterar Senha', icon: <KeyRound size={18} />, path: '/admin/dashboard' },
   ];
