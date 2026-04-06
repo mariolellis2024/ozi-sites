@@ -113,7 +113,7 @@ export default function AdminIntegrations() {
       <div style={{ display: 'flex', flex: 1 }}>
         <AdminSidebar active="integrations" />
 
-        <main style={{ flex: 1, padding: 32, maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 28 }}>
+        <main style={{ flex: 1, padding: 32, display: 'flex', flexDirection: 'column', gap: 28 }}>
           <div style={{ marginBottom: 4 }}>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Integrações</h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: 4 }}>
@@ -121,7 +121,7 @@ export default function AdminIntegrations() {
             </p>
           </div>
 
-          {/* ═══════ GA4 Card ═══════ */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, alignItems: 'start' }}>
           <div style={{
             borderRadius: 'var(--radius-medium)', border: '1px solid var(--color-border)',
             background: 'var(--color-bg-secondary)', overflow: 'hidden',
@@ -302,6 +302,7 @@ export default function AdminIntegrations() {
             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--color-border)', fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
               🔒 O Access Token é armazenado apenas no servidor e nunca exposto ao browser. Apenas o Pixel ID é enviado ao frontend.
             </div>
+          </div>
           </div>
         </main>
       </div>
