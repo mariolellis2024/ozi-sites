@@ -1,0 +1,78 @@
+{
+    "services": [
+        {
+            "type": "app",
+            "data": {
+                "serviceName": "ozi-sites",
+                "source": {
+                    "type": "github",
+                    "owner": "mariolellis2024",
+                    "repo": "ozi-sites",
+                    "ref": "main",
+                    "path": "/",
+                    "autoDeploy": true
+                },
+                "build": {
+                    "type": "dockerfile",
+                    "file": "Dockerfile"
+                },
+                "env": "PORT=3000\nDATABASE_URL=postgresql://postgres:ozi_db_2026@$(PROJECT_NAME)_ozi-sites-db:5432/$(PROJECT_NAME)\nDB_SSL=false\nMINIO_ENDPOINT=ozi-sites-minio\nMINIO_PORT=9000\nMINIO_ACCESS_KEY=minioadmin\nMINIO_SECRET_KEY=MinIO_OZI_2026\nMINIO_USE_SSL=false\nMINIO_PUBLIC_URL=https://$(PRIMARY_DOMAIN)/storage\nJWT_SECRET=TROQUE_POR_CHAVE_SEGURA_64_CHARS\nNODE_ENV=production",
+                "deploy": {
+                    "replicas": 1,
+                    "command": null,
+                    "zeroDowntime": true
+                },
+                "domains": [
+                    {
+                        "host": "$(EASYPANEL_DOMAIN)",
+                        "https": true,
+                        "port": 3000,
+                        "path": "/"
+                    }
+                ],
+                "mounts": [],
+                "ports": []
+            }
+        },
+        {
+            "type": "postgres",
+            "data": {
+                "serviceName": "ozi-sites-db",
+                "image": "postgres:16-alpine",
+                "password": "ozi_db_2026"
+            }
+        },
+        {
+            "type": "app",
+            "data": {
+                "serviceName": "ozi-sites-minio",
+                "source": {
+                    "type": "image",
+                    "image": "minio/minio:RELEASE.2025-09-07T16-13-09Z"
+                },
+                "env": "MINIO_ROOT_USER=minioadmin\nMINIO_ROOT_PASSWORD=MinIO_OZI_2026",
+                "deploy": {
+                    "replicas": 1,
+                    "command": "minio server /data --console-address :9001",
+                    "zeroDowntime": true
+                },
+                "domains": [
+                    {
+                        "host": "$(EASYPANEL_DOMAIN)",
+                        "https": true,
+                        "port": 9001,
+                        "path": "/"
+                    }
+                ],
+                "mounts": [
+                    {
+                        "type": "volume",
+                        "name": "minio-data",
+                        "mountPath": "/data"
+                    }
+                ],
+                "ports": []
+            }
+        }
+    ]
+}
