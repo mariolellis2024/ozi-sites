@@ -60,15 +60,22 @@ export function getCurrentSck(): string {
  */
 export function getCheckoutUrl(baseUrl: string): string {
   if (!baseUrl) return baseUrl;
-  const url = new URL(baseUrl);
-  const sck = getSck();
-  const params = getTrackingParams();
+  try {
+    const url = new URL(baseUrl);
+    const sck = getSck();
+    const params = getTrackingParams();
 
-  url.searchParams.set('sck', sck);
-  for (const [key, value] of Object.entries(params)) {
-    if (value) url.searchParams.set(key, value);
+    url.searchParams.set('sck', sck);
+    for (const [key, value] of Object.entries(params)) {
+      if (value && value.trim()) url.searchParams.set(key, value);
+    }
+    return url.toString();
+  } catch {
+    // If URL parsing fails, append as query string manually
+    const sck = getSck();
+    const sep = baseUrl.includes('?') ? '&' : '?';
+    return `${baseUrl}${sep}sck=${sck}`;
   }
-  return url.toString();
 }
 
 /**
