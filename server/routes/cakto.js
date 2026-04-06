@@ -2,6 +2,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import pool from '../config/db.js';
 import { detectAndSaveGender, genderToMeta } from '../services/gender.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -94,15 +95,31 @@ router.post('/webhook', async (req, res) => {
     const utmTerm = data.utm_term || null;
     const src = data.src || null;
 
-    // Status mapping (ALL events saved; only purchase_approved syncs with Meta/Tracking)
+    // Status mapping — normalize event name (Cakto may send different formats)
+    const eventLower = (event || '').toLowerCase().trim();
+    console.log(`[Cakto] Webhook received: event="${event}", eventLower="${eventLower}", sck="${sck || 'none'}"`);
+    
     let status = 'unknown';
-    if (event === 'purchase_approved') status = 'approved';
-    else if (event === 'purchase_refused') status = 'refused';
-    else if (event === 'pix_generated') status = 'pending';
-    else if (event === 'boleto_generated') status = 'pending';
-    else if (event === 'checkout_abandonment') status = 'abandoned';
-    else if (event === 'purchase_refunded') status = 'refunded';
-    else if (event === 'chargeback') status = 'chargeback';
+    let isPurchase = false;
+    
+    // Purchase approved (multiple possible formats)
+    if (['purchase_approved', 'approved', 'payment_confirmed', 'payment_approved', 'confirmed'].includes(eventLower)) {
+      status = 'approved';
+      isPurchase = true;
+    }
+    else if (['purchase_refused', 'purchase_declined', 'refused', 'declined'].includes(eventLower)) status = 'refused';
+    else if (['pix_generated', 'pix_created'].includes(eventLower)) status = 'pending';
+    else if (['boleto_generated', 'boleto_created'].includes(eventLower)) status = 'pending';
+    else if (['checkout_abandonment', 'abandoned'].includes(eventLower)) status = 'abandoned';
+    else if (['purchase_refunded', 'refunded'].includes(eventLower)) status = 'refunded';
+    else if (eventLower === 'chargeback') status = 'chargeback';
+    
+    // If status is still unknown but it looks like a purchase (has payment data), treat as approved
+    if (status === 'unknown' && data.amount && customer.email) {
+      console.log(`[Cakto] Unknown event "${event}" but has payment data — treating as approved`);
+      status = 'approved';
+      isPurchase = true;
+    }
 
     // 3. Idempotent insert (skip if cakto_id already exists)
     if (caktoId) {
@@ -145,14 +162,14 @@ router.post('/webhook', async (req, res) => {
     );
 
     const saleId = insertedRows[0].id;
-    console.log(`[Cakto] Sale #${saleId} created: ${event} (sck: ${sck || 'none'})`);
+    console.log(`[Cakto] Sale #${saleId} created: event="${event}" status="${status}" isPurchase=${isPurchase} (sck: ${sck || 'none'})`);
 
     // 6. Detect gender via IBGE (fire-and-forget for non-purchase, blocking for purchase to include in Meta)
     let detectedGender = 'desconhecido';
     if (firstName) {
       detectedGender = await detectAndSaveGender(saleId, customer.name);
     }
-    if (event === 'purchase_approved' && sck) {
+    if (isPurchase && sck) {
       // Find the visit by SCK
       const { rows: visitRows } = await pool.query(
         'SELECT id, slug, referrer, ip, user_agent, fbp, fbc, geo_city, geo_state, geo_zip, geo_country, created_at FROM visits WHERE sck = $1 ORDER BY created_at DESC LIMIT 1',
@@ -313,5 +330,82 @@ async function sendMetaPurchase({ visit, customer, address, amount, currency, sc
   console.log(`[Cakto → Meta] Purchase sent (event_id: ${eventId}, events_received: ${result.events_received})`);
   return true;
 }
+
+/**
+ * POST /api/cakto/resync/:saleId — Manually re-trigger Meta CAPI sync for a sale
+ * Admin only.
+ */
+router.post('/resync/:saleId', authMiddleware, async (req, res) => {
+  try {
+    const { saleId } = req.params;
+    
+    // Get sale data
+    const { rows: saleRows } = await pool.query(
+      'SELECT * FROM sales WHERE id = $1', [saleId]
+    );
+    if (!saleRows.length) return res.status(404).json({ error: 'Sale not found' });
+    
+    const sale = saleRows[0];
+    if (!sale.sck) return res.status(400).json({ error: 'Sale has no SCK' });
+    
+    // Find the visit by SCK
+    const { rows: visitRows } = await pool.query(
+      'SELECT id, slug, referrer, ip, user_agent, fbp, fbc, geo_city, geo_state, geo_zip, geo_country, created_at FROM visits WHERE sck = $1 ORDER BY created_at DESC LIMIT 1',
+      [sale.sck]
+    );
+    
+    if (!visitRows.length) return res.status(404).json({ error: `No visit found for SCK: ${sale.sck}` });
+    
+    const visit = visitRows[0];
+    
+    // Update visit as purchased
+    await pool.query(
+      `UPDATE visits SET purchased = true, purchased_at = COALESCE(purchased_at, NOW()) WHERE id = $1`,
+      [visit.id]
+    );
+    
+    // Link sale to visit
+    await pool.query('UPDATE sales SET visit_id = $1, status = $2 WHERE id = $3', [visit.id, 'approved', saleId]);
+    
+    // Detect gender if not done
+    let gender = sale.gender || 'desconhecido';
+    if (gender === 'desconhecido' && sale.customer_first_name) {
+      gender = await detectAndSaveGender(sale.id, sale.customer_name);
+    }
+    
+    // Send Meta CAPI
+    const customer = {
+      name: sale.customer_name,
+      email: sale.customer_email,
+      phone: sale.customer_phone,
+    };
+    const address = {
+      city: sale.address_city,
+      state: sale.address_state,
+      zipCode: sale.address_zip,
+      country: sale.address_country,
+    };
+    
+    const metaResult = await sendMetaPurchase({
+      visit,
+      customer,
+      address,
+      amount: sale.payment_amount,
+      currency: sale.payment_currency || 'BRL',
+      sck: sale.sck,
+      gender,
+    });
+    
+    if (metaResult) {
+      await pool.query('UPDATE sales SET meta_synced = true, meta_synced_at = NOW() WHERE id = $1', [saleId]);
+      return res.json({ success: true, message: 'Meta Purchase synced successfully' });
+    } else {
+      return res.json({ success: false, message: 'Meta sync failed — check server logs' });
+    }
+  } catch (err) {
+    console.error('[Cakto] Resync error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 export default router;
