@@ -4,7 +4,6 @@ import HeroSection from '../components/HeroSection';
 import BenefitsGrid from '../components/BenefitsGrid';
 import FeatureSection from '../components/FeatureSection';
 import QualificadorSection from '../components/QualificadorSection';
-import TimelineSection from '../components/TimelineSection';
 import CaseSection from '../components/CaseSection';
 import ComparisonSection from '../components/ComparisonSection';
 import FaqSection from '../components/FaqSection';
@@ -197,7 +196,6 @@ export default function Home({ dynamicContent }: HomeProps) {
       />
 
       <QualificadorSection onOpenModal={openModal} />
-      <TimelineSection />
       <CaseSection onOpenModal={openModal} />
       <ComparisonSection onOpenModal={openModal} />
       <FaqSection onOpenModal={openModal} />

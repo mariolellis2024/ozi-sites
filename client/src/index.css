@@ -423,13 +423,16 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 @media (max-width: 1024px) {
   .container { padding: 0 40px; }
   .hero-content { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+  .hero-visual { order: -1; }
   .hero-text h1 { font-size: 2.5rem; }
   .hero-text .subheadline { margin: 0 auto 32px; }
   .hero-cta-group { margin: 0 auto; }
   .benefits-grid { grid-template-columns: repeat(3, 1fr); }
   .feature-grid { grid-template-columns: 1fr; gap: 40px; }
+  .feature-grid .feature-image { order: -1; }
+  .feature-grid .feature-text { order: 1; }
   .feature-grid.reverse .feature-text { order: 1; }
-  .feature-grid.reverse .feature-image { order: 2; }
+  .feature-grid.reverse .feature-image { order: -1; }
   .case-grid { grid-template-columns: 1fr; gap: 40px; }
   .comp-cards { grid-template-columns: 1fr; }
   .timeline-step { grid-template-columns: 40px 1fr; }
