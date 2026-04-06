@@ -6,7 +6,7 @@ interface EditContextType {
   pageType: 'index' | 'obrigado';
   content: Record<string, any>;
   setContent: (c: Record<string, any>) => void;
-  updateField: (key: string, value: string) => Promise<void>;
+  updateField: (key: string, value: any) => Promise<void>;
   batchUpdate: (fields: Record<string, string>) => Promise<void>;
   uploadImage: (key: string, file: File) => Promise<string>;
 }

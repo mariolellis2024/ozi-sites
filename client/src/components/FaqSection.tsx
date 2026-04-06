@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import ScrollFadeIn from './ui/ScrollFadeIn';
 import EditableText from './ui/EditableText';
 import { useEdit } from '../context/EditContext';
 import { trackFAQ } from '../hooks/useGA4';
+import TextEditModal from './ui/TextEditModal';
 
-const defaultFaqs = [
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
+const defaultFaqs: FaqItem[] = [
   { q: 'O que é a Alanis?', a: 'A Alanis é uma plataforma de educação profissional com monetização nativa. Diferente de áreas de membros genéricas, a Alanis foi construída para entregar resultado real para o aluno e receita diversificada para o criador, com trilhas de carreira, analytics avançados, sistema viral de indicação e 6 fontes de receita integradas.' },
   { q: 'Como a Alanis é diferente da The Members, Cademí, Kiwify, Hotmart e outras?', a: 'Essas plataformas são áreas de membros genéricas com uma única fonte de receita (taxa sobre vendas). A Alanis oferece 6 fontes de receita, sistema viral de indicação, commerce dentro da aula, anúncios nativos, trilhas de carreira estruturadas e um analytics preditivo que identifica o momento exato de evasão, aplicando automaticamente uma intervenção 15 segundos antes da saída para garantir uma retenção impossível de alcançar em qualquer outra plataforma no Brasil.' },
   { q: 'Quanto custa?', a: 'O investimento é simbólico porque nossa tecnologia é sustentada por uma comunidade de milhares de empresas e infoprodutores. Ao rodar o sistema em sua própria VPS, eliminamos custos intermediários de infraestrutura, permitindo que você acesse uma ferramenta de elite por uma fração do valor de mercado.' },
@@ -17,6 +23,59 @@ const defaultFaqs = [
   { q: 'Posso ter minha própria marca na plataforma?', a: '100%. A Alanis é white label: sua marca, seu domínio, suas cores, seu logo. Seus alunos nunca veem a marca Alanis. Tudo é 100% personalizado para a sua identidade.' },
 ];
 
+/* ── Delete button (edit mode only) ── */
+function DeleteBtn({ onClick }: { onClick: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={(ev) => { ev.stopPropagation(); onClick(); }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      title="Remover pergunta"
+      style={{
+        width: 28, height: 28, borderRadius: 6, border: 'none', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        background: hover ? 'rgba(255,107,107,0.25)' : 'rgba(255,107,107,0.1)',
+        color: '#ff6b6b', transition: 'background 150ms',
+      }}
+    >
+      <Trash2 size={14} />
+    </button>
+  );
+}
+
+/* ── Inline editable field ── */
+function InlineEdit({ value, label, onSave, style }: {
+  value: string; label: string; onSave: (v: string) => void; style?: React.CSSProperties;
+}) {
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
+  return (
+    <>
+      <span
+        style={{
+          ...style, cursor: 'pointer',
+          outline: hover ? '1px dashed rgba(117,251,198,0.4)' : 'none',
+          outlineOffset: 2, borderRadius: 3, transition: 'outline 150ms',
+        }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onClick={(ev) => { ev.stopPropagation(); setOpen(true); }}
+      >
+        {value}
+      </span>
+      <TextEditModal
+        isOpen={open}
+        fieldLabel={label}
+        value={value}
+        onSave={(v) => { onSave(v); setOpen(false); }}
+        onClose={() => setOpen(false)}
+      />
+    </>
+  );
+}
+
+/* ── Main Component ── */
 interface FaqSectionProps {
   onOpenModal: () => void;
   dynamicContent?: Record<string, any>;
@@ -31,11 +90,24 @@ export default function FaqSection({ onOpenModal, dynamicContent: dc }: FaqSecti
   const faqTitle = src?.faq_title || 'Perguntas Frequentes';
   const faqBtnText = src?.faq_btn || 'QUERO FATURAR MAIS →';
 
-  // Build FAQ items from dynamic content or defaults
-  const faqs = defaultFaqs.map((def, i) => ({
-    q: src?.[`faq_${i}_q`] || def.q,
-    a: src?.[`faq_${i}_a`] || def.a,
-  }));
+  // Items: from saved content or defaults
+  const faqs: FaqItem[] = src?.faq_items || defaultFaqs;
+
+  const saveFaqs = (newFaqs: FaqItem[]) => {
+    if (edit) edit.updateField('faq_items', newFaqs);
+  };
+
+  const deleteFaq = (index: number) => {
+    const newFaqs = faqs.filter((_, i) => i !== index);
+    saveFaqs(newFaqs);
+    if (activeIndex === index) setActiveIndex(null);
+    else if (activeIndex !== null && activeIndex > index) setActiveIndex(activeIndex - 1);
+  };
+
+  const updateFaqField = (index: number, field: 'q' | 'a', value: string) => {
+    const newFaqs = faqs.map((faq, i) => i === index ? { ...faq, [field]: value } : faq);
+    saveFaqs(newFaqs);
+  };
 
   const toggle = (i: number) => {
     const isOpening = activeIndex !== i;
@@ -59,18 +131,19 @@ export default function FaqSection({ onOpenModal, dynamicContent: dc }: FaqSecti
           {faqs.map((faq, i) => (
             <ScrollFadeIn key={i}>
               <div className={`faq-item${activeIndex === i ? ' active' : ''}`}>
-                <div className="faq-question" onClick={() => toggle(i)}>
-                  <span>
+                <div className="faq-question" onClick={() => toggle(i)} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ flex: 1 }}>
                     {e ? (
-                      <EditableText fieldKey={`faq_${i}_q`} label={`Pergunta ${i + 1}`}>{faq.q}</EditableText>
+                      <InlineEdit value={faq.q} label={`Pergunta ${i + 1}`} onSave={(v) => updateFaqField(i, 'q', v)} />
                     ) : faq.q}
                   </span>
+                  {e && <DeleteBtn onClick={() => deleteFaq(i)} />}
                   <ChevronDown className="faq-chevron" size={20} />
                 </div>
                 <div className="faq-answer">
                   <div className="faq-answer-inner">
                     {e ? (
-                      <EditableText fieldKey={`faq_${i}_a`} label={`Resposta ${i + 1}`}>{faq.a}</EditableText>
+                      <InlineEdit value={faq.a} label={`Resposta ${i + 1}`} onSave={(v) => updateFaqField(i, 'a', v)} />
                     ) : faq.a}
                   </div>
                 </div>
