@@ -183,6 +183,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 .hero-text .subheadline { font-size: 1.125rem; color: var(--color-text-secondary); max-width: 540px; margin-bottom: 40px; line-height: 1.7; }
 .hero-visual { position: relative; display: flex; align-items: center; justify-content: center; }
 .hero-image { width: 100%; max-width: 560px; border-radius: var(--radius-medium); display: block; }
+.mobile-hero-logo { display: none; }
 .hero-cta-group { display: inline-flex; flex-direction: column; align-items: center; margin-top: 8px; }
 .powered-badge { display: inline-flex; align-items: center; gap: 12px; margin-top: 24px; padding: 12px 0; transform: scale(0.7); transform-origin: center; }
 .powered-badge__label { font-size: 0.8rem; color: #FFFFFF; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }

@@ -19,7 +19,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSec
       <div className="hero-glow hero-glow-2" />
       <div className="container">
         {/* Mobile-only logo (navbar is hidden on mobile) */}
-        <img src="/images/logo.webp" alt="Alanis" className="mobile-hero-logo" style={{ display: 'none' }} />
+        <img src="/images/logo.webp" alt="Alanis" className="mobile-hero-logo" />
         <div className="hero-content">
           <div className="hero-text">
             {dc ? (
