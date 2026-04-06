@@ -13,6 +13,21 @@ export async function seed() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
+
+    // Ensure pages table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS pages (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) UNIQUE NOT NULL,
+        status VARCHAR(20) DEFAULT 'active',
+        content_index JSONB DEFAULT '{}',
+        content_obrigado JSONB DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
     console.log('✅ Database tables ready');
   } catch (err) {
     console.error('❌ Seed error:', err.message);

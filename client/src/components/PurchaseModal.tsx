@@ -1,10 +1,28 @@
+interface DynamicIndex {
+  pix_link: string;
+  pix_price: string;
+  pix_detail: string;
+  card_link: string;
+  card_price: string;
+  card_detail: string;
+  [key: string]: string;
+}
+
 interface PurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
+  dynamicContent?: DynamicIndex;
 }
 
-export default function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
+export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc }: PurchaseModalProps) {
   if (!isOpen) return null;
+
+  const pixLink = dc?.pix_link || 'https://pay.cakto.com.br/eenyazw';
+  const pixPrice = dc?.pix_price || 'R$ 297,00';
+  const pixDetail = dc?.pix_detail || 'pagamento único — sua pra sempre';
+  const cardLink = dc?.card_link || 'https://pay.cakto.com.br/33wcy9w_791231';
+  const cardPrice = dc?.card_price || '12x R$ 57,78';
+  const cardDetail = dc?.card_detail || 'no cartão';
 
   return (
     <div className="purchase-modal active" aria-hidden="false">
@@ -21,7 +39,7 @@ export default function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
         </div>
         <div className="purchase-modal__options">
           {/* PIX */}
-          <a href="https://pay.cakto.com.br/eenyazw" className="purchase-modal__option purchase-modal__option--pix">
+          <a href={pixLink} className="purchase-modal__option purchase-modal__option--pix">
             <div className="purchase-modal__badge">🔥 Melhor oferta</div>
             <div className="purchase-modal__icon-wrap">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -30,14 +48,14 @@ export default function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
             </div>
             <span className="purchase-modal__method">Pix</span>
             <div className="purchase-modal__price">
-              <span className="purchase-modal__amount">R$ 297,00</span>
-              <span className="purchase-modal__detail">pagamento único — sua pra sempre</span>
+              <span className="purchase-modal__amount">{pixPrice}</span>
+              <span className="purchase-modal__detail">{pixDetail}</span>
             </div>
             <span className="purchase-modal__savings">Economize R$ 396,36</span>
             <span className="purchase-modal__cta-text">Pagar com Pix →</span>
           </a>
           {/* Cartão */}
-          <a href="https://pay.cakto.com.br/33wcy9w_791231" className="purchase-modal__option purchase-modal__option--card">
+          <a href={cardLink} className="purchase-modal__option purchase-modal__option--card">
             <div className="purchase-modal__icon-wrap">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -46,8 +64,8 @@ export default function PurchaseModal({ isOpen, onClose }: PurchaseModalProps) {
             </div>
             <span className="purchase-modal__method">Cartão de Crédito</span>
             <div className="purchase-modal__price">
-              <span className="purchase-modal__amount">12x R$ 57,78</span>
-              <span className="purchase-modal__detail">no cartão</span>
+              <span className="purchase-modal__amount">{cardPrice}</span>
+              <span className="purchase-modal__detail">{cardDetail}</span>
             </div>
             <span className="purchase-modal__cta-text">Pagar com Cartão →</span>
           </a>

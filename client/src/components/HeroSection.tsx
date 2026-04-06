@@ -1,9 +1,18 @@
 
-interface HeroSectionProps {
-  onOpenModal: () => void;
+interface DynamicIndex {
+  hero_title: string;
+  hero_subtitle: string;
+  hero_image: string;
+  cta_text: string;
+  [key: string]: string;
 }
 
-export default function HeroSection({ onOpenModal }: HeroSectionProps) {
+interface HeroSectionProps {
+  onOpenModal: () => void;
+  dynamicContent?: DynamicIndex;
+}
+
+export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSectionProps) {
   return (
     <section id="section-hero">
       <div className="hero-glow hero-glow-1" />
@@ -11,19 +20,27 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
       <div className="container">
         <div className="hero-content">
           <div className="hero-text">
-            <h1>
-              A área de membros<br />
-              que transforma as suas aulas em{' '}
-              <span className="accent">uma máquina de dinheiro.</span>
-            </h1>
-            <p className="subheadline">
-              Enquanto áreas de membros "estilo Netflix" confundem seus alunos e matam seu faturamento, a{' '}
-              <img src="/images/logo.webp" alt="Alanis" style={{ height: '1em', verticalAlign: '-3px', display: 'inline' }} />{' '}
-              guia cada aluno pelo caminho certo, com 6 fontes de receita extras, engajamento por IA e um sistema viral que cresce sozinho.
-            </p>
+            {dc ? (
+              <h1 dangerouslySetInnerHTML={{ __html: dc.hero_title }} />
+            ) : (
+              <h1>
+                A área de membros<br />
+                que transforma as suas aulas em{' '}
+                <span className="accent">uma máquina de dinheiro.</span>
+              </h1>
+            )}
+            {dc ? (
+              <p className="subheadline">{dc.hero_subtitle}</p>
+            ) : (
+              <p className="subheadline">
+                Enquanto áreas de membros "estilo Netflix" confundem seus alunos e matam seu faturamento, a{' '}
+                <img src="/images/logo.webp" alt="Alanis" style={{ height: '1em', verticalAlign: '-3px', display: 'inline' }} />{' '}
+                guia cada aluno pelo caminho certo, com 6 fontes de receita extras, engajamento por IA e um sistema viral que cresce sozinho.
+              </p>
+            )}
             <div className="hero-cta-group">
               <a href="#" onClick={(e) => { e.preventDefault(); onOpenModal(); }} className="btn-primary">
-                Quero Minha Plataforma Própria →
+                {dc?.cta_text || 'Quero Minha Plataforma Própria →'}
               </a>
               <div className="powered-badge">
                 <span className="powered-badge__label">Powered by</span>
@@ -35,7 +52,7 @@ export default function HeroSection({ onOpenModal }: HeroSectionProps) {
           </div>
           <div className="hero-visual">
             <img
-              src="/images/hero-1.webp"
+              src={dc?.hero_image || '/images/hero-1.webp'}
               alt="Alanis Platform"
               className="hero-image"
               loading="eager"

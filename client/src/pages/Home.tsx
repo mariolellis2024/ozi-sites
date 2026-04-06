@@ -11,8 +11,31 @@ import FaqSection from '../components/FaqSection';
 import Footer from '../components/Footer';
 import PurchaseModal from '../components/PurchaseModal';
 
-export default function Home() {
+interface DynamicContent {
+  content_index: {
+    hero_title: string;
+    hero_subtitle: string;
+    hero_image: string;
+    cta_text: string;
+    pix_link: string;
+    pix_price: string;
+    pix_detail: string;
+    card_link: string;
+    card_price: string;
+    card_detail: string;
+    [key: string]: string;
+  };
+  [key: string]: any;
+}
+
+interface HomeProps {
+  dynamicContent?: DynamicContent;
+}
+
+export default function Home({ dynamicContent }: HomeProps) {
+  const dc = dynamicContent?.content_index;
   const [modalOpen, setModalOpen] = useState(false);
+
 
   const openModal = useCallback(() => {
     setModalOpen(true);
@@ -59,7 +82,7 @@ export default function Home() {
     <>
       <Navbar onOpenModal={openModal} />
 
-      <HeroSection onOpenModal={openModal} />
+      <HeroSection onOpenModal={openModal} dynamicContent={dc} />
 
       <BenefitsGrid />
 
@@ -176,7 +199,7 @@ export default function Home() {
       <ComparisonSection onOpenModal={openModal} />
       <FaqSection onOpenModal={openModal} />
       <Footer />
-      <PurchaseModal isOpen={modalOpen} onClose={closeModal} />
+      <PurchaseModal isOpen={modalOpen} onClose={closeModal} dynamicContent={dc} />
     </>
   );
 }
