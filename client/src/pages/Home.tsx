@@ -96,7 +96,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
 
       <FeatureSection
         id="section-monetizacao"
-        image={dc?.monetizacao_image || '/images/01-a.webp'}
+        image={dc?.monetizacao_image || '/images/01.webp'}
         imageAlt="Diagrama Receitas"
         title={dc?.monetizacao_title ? <span dangerouslySetInnerHTML={{ __html: dc.monetizacao_title }} /> : <>Sua concorrência tem 1 forma de ganhar dinheiro. <span className="accent">Você vai ter 6</span>.</>}
         items={[
@@ -113,7 +113,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
       <FeatureSection
         id="section-referral"
         reverse
-        image={dc?.referral_image || '/images/02-a.webp'}
+        image={dc?.referral_image || '/images/02.webp'}
         imageAlt="Diagrama Viral Loop"
         title={dc?.referral_title ? <span dangerouslySetInnerHTML={{ __html: dc.referral_title }} /> : <>Cada aluno traz 5 novos. <span className="accent">Sem gastar um centavo em ads</span>.</>}
         items={[
@@ -129,7 +129,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
 
       <FeatureSection
         id="section-commerce"
-        image={dc?.commerce_image || '/images/03-a.webp'}
+        image={dc?.commerce_image || '/images/03.webp'}
         imageAlt="Mockup Commerce"
         title={dc?.commerce_title ? <span dangerouslySetInnerHTML={{ __html: dc.commerce_title }} /> : <>A aula menciona um produto? <span className="accent">O botão de compra já aparece na hora, dentro do video</span>.</>}
         items={[
@@ -161,7 +161,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
 
       <FeatureSection
         id="section-trilhas"
-        image={dc?.trilhas_image || '/images/05-a.webp'}
+        image={dc?.trilhas_image || '/images/05.webp'}
         imageAlt="Mockup Trilhas"
         title={dc?.trilhas_title ? <span dangerouslySetInnerHTML={{ __html: dc.trilhas_title }} /> : <>Chega da <span style={{ color: '#ff0049' }}>confusão "Netflix"</span>. Aqui, <span className="accent">cada aluno sabe exatamente o próximo passo</span>.</>}
         items={[
@@ -179,7 +179,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
       <FeatureSection
         id="section-analytics"
         reverse
-        image={dc?.analytics_image || '/images/06-a.webp'}
+        image={dc?.analytics_image || '/images/06.webp'}
         imageAlt="Dashboard Analytics"
         title={dc?.analytics_title ? <span dangerouslySetInnerHTML={{ __html: dc.analytics_title }} /> : <>Analytics por aula. Crie intervenções antes dos pontos de saída e <span className="accent">mantenha seus alunos na aula</span>.</>}
         items={[
