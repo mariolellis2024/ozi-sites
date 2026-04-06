@@ -7,12 +7,11 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import TemplatePreviewModal from '../components/ui/TemplatePreviewModal';
 
 interface Template {
-  id: number | string;
+  id: number;
   name: string;
   content_index: Record<string, any>;
   content_obrigado: Record<string, any>;
   created_at: string;
-  isBase?: boolean;
 }
 
 export default function AdminModels() {
@@ -98,9 +97,9 @@ export default function AdminModels() {
 
         <main style={{ flex: 1, padding: 32 }}>
           <div style={{ marginBottom: 28 }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Modelos Base</h1>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Modelos Salvos</h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: 4 }}>
-              Páginas salvas como modelo. Restaure ou visualize o preview.
+              Páginas salvas como modelo antes de serem deletadas. Restaure ou visualize o preview.
             </p>
           </div>
 
@@ -125,7 +124,7 @@ export default function AdminModels() {
               {templates.map(tpl => (
                 <div key={tpl.id} style={{
                   borderRadius: 'var(--radius-medium)',
-                  border: tpl.isBase ? '1px solid rgba(117,251,198,0.3)' : '1px solid var(--color-border)',
+                  border: '1px solid var(--color-border)',
                   background: 'var(--color-bg-secondary)', overflow: 'hidden',
                 }}>
                   {/* Card header */}
@@ -140,16 +139,8 @@ export default function AdminModels() {
                         <Copy size={18} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {tpl.name}
-                          {tpl.isBase && (
-                            <span style={{
-                              fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase',
-                              padding: '2px 8px', borderRadius: 'var(--radius-full)',
-                              background: 'rgba(117,251,198,0.15)', color: 'var(--color-accent)',
-                              letterSpacing: '0.5px', flexShrink: 0,
-                            }}>Fixo</span>
-                          )}
                         </h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 2 }}>
                           <Calendar size={11} /> {formatDate(tpl.created_at)}
@@ -186,32 +177,30 @@ export default function AdminModels() {
                     </button>
                   </div>
 
-                  {/* Action buttons (not for base template) */}
-                  {!tpl.isBase && (
-                    <div style={{
-                      display: 'flex', gap: 8, padding: '10px 24px',
-                      borderTop: '1px solid var(--color-border)', background: 'rgba(0,0,0,0.15)',
+                  {/* Action buttons */}
+                  <div style={{
+                    display: 'flex', gap: 8, padding: '10px 24px',
+                    borderTop: '1px solid var(--color-border)', background: 'rgba(0,0,0,0.15)',
+                  }}>
+                    <button onClick={() => { setRestoreTarget(tpl); setRestoreName(tpl.name); setRestoreSlug(tpl.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')); }} style={{
+                      flex: 1, padding: '8px 12px', borderRadius: 'var(--radius-small)',
+                      border: '1px solid rgba(117,251,198,0.3)', background: 'rgba(117,251,198,0.06)',
+                      color: 'var(--color-accent)', cursor: 'pointer', fontSize: '0.82rem',
+                      fontWeight: 600, fontFamily: 'var(--font-body)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                     }}>
-                      <button onClick={() => { setRestoreTarget(tpl); setRestoreName(tpl.name); setRestoreSlug(tpl.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')); }} style={{
-                        flex: 1, padding: '8px 12px', borderRadius: 'var(--radius-small)',
-                        border: '1px solid rgba(117,251,198,0.3)', background: 'rgba(117,251,198,0.06)',
-                        color: 'var(--color-accent)', cursor: 'pointer', fontSize: '0.82rem',
-                        fontWeight: 600, fontFamily: 'var(--font-body)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      }}>
-                        <RotateCcw size={13} /> Restaurar
-                      </button>
-                      <button onClick={() => setDeleteTarget(tpl)} style={{
-                        padding: '8px 12px', borderRadius: 'var(--radius-small)',
-                        border: '1px solid rgba(255,107,107,0.3)', background: 'transparent',
-                        color: '#ff6b6b', cursor: 'pointer', fontSize: '0.82rem',
-                        fontFamily: 'var(--font-body)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      }}>
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  )}
+                      <RotateCcw size={13} /> Restaurar
+                    </button>
+                    <button onClick={() => setDeleteTarget(tpl)} style={{
+                      padding: '8px 12px', borderRadius: 'var(--radius-small)',
+                      border: '1px solid rgba(255,107,107,0.3)', background: 'transparent',
+                      color: '#ff6b6b', cursor: 'pointer', fontSize: '0.82rem',
+                      fontFamily: 'var(--font-body)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    }}>
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

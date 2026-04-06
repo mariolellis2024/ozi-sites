@@ -4,31 +4,11 @@ import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-// GET /api/templates — list all saved templates (includes base template as first item)
+// GET /api/templates — list saved templates (from deleted pages)
 router.get('/', authMiddleware, async (_req, res) => {
   try {
-    // Fetch base template from settings
-    const { rows: settingsRows } = await pool.query("SELECT value FROM settings WHERE key = 'page_template'");
-    const baseTemplate = settingsRows.length > 0 ? settingsRows[0].value : null;
-
-    // Fetch saved templates
     const { rows } = await pool.query('SELECT * FROM page_templates ORDER BY created_at DESC');
-
-    // Prepend the base template as a fixed first entry
-    const result = [];
-    if (baseTemplate) {
-      result.push({
-        id: 'base',
-        name: 'Modelo Base',
-        content_index: baseTemplate.content_index || {},
-        content_obrigado: baseTemplate.content_obrigado || {},
-        created_at: settingsRows[0]?.updated_at || new Date().toISOString(),
-        isBase: true,
-      });
-    }
-    result.push(...rows);
-
-    res.json(result);
+    res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro interno' });

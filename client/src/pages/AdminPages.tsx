@@ -49,7 +49,8 @@ function AdminSidebar({ active }: { active: string }) {
   const items = [
     { id: 'dashboard', label: 'Dashboard', icon: <Shield size={18} />, path: '/admin/dashboard' },
     { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
-    { id: 'models', label: 'Modelos Base', icon: <Copy size={18} />, path: '/admin/models' },
+    { id: 'template', label: 'Templates', icon: <Copy size={18} />, path: '/admin/template' },
+    { id: 'models', label: 'Modelos Salvos', icon: <Copy size={18} />, path: '/admin/models' },
     { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
     { id: 'tracking', label: 'Tracking', icon: <Activity size={18} />, path: '/admin/tracking' },
     { id: 'sales', label: 'Vendas', icon: <DollarSign size={18} />, path: '/admin/sales' },

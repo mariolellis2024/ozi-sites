@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, Globe, Copy } from 'lucide-react';
+import { Save, Globe, Copy, Eye } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { AdminNav, AdminSidebar } from './AdminPages';
+import TemplatePreviewModal from '../components/ui/TemplatePreviewModal';
 
 interface TemplateData {
   content_index: {
@@ -36,6 +37,8 @@ export default function AdminTemplate() {
   const [template, setTemplate] = useState<TemplateData | null>(null);
   const [activeTab, setActiveTab] = useState<'index' | 'obrigado'>('index');
   const [saving, setSaving] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewType, setPreviewType] = useState<'index' | 'obrigado'>('index');
 
   useEffect(() => {
     if (!token) { navigate('/admin'); return; }
@@ -102,14 +105,34 @@ export default function AdminTemplate() {
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
             <div>
-              <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Modelo Base</h1>
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Templates</h1>
               <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: 4 }}>
                 Template usado como base ao criar novas páginas
               </p>
             </div>
-            <button onClick={handleSave} disabled={saving} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Save size={16} /> {saving ? 'Salvando...' : 'Salvar Modelo'}
-            </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => { setPreviewType('index'); setPreviewOpen(true); }} style={{
+                padding: '8px 14px', borderRadius: 'var(--radius-small)',
+                border: '1px solid rgba(117,251,198,0.2)', background: 'rgba(117,251,198,0.04)',
+                color: 'var(--color-accent)', cursor: 'pointer', fontSize: '0.82rem',
+                fontWeight: 600, fontFamily: 'var(--font-body)',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                <Eye size={14} /> Preview Index
+              </button>
+              <button onClick={() => { setPreviewType('obrigado'); setPreviewOpen(true); }} style={{
+                padding: '8px 14px', borderRadius: 'var(--radius-small)',
+                border: '1px solid rgba(117,180,251,0.2)', background: 'rgba(117,180,251,0.04)',
+                color: '#75b4fb', cursor: 'pointer', fontSize: '0.82rem',
+                fontWeight: 600, fontFamily: 'var(--font-body)',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                <Eye size={14} /> Preview Obrigado
+              </button>
+              <button onClick={handleSave} disabled={saving} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Save size={16} /> {saving ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
           </div>
 
           {/* Info banner */}
@@ -190,6 +213,14 @@ export default function AdminTemplate() {
           )}
         </main>
       </div>
+
+      <TemplatePreviewModal
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        templateId="base"
+        templateName="Template Base"
+        previewType={previewType}
+      />
     </div>
   );
 }
