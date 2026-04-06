@@ -1,5 +1,7 @@
 import ScrollFadeIn from './ui/ScrollFadeIn';
 import YouTubeFacade from './ui/YouTubeFacade';
+import EditableImage from './ui/EditableImage';
+import { useEdit } from '../context/EditContext';
 
 const benefits = [
   { icon: 'icon-1.webp', title: '6 Fontes de Receita' },
@@ -9,7 +11,14 @@ const benefits = [
   { icon: 'icon-5.webp', title: 'Commerce Dentro da Aula' },
 ];
 
-export default function BenefitsGrid() {
+interface BenefitsGridProps {
+  dynamicContent?: Record<string, any>;
+}
+
+export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) {
+  const edit = useEdit();
+  const e = edit?.isEditing;
+  const motorImage = (e ? edit.content.motor_image : dc?.motor_image) || '/images/motor.webp';
   return (
     <section id="section-quick-benefits">
       <div className="container">
@@ -31,7 +40,13 @@ export default function BenefitsGrid() {
           ))}
         </div>
         <ScrollFadeIn>
-          <img src="/images/motor.webp" alt="Motor de Vendas da Alanis" className="motor-img" loading="lazy" decoding="async" width={900} />
+          {e ? (
+            <EditableImage fieldKey="motor_image">
+              <img src={motorImage} alt="Motor de Vendas da Alanis" className="motor-img" loading="lazy" decoding="async" width={900} />
+            </EditableImage>
+          ) : (
+            <img src={motorImage} alt="Motor de Vendas da Alanis" className="motor-img" loading="lazy" decoding="async" width={900} />
+          )}
         </ScrollFadeIn>
         <ScrollFadeIn>
           <div className="vsl-wrapper">

@@ -86,13 +86,13 @@ export default function Home({ dynamicContent }: HomeProps) {
 
       <HeroSection onOpenModal={openModal} dynamicContent={dc} />
 
-      <BenefitsGrid />
+      <BenefitsGrid dynamicContent={dc} />
 
       <FeatureSection
         id="section-monetizacao"
-        image="/images/01-a.webp"
+        image={dc?.monetizacao_image || '/images/01-a.webp'}
         imageAlt="Diagrama Receitas"
-        title={<>Sua concorrência tem 1 forma de ganhar dinheiro. <span className="accent">Você vai ter 6</span>.</>}
+        title={dc?.monetizacao_title ? <span dangerouslySetInnerHTML={{ __html: dc.monetizacao_title }} /> : <>Sua concorrência tem 1 forma de ganhar dinheiro. <span className="accent">Você vai ter 6</span>.</>}
         items={[
           'Cursos gratuitos → atraem a base sem custo',
           'VIP por indicação → crescimento orgânico e viral',
@@ -106,9 +106,9 @@ export default function Home({ dynamicContent }: HomeProps) {
       <FeatureSection
         id="section-referral"
         reverse
-        image="/images/02-a.webp"
+        image={dc?.referral_image || '/images/02-a.webp'}
         imageAlt="Diagrama Viral Loop"
-        title={<>Cada aluno traz 5 novos. <span className="accent">Sem gastar um centavo em ads</span>.</>}
+        title={dc?.referral_title ? <span dangerouslySetInnerHTML={{ __html: dc.referral_title }} /> : <>Cada aluno traz 5 novos. <span className="accent">Sem gastar um centavo em ads</span>.</>}
         items={[
           'Aluno indica amigos → desbloqueia cursos VIP exclusivos',
           'Crescimento exponencial sem custo de aquisição',
@@ -121,9 +121,9 @@ export default function Home({ dynamicContent }: HomeProps) {
 
       <FeatureSection
         id="section-commerce"
-        image="/images/03-a.webp"
+        image={dc?.commerce_image || '/images/03-a.webp'}
         imageAlt="Mockup Commerce"
-        title={<>A aula menciona um produto? <span className="accent">O botão de compra já aparece na hora, dentro do video</span>.</>}
+        title={dc?.commerce_title ? <span dangerouslySetInnerHTML={{ __html: dc.commerce_title }} /> : <>A aula menciona um produto? <span className="accent">O botão de compra já aparece na hora, dentro do video</span>.</>}
         items={[
           'IA identifica cada produto mencionado na transcrição da aula',
           'Botões de compra automáticos: Amazon, Mercado Livre, links próprios',
@@ -137,9 +137,9 @@ export default function Home({ dynamicContent }: HomeProps) {
       <FeatureSection
         id="section-anuncios"
         reverse
-        image="/images/04.webp"
+        image={dc?.anuncios_image || '/images/04.webp'}
         imageAlt="Mockup Anúncios"
-        title={<><span className="accent">Ganhe dinheiro</span> até com alunos que nunca pagaram um centavo.</>}
+        title={dc?.anuncios_title ? <span dangerouslySetInnerHTML={{ __html: dc.anuncios_title }} /> : <><span className="accent">Ganhe dinheiro</span> até com alunos que nunca pagaram um centavo.</>}
         items={[
           'Anúncios em vídeo pré-aula: marcas pagam para exibir antes do seu conteúdo',
           'Banners e imagens patrocinadas dentro da plataforma',
@@ -151,9 +151,9 @@ export default function Home({ dynamicContent }: HomeProps) {
 
       <FeatureSection
         id="section-trilhas"
-        image="/images/05-a.webp"
+        image={dc?.trilhas_image || '/images/05-a.webp'}
         imageAlt="Mockup Trilhas"
-        title={<>Chega da <span style={{ color: '#ff0049' }}>confusão "Netflix"</span>. Aqui, <span className="accent">cada aluno sabe exatamente o próximo passo</span>.</>}
+        title={dc?.trilhas_title ? <span dangerouslySetInnerHTML={{ __html: dc.trilhas_title }} /> : <>Chega da <span style={{ color: '#ff0049' }}>confusão "Netflix"</span>. Aqui, <span className="accent">cada aluno sabe exatamente o próximo passo</span>.</>}
         items={[
           'Trilhas de carreira com sequência definida: o aluno nunca fica perdido',
           'Dashboard orientado à ação: o próximo passo é sempre óbvio',
@@ -168,9 +168,9 @@ export default function Home({ dynamicContent }: HomeProps) {
       <FeatureSection
         id="section-analytics"
         reverse
-        image="/images/06-a.webp"
+        image={dc?.analytics_image || '/images/06-a.webp'}
         imageAlt="Dashboard Analytics"
-        title={<>Analytics por aula. Crie intervenções antes dos pontos de saída e <span className="accent">mantenha seus alunos na aula</span>.</>}
+        title={dc?.analytics_title ? <span dangerouslySetInnerHTML={{ __html: dc.analytics_title }} /> : <>Analytics por aula. Crie intervenções antes dos pontos de saída e <span className="accent">mantenha seus alunos na aula</span>.</>}
         items={[
           'Veja exatamente onde cada aluno abandona a aula',
           'Insira quiz ou interação 15 segundos antes do ponto de desistência',
@@ -183,9 +183,9 @@ export default function Home({ dynamicContent }: HomeProps) {
 
       <FeatureSection
         id="section-whitelabel"
-        image="/images/07.webp"
+        image={dc?.whitelabel_image || '/images/07.webp'}
         imageAlt="Mockup White Label"
-        title={<>Aqui, a plataforma é SUA. <span style={{ color: '#ff0049' }}>Não alugada</span>. <span className="accent">Sua</span>.</>}
+        title={dc?.whitelabel_title ? <span dangerouslySetInnerHTML={{ __html: dc.whitelabel_title }} /> : <>Aqui, a plataforma é SUA. <span style={{ color: '#ff0049' }}>Não alugada</span>. <span className="accent">Sua</span>.</>}
         items={[
           '100% com sua marca, seu domínio, sua identidade',
           'PWA instalável: seus alunos terão um "app" com seu ícone',
@@ -196,7 +196,7 @@ export default function Home({ dynamicContent }: HomeProps) {
       />
 
       <QualificadorSection onOpenModal={openModal} />
-      <CaseSection onOpenModal={openModal} />
+      <CaseSection onOpenModal={openModal} dynamicContent={dc} />
       <ComparisonSection onOpenModal={openModal} />
       <FaqSection onOpenModal={openModal} />
       <Footer />
