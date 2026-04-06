@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { trackPaymentSelect, trackLead } from '../hooks/useGA4';
 import { trackMetaEvent } from '../hooks/useMetaPixel';
 import { trackServerEvent, getCheckoutUrl } from '../hooks/useServerTracking';
+import EditableText from './ui/EditableText';
+import { useEdit } from '../context/EditContext';
 
 interface DynamicIndex {
   pix_link: string;
@@ -22,6 +24,9 @@ interface PurchaseModalProps {
 
 export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pageId }: PurchaseModalProps) {
   const [redirecting, setRedirecting] = useState<'pix' | 'card' | null>(null);
+  const edit = useEdit();
+  const e = edit?.isEditing;
+  const src = e ? edit.content : dc;
 
   if (!isOpen) return null;
 
@@ -31,6 +36,10 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
   const cardLink = dc?.card_link || 'https://pay.cakto.com.br/33wcy9w_791231';
   const cardPrice = dc?.card_price || '12x R$ 57,78';
   const cardDetail = dc?.card_detail || 'no cartão';
+
+  const modalTitle = src?.modal_title || 'Garanta sua Alanis';
+  const modalSubtitle = src?.modal_subtitle || 'Escolha a melhor forma de pagamento';
+  const modalGuarantee = src?.modal_guarantee || '🔒 Pagamento 100% seguro · Acesso imediato após confirmação';
 
   // Enrich checkout links with SCK + UTMs
   const enrichedPixLink = getCheckoutUrl(pixLink);
@@ -77,9 +86,15 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
         </button>
         <div className="purchase-modal__header">
           <h3 className="purchase-modal__title">
-            Garanta sua Alanis
+            {e ? (
+              <EditableText fieldKey="modal_title" label="Título do Modal">{modalTitle}</EditableText>
+            ) : modalTitle}
           </h3>
-          <p className="purchase-modal__subtitle">Escolha a melhor forma de pagamento</p>
+          <p className="purchase-modal__subtitle">
+            {e ? (
+              <EditableText fieldKey="modal_subtitle" label="Subtítulo do Modal">{modalSubtitle}</EditableText>
+            ) : modalSubtitle}
+          </p>
         </div>
         <div className="purchase-modal__options">
           {/* PIX */}
@@ -114,7 +129,11 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc, pag
             <span className="purchase-modal__cta-text">{redirecting === 'card' ? '⏳ Redirecionando...' : 'Pagar com Cartão →'}</span>
           </a>
         </div>
-        <p className="purchase-modal__guarantee">🔒 Pagamento 100% seguro · Acesso imediato após confirmação</p>
+        <p className="purchase-modal__guarantee">
+          {e ? (
+            <EditableText fieldKey="modal_guarantee" label="Texto de Garantia">{modalGuarantee}</EditableText>
+          ) : modalGuarantee}
+        </p>
       </div>
     </div>
   );

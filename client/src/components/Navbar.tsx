@@ -30,7 +30,7 @@ export default function Navbar({ onOpenModal, dynamicContent: dc }: NavbarProps)
             <img src={logo_url} alt="Logo" />
           </a>
           <ul className="nav-links">
-            <li><a href="#section-quick-benefits">Funcionalidades</a></li>
+            <li><a href="#section-quick-benefits">Vantagens</a></li>
             <li><a href="#section-comparativo">Diferenciais</a></li>
             <li><a href="#section-faq">FAQ</a></li>
           </ul>
@@ -51,7 +51,7 @@ export default function Navbar({ onOpenModal, dynamicContent: dc }: NavbarProps)
       <div className={`mobile-menu${menuOpen ? ' active' : ''}`} onClick={(ev) => {
         if ((ev.target as HTMLElement).tagName === 'A') closeMenu();
       }}>
-        <a href="#section-quick-benefits">Funcionalidades</a>
+        <a href="#section-quick-benefits">Vantagens</a>
         <a href="#section-comparativo">Diferenciais</a>
         <a href="#section-faq">FAQ</a>
         <a href="#" className="btn-login" style={{ border: '1px solid var(--color-border)', padding: '12px 32px', borderRadius: 'var(--radius-full)' }}>
