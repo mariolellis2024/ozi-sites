@@ -258,9 +258,10 @@ export default function AdminIntegrations() {
               </div>
 
               <TrackingInfo items={[
-                'PageView (dual)', 'Lead (checkout click)', 'ViewContent',
-                'Event deduplication', 'UTMs (source, medium, campaign)', 'Advanced Matching',
-                'fbp / fbc cookies', 'IP + User Agent (server)', 'External ID (visitor)',
+                'PageView (dual)', 'InitiateCheckout (dual)', 'Lead (dual)',
+                'ViewContent (dual)', 'Deduplicação event_id', 'Advanced Matching (external_id)',
+                'fbp / fbc cookies', 'IP + User Agent (server)', 'SCK (Server Click Key)',
+                'custom_data.value + currency', 'PII hash SHA-256 (via Webhook)',
               ]} />
 
               {/* Data Quality info */}
@@ -272,15 +273,28 @@ export default function AdminIntegrations() {
                 <p style={{ fontSize: '0.82rem', fontWeight: 600, color: '#6ea8fe', marginBottom: 8 }}>
                   🎯 Parâmetros enviados para EMQ máximo:
                 </p>
-                <div style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-                  <div>✓ <strong>event_id</strong> — deduplicação Browser ↔ Server</div>
-                  <div>✓ <strong>client_ip_address</strong> — capturado no servidor</div>
-                  <div>✓ <strong>client_user_agent</strong> — capturado no servidor</div>
-                  <div>✓ <strong>fbp</strong> — Facebook Browser ID (cookie)</div>
-                  <div>✓ <strong>fbc</strong> — Facebook Click ID (fbclid)</div>
-                  <div>✓ <strong>external_id</strong> — visitante único</div>
-                  <div>✓ <strong>UTMs</strong> — utm_source, utm_medium, utm_campaign, utm_content, utm_term</div>
-                  <div>✓ <strong>event_source_url</strong> — URL completa</div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>
+                  <div style={{ fontWeight: 600, color: '#ff6b6b', fontSize: '0.72rem', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Peso Alto</div>
+                  <div>✓ <strong>client_ip_address</strong> — IP real do visitante (servidor)</div>
+                  <div>✓ <strong>client_user_agent</strong> — User Agent do browser (servidor)</div>
+                  <div>✓ <strong>fbp</strong> — Facebook Browser ID (cookie _fbp)</div>
+                  <div>✓ <strong>fbc</strong> — Facebook Click ID (fbclid → cookie _fbc)</div>
+                  <div>✓ <strong>em</strong> — Email SHA-256 (via webhook de compra)</div>
+                  <div>✓ <strong>ph</strong> — Telefone SHA-256 (via webhook de compra)</div>
+
+                  <div style={{ fontWeight: 600, color: '#ffc832', fontSize: '0.72rem', margin: '10px 0 4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Peso Médio</div>
+                  <div>✓ <strong>external_id</strong> — ID único do visitante (persistente)</div>
+                  <div>✓ <strong>fn / ln</strong> — Nome e sobrenome SHA-256 (via webhook)</div>
+
+                  <div style={{ fontWeight: 600, color: '#6ea8fe', fontSize: '0.72rem', margin: '10px 0 4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Peso Baixo</div>
+                  <div>✓ <strong>ct / st / zp / country</strong> — Endereço SHA-256 (via webhook)</div>
+
+                  <div style={{ fontWeight: 600, color: 'var(--color-text-light)', fontSize: '0.72rem', margin: '10px 0 4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Técnico</div>
+                  <div>✓ <strong>event_id</strong> — UUID deduplicação Browser ↔ Server</div>
+                  <div>✓ <strong>event_time</strong> — timestamp Unix (servidor)</div>
+                  <div>✓ <strong>event_source_url</strong> — URL completa da página</div>
+                  <div>✓ <strong>action_source</strong> — "website"</div>
+                  <div>✓ <strong>custom_data</strong> — value, currency, content_name, UTMs completas</div>
                 </div>
               </div>
 
