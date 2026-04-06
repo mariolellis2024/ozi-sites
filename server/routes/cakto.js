@@ -102,17 +102,19 @@ router.post('/webhook', async (req, res) => {
     let status = 'unknown';
     let isPurchase = false;
     
-    // Purchase approved (multiple possible formats)
-    if (['purchase_approved', 'approved', 'payment_confirmed', 'payment_approved', 'confirmed'].includes(eventLower)) {
+    // Purchase approved (EN + PT formats)
+    if (['purchase_approved', 'approved', 'payment_confirmed', 'payment_approved', 'confirmed',
+         'compra_aprovada', 'pagamento_aprovado', 'pagamento_confirmado'].includes(eventLower)) {
       status = 'approved';
       isPurchase = true;
     }
-    else if (['purchase_refused', 'purchase_declined', 'refused', 'declined'].includes(eventLower)) status = 'refused';
-    else if (['pix_generated', 'pix_created'].includes(eventLower)) status = 'pending';
-    else if (['boleto_generated', 'boleto_created'].includes(eventLower)) status = 'pending';
-    else if (['checkout_abandonment', 'abandoned'].includes(eventLower)) status = 'abandoned';
-    else if (['purchase_refunded', 'refunded'].includes(eventLower)) status = 'refunded';
-    else if (eventLower === 'chargeback') status = 'chargeback';
+    else if (['purchase_refused', 'purchase_declined', 'refused', 'declined',
+              'compra_recusada', 'pagamento_recusado'].includes(eventLower)) status = 'refused';
+    else if (['pix_generated', 'pix_created', 'pix_gerado'].includes(eventLower)) status = 'pending';
+    else if (['boleto_generated', 'boleto_created', 'boleto_gerado'].includes(eventLower)) status = 'pending';
+    else if (['checkout_abandonment', 'abandoned', 'abandono', 'abandono_checkout'].includes(eventLower)) status = 'abandoned';
+    else if (['purchase_refunded', 'refunded', 'reembolso', 'compra_reembolsada'].includes(eventLower)) status = 'refunded';
+    else if (['chargeback', 'estorno'].includes(eventLower)) status = 'chargeback';
     
     // If status is still unknown but it looks like a purchase (has payment data), treat as approved
     if (status === 'unknown' && data.amount && customer.email) {
