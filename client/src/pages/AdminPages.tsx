@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 interface Page {
   id: number;
@@ -19,7 +20,7 @@ function AdminNav({ email, onLogout }: { email: string; onLogout: () => void }) 
       padding: '0 32px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <img src="/images/logo.webp" alt="Alanis" style={{ height: 28 }} />
+        <img src={useSiteConfig().logo_url} alt="Logo" style={{ height: 28 }} />
         <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', fontWeight: 500, borderLeft: '1px solid var(--color-border)', paddingLeft: 12 }}>Admin</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -41,6 +42,7 @@ function AdminSidebar({ active }: { active: string }) {
     { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
     { id: 'template', label: 'Modelo Base', icon: <LayoutTemplate size={18} />, path: '/admin/template' },
     { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
+    { id: 'settings', label: 'Configurações', icon: <Settings size={18} />, path: '/admin/settings' },
     { id: 'password', label: 'Alterar Senha', icon: <KeyRound size={18} />, path: '/admin/dashboard' },
   ];
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useScrollPosition } from '../hooks/useScrollPosition';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 interface NavbarProps {
   onOpenModal: () => void;
@@ -8,6 +9,7 @@ interface NavbarProps {
 export default function Navbar({ onOpenModal }: NavbarProps) {
   const scrollY = useScrollPosition();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { logo_url } = useSiteConfig();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const closeMenu = () => setMenuOpen(false);
@@ -17,7 +19,7 @@ export default function Navbar({ onOpenModal }: NavbarProps) {
       <nav className={`navbar${scrollY > 80 ? ' scrolled' : ''}`} id="navbar">
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <a href="#" className="nav-logo">
-            <img src="/images/logo.webp" alt="Alanis" />
+            <img src={logo_url} alt="Logo" />
           </a>
           <ul className="nav-links">
             <li><a href="#section-quick-benefits">Funcionalidades</a></li>

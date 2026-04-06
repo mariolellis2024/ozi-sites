@@ -1,4 +1,5 @@
 import { useEdit } from '../context/EditContext';
+import { useSiteConfig } from '../context/SiteConfigContext';
 import EditableText from './ui/EditableText';
 import EditableImage from './ui/EditableImage';
 
@@ -16,6 +17,7 @@ interface HeroSectionProps {
 export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSectionProps) {
   const edit = useEdit();
   const e = edit?.isEditing;
+  const { logo_url } = useSiteConfig();
 
   // In edit mode, use EditContext content (which updates live); otherwise use props
   const heroTitle = e ? (edit.content.hero_title || dc?.hero_title) : dc?.hero_title;
@@ -37,9 +39,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSec
     <p className="subheadline">{heroSubtitle}</p>
   ) : (
     <p className="subheadline">
-      Enquanto áreas de membros "estilo Netflix" confundem seus alunos e matam seu faturamento, a{' '}
-      <img src="/images/logo.webp" alt="Alanis" style={{ height: '1em', verticalAlign: '-3px', display: 'inline' }} />{' '}
-      guia cada aluno pelo caminho certo, com 6 fontes de receita extras, engajamento por IA e um sistema viral que cresce sozinho.
+      Enquanto áreas de membros "estilo Netflix" confundem seus alunos e matam seu faturamento, a Alanis guia cada aluno pelo caminho certo, com 6 fontes de receita extras, engajamento por IA e um sistema viral que cresce sozinho.
     </p>
   );
 
@@ -62,7 +62,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSec
       <div className="hero-glow hero-glow-2" />
       <div className="container">
         {/* Mobile-only logo (navbar is hidden on mobile) */}
-        <img src="/images/logo.webp" alt="Alanis" className="mobile-hero-logo" />
+        <img src={logo_url} alt="Logo" className="mobile-hero-logo" />
         <div className="hero-content">
           <div className="hero-text">
             {e ? (

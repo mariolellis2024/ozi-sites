@@ -12,7 +12,7 @@ export default function QualificadorSection({ onOpenModal }: QualificadorProps) 
           <div className="qualificador-card">
             <h2>Fatura mais de R$ 10k/mês com conteúdo digital?</h2>
             <p>
-              A <img src="/images/logo.webp" alt="Alanis" style={{ display: 'inline', height: 18, verticalAlign: '-2px', filter: 'brightness(0)', margin: '0 2px' }} /> é
+              A Alanis é
               para quem leva educação digital a sério. Se você já fatura e quer multiplicar seus resultados com
               uma plataforma que trabalha por você, vamos conversar.
             </p>

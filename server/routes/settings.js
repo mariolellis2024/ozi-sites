@@ -47,4 +47,22 @@ router.get('/public/analytics', async (_req, res) => {
   }
 });
 
+// GET /api/settings/public/site_config — public endpoint for site branding (no auth)
+router.get('/public/site_config', async (_req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'site_config'");
+    if (rows.length === 0 || !rows[0].value) {
+      return res.json({
+        logo_url: '/images/logo.webp',
+        favicon_url: '/images/favicon.webp',
+        site_title: 'Alanis | A Área de Membros do Futuro',
+      });
+    }
+    res.json(rows[0].value);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
 export default router;

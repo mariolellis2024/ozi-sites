@@ -35,7 +35,7 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc }: P
         </button>
         <div className="purchase-modal__header">
           <h3 className="purchase-modal__title">
-            Garanta sua <img src="/images/logo.webp" alt="Alanis" style={{ height: '1em', verticalAlign: '-3px', display: 'inline' }} />
+            Garanta sua Alanis
           </h3>
           <p className="purchase-modal__subtitle">Escolha a melhor forma de pagamento</p>
         </div>

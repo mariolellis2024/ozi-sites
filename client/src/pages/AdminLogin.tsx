@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { logo_url } = useSiteConfig();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export default function AdminLogin() {
         border: '1px solid var(--color-border)',
       }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <img src="/images/logo.webp" alt="Alanis" style={{ height: 32, margin: '0 auto 24px', display: 'block' }} />
+          <img src={logo_url} alt="Logo" style={{ height: 32, margin: '0 auto 24px', display: 'block' }} />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Admin</h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: 8 }}>
             Área restrita

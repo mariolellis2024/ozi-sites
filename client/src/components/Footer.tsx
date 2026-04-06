@@ -1,11 +1,14 @@
+import { useSiteConfig } from '../context/SiteConfigContext';
+
 export default function Footer() {
+  const { logo_url } = useSiteConfig();
   return (
     <footer id="footer">
       <div className="container">
         <div className="footer-top">
           <div className="footer-brand">
             <a href="#" className="nav-logo">
-              <img src="/images/logo.webp" alt="Alanis" style={{ height: 32 }} />
+              <img src={logo_url} alt="Logo" style={{ height: 32 }} />
             </a>
             <p>Alanis, a plataforma de educação profissional com monetização nativa. Transforme conteúdo em máquina de vendas e sorrisos.</p>
             <div className="footer-social">

@@ -24,7 +24,7 @@ export default function BenefitsGrid({ dynamicContent: dc }: BenefitsGridProps) 
       <div className="container">
         <ScrollFadeIn>
           <h2 className="benefits-headline">
-            O que só a <img src="/images/logo.webp" alt="Alanis" style={{ height: '1em', verticalAlign: '-3px', display: 'inline' }} /> tem.
+            O que só a Alanis tem.
           </h2>
         </ScrollFadeIn>
         <div className="benefits-grid stagger-children">

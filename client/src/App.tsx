@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useGA4 } from './hooks/useGA4';
+import { SiteConfigProvider } from './context/SiteConfigContext';
 import Home from './pages/Home';
 import Obrigado from './pages/Obrigado';
 import AdminLogin from './pages/AdminLogin';
@@ -8,6 +9,7 @@ import AdminPages from './pages/AdminPages';
 import AdminPageEditor from './pages/AdminPageEditor';
 import AdminIntegrations from './pages/AdminIntegrations';
 import AdminTemplate from './pages/AdminTemplate';
+import AdminSettings from './pages/AdminSettings';
 import VisualEditor from './pages/VisualEditor';
 import DynamicPage from './pages/DynamicPage';
 import DynamicObrigado from './pages/DynamicObrigado';
@@ -30,6 +32,7 @@ function AppRoutes() {
       <Route path="/admin/pages/:id/visual/:type" element={<VisualEditor />} />
       <Route path="/admin/template" element={<AdminTemplate />} />
       <Route path="/admin/integrations" element={<AdminIntegrations />} />
+      <Route path="/admin/settings" element={<AdminSettings />} />
 
       {/* Public - dynamic (catch-all, must be last) */}
       <Route path="/:slug" element={<DynamicPage />} />
@@ -41,7 +44,9 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <SiteConfigProvider>
+        <AppRoutes />
+      </SiteConfigProvider>
     </BrowserRouter>
   );
 }

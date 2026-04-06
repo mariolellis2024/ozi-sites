@@ -1,6 +1,7 @@
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import ScrollFadeIn from './ui/ScrollFadeIn';
 import { Wallet, BarChart3, Users, ShoppingCart, Gift, Route, PlayCircle, Flame } from 'lucide-react';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 interface FeatureRow {
   icon: React.ReactNode;
@@ -49,6 +50,7 @@ interface ComparisonSectionProps {
 
 export default function ComparisonSection({ onOpenModal }: ComparisonSectionProps) {
   const { ref, isVisible } = useIntersectionObserver({ threshold: 0.05 });
+  const { logo_url } = useSiteConfig();
 
   return (
     <section id="section-comparativo">
@@ -56,7 +58,7 @@ export default function ComparisonSection({ onOpenModal }: ComparisonSectionProp
         <ScrollFadeIn>
           <div className="section-header">
             <h2>
-              <img src="/images/logo.webp" alt="Alanis" style={{ height: '1em', verticalAlign: '-6px', display: 'inline' }} /> vs{' '}
+              Alanis vs{' '}
               <span style={{ color: '#FF0049' }}>o resto do mercado</span>.
             </h2>
             <p className="section-subtitle">Funcionalidade por funcionalidade, a diferença fica clara.</p>
@@ -68,7 +70,7 @@ export default function ComparisonSection({ onOpenModal }: ComparisonSectionProp
           <div className="comp-col comp-col--alanis">
             <div className="comp-col__header">
               <div className="comp-col__badge">Recomendado</div>
-              <img src="/images/logo.webp" alt="Alanis" className="comp-col__logo" />
+              <img src={logo_url} alt="Logo" className="comp-col__logo" />
               <p className="comp-col__tagline">Plataforma completa</p>
             </div>
             <div className="comp-col__body">

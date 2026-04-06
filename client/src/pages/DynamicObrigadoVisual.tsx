@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import EditableText from '../components/ui/EditableText';
 import { useEdit } from '../context/EditContext';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 interface ObrigadoContent {
   title: string;
@@ -18,6 +19,7 @@ export default function DynamicObrigadoVisual({ content: initialContent }: Props
   const edit = useEdit();
   const c = (edit?.isEditing ? edit.content : initialContent) as ObrigadoContent;
   const particlesRef = useRef<HTMLDivElement>(null);
+  const { logo_url } = useSiteConfig();
 
   useEffect(() => {
     const container = particlesRef.current;
@@ -58,7 +60,7 @@ export default function DynamicObrigadoVisual({ content: initialContent }: Props
       <div className="glow glow-2" />
       <div className="particles" ref={particlesRef} />
       <div className="thankyou-card">
-        <img src="/images/logo.webp" alt="Alanis" className="thankyou-logo" />
+        <img src={logo_url} alt="Logo" className="thankyou-logo" />
         <div className="check-circle">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="40" height="40" style={{ color: 'var(--color-bg-primary)' }}>
             <polyline points="4 12 9 17 20 6" />

@@ -24,7 +24,7 @@ export default function CaseSection({ onOpenModal, dynamicContent: dc }: CaseSec
             <div className="case-text">
               <h2>
                 A <img src="/images/ozi.webp" alt="OZI Audiovisual" style={{ height: '0.75em', verticalAlign: '-1px', display: 'inline' }} />{' '}
-                já escolheu a <img src="/images/logo.webp" alt="Alanis" style={{ height: '1em', verticalAlign: '-6px', display: 'inline' }} />.
+                já escolheu a Alanis.
                 <br /><span className="accent">E você?</span>
               </h2>
               <p>
