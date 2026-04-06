@@ -37,7 +37,7 @@ export default function EditableImage({ fieldKey, children }: EditableImageProps
       style={{ position: 'relative', cursor: 'pointer' }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); fileRef.current?.click(); }}
+      onClick={() => { fileRef.current?.click(); }}
     >
       {children}
 
@@ -49,6 +49,7 @@ export default function EditableImage({ fieldKey, children }: EditableImageProps
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           gap: 8, transition: 'all 200ms ease', zIndex: 10,
           border: '2px dashed rgba(117,251,198,0.5)',
+          pointerEvents: 'none',
         }}>
           {uploading ? (
             <>
