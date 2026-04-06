@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import pool from '../config/db.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { lookupGeo } from '../services/geo.js';
 
 const router = Router();
 
@@ -22,11 +23,15 @@ router.post('/visit', async (req, res) => {
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
     const user_agent = req.headers['user-agent'] || '';
 
-    await pool.query(
+    const { rows } = await pool.query(
       `INSERT INTO visits (sck, page_id, slug, utm_source, utm_medium, utm_campaign, utm_content, utm_term, src, xcod, fbclid, gclid, ip, user_agent, referrer, fbp, fbc)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+       RETURNING id`,
       [sck, page_id || null, slug || null, utm_source || null, utm_medium || null, utm_campaign || null, utm_content || null, utm_term || null, src || null, xcod || null, fbclid || null, gclid || null, ip, user_agent, referrer || null, fbp || null, fbc || null]
     );
+
+    // Fire-and-forget: geo lookup in background (never blocks response)
+    lookupGeo(rows[0].id, ip).catch(() => {});
 
     res.json({ success: true });
   } catch (err) {
@@ -173,7 +178,9 @@ router.get('/visits', authMiddleware, async (req, res) => {
     const visitQuery = `
       SELECT v.id, v.sck, v.page_id, v.slug, v.utm_source, v.utm_medium, v.utm_campaign,
              v.utm_content, v.utm_term, v.src, v.xcod, v.fbclid, v.gclid,
-             v.ip, v.referrer, v.fbp, v.fbc, v.purchased, v.purchase_data, v.purchased_at, v.created_at
+             v.ip, v.referrer, v.fbp, v.fbc, v.purchased, v.purchase_data, v.purchased_at,
+             v.geo_city, v.geo_state, v.geo_zip, v.geo_country, v.geo_isp, v.geo_lat, v.geo_lon, v.geo_source,
+             v.created_at
       FROM visits v ${where}
       ORDER BY v.created_at DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}

@@ -93,10 +93,12 @@ router.post('/webhook', async (req, res) => {
     const utmTerm = data.utm_term || null;
     const src = data.src || null;
 
-    // Status mapping
+    // Status mapping (ALL events saved; only purchase_approved syncs with Meta/Tracking)
     let status = 'unknown';
     if (event === 'purchase_approved') status = 'approved';
+    else if (event === 'purchase_refused') status = 'refused';
     else if (event === 'pix_generated') status = 'pending';
+    else if (event === 'boleto_generated') status = 'pending';
     else if (event === 'checkout_abandonment') status = 'abandoned';
     else if (event === 'purchase_refunded') status = 'refunded';
     else if (event === 'chargeback') status = 'chargeback';
@@ -143,16 +145,23 @@ router.post('/webhook', async (req, res) => {
     if (event === 'purchase_approved' && sck) {
       // Find the visit by SCK
       const { rows: visitRows } = await pool.query(
-        'SELECT id, ip, user_agent, fbp, fbc, created_at FROM visits WHERE sck = $1 ORDER BY created_at DESC LIMIT 1',
+        'SELECT id, ip, user_agent, fbp, fbc, geo_city, geo_state, geo_zip, geo_country, created_at FROM visits WHERE sck = $1 ORDER BY created_at DESC LIMIT 1',
         [sck]
       );
 
       if (visitRows.length > 0) {
         const visit = visitRows[0];
 
-        // Update visit as purchased
+        // Update visit as purchased + override geo with Cakto data (priority over IP-based)
         await pool.query(
-          'UPDATE visits SET purchased = true, purchase_data = $1, purchased_at = NOW() WHERE id = $2',
+          `UPDATE visits SET
+            purchased = true, purchase_data = $1, purchased_at = NOW(),
+            geo_city = COALESCE($3, geo_city),
+            geo_state = COALESCE($4, geo_state),
+            geo_zip = COALESCE($5, geo_zip),
+            geo_country = COALESCE($6, geo_country),
+            geo_source = CASE WHEN $3 IS NOT NULL THEN 'cakto' ELSE geo_source END
+          WHERE id = $2`,
           [JSON.stringify({
             order_id: caktoId,
             email: customer.email,
@@ -165,7 +174,7 @@ router.post('/webhook', async (req, res) => {
             country: address.country || 'BR',
             amount: data.amount || payment.amount,
             method: payment.method || payment.type,
-          }), visit.id]
+          }), visit.id, address.city || null, address.state || null, address.zipCode || null, address.country || null]
         );
 
         // Link sale to visit
@@ -237,15 +246,21 @@ async function sendMetaPurchase({ visit, customer, address, amount, currency, sc
   if (visit.fbc) user_data.fbc = visit.fbc;
   if (sck) user_data.external_id = sck;
 
-  // PII (SHA-256 hashed, normalized)
+  // PII (SHA-256 hashed, normalized) — Cakto data takes priority, geo from IP as fallback
   if (customer.email) user_data.em = sha256(customer.email);
   if (phone) user_data.ph = sha256(phone);
   if (fn) user_data.fn = sha256(fn);
   if (ln) user_data.ln = sha256(ln);
-  if (address.city) user_data.ct = sha256(removeAccents(address.city));
-  if (address.state) user_data.st = sha256(address.state);
-  if (address.zipCode) user_data.zp = sha256(address.zipCode.replace(/\D/g, ''));
-  if (address.country) user_data.country = sha256((address.country || 'br'));
+
+  const city = address.city || visit.geo_city;
+  const state = address.state || visit.geo_state;
+  const zip = address.zipCode || visit.geo_zip;
+  const country = address.country || visit.geo_country || 'br';
+
+  if (city) user_data.ct = sha256(removeAccents(city));
+  if (state) user_data.st = sha256(state);
+  if (zip) user_data.zp = sha256(zip.replace(/\D/g, ''));
+  user_data.country = sha256(country);
 
   const eventId = crypto.randomUUID();
 

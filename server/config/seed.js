@@ -72,6 +72,16 @@ export async function seed() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_visits_created_at ON visits(created_at DESC)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_visits_page_created ON visits(page_id, created_at DESC)`);
 
+    // Geo columns for IP-based geolocation (ip-api.com)
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_city VARCHAR(100)`);
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_state VARCHAR(50)`);
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_zip VARCHAR(20)`);
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_country VARCHAR(10)`);
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_isp VARCHAR(255)`);
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_lat DECIMAL(10,7)`);
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_lon DECIMAL(10,7)`);
+    await pool.query(`ALTER TABLE visits ADD COLUMN IF NOT EXISTS geo_source VARCHAR(10) DEFAULT 'ip'`);
+
     // Ensure events table exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS events (

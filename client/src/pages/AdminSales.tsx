@@ -92,7 +92,8 @@ export default function AdminSales() {
 
   const statusConfig: Record<string, { color: string; bg: string; label: string }> = {
     approved: { color: '#75fbc6', bg: 'rgba(117,251,198,0.1)', label: 'Aprovada' },
-    pending: { color: '#ffc832', bg: 'rgba(255,200,50,0.1)', label: 'Pix Gerado' },
+    refused: { color: '#e84393', bg: 'rgba(232,67,147,0.1)', label: 'Recusada' },
+    pending: { color: '#ffc832', bg: 'rgba(255,200,50,0.1)', label: 'Pendente' },
     abandoned: { color: '#ff6b6b', bg: 'rgba(255,107,107,0.1)', label: 'Abandonada' },
     refunded: { color: '#ff9f43', bg: 'rgba(255,159,67,0.1)', label: 'Reembolsada' },
     chargeback: { color: '#ee5a24', bg: 'rgba(238,90,36,0.1)', label: 'Chargeback' },
@@ -143,9 +144,13 @@ export default function AdminSales() {
           <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
             {[
               { value: '', label: `Todos (${total})` },
-              { value: 'purchase_approved', label: 'Vendas' },
+              { value: 'purchase_approved', label: 'Aprovadas' },
+              { value: 'purchase_refused', label: 'Recusadas' },
               { value: 'pix_generated', label: 'Pix Gerado' },
+              { value: 'boleto_generated', label: 'Boleto' },
               { value: 'checkout_abandonment', label: 'Abandonos' },
+              { value: 'purchase_refunded', label: 'Reembolsos' },
+              { value: 'chargeback', label: 'Chargebacks' },
             ].map(f => (
               <button key={f.value} onClick={() => { setFilter(f.value); setPage(1); }} style={{
                 padding: '6px 14px', borderRadius: 'var(--radius-full)',

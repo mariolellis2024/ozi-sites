@@ -30,6 +30,14 @@ interface Visit {
   purchased: boolean;
   purchase_data: any;
   purchased_at: string | null;
+  geo_city: string | null;
+  geo_state: string | null;
+  geo_zip: string | null;
+  geo_country: string | null;
+  geo_isp: string | null;
+  geo_lat: number | null;
+  geo_lon: number | null;
+  geo_source: string | null;
   created_at: string;
   events: VisitEvent[];
 }
@@ -136,7 +144,7 @@ export default function AdminTracking() {
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1000 }}>
                 <thead>
                   <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                    {['SCK', 'Página', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'SRC', 'XCOD', 'Eventos', 'Compra', 'Data'].map(h => (
+                    {['SCK', 'Página', 'Localização', 'UTM Source', 'UTM Campaign', 'SRC', 'Eventos', 'Compra', 'Data'].map(h => (
                       <th key={h} style={{
                         padding: '10px 12px', textAlign: 'left', fontSize: '0.72rem', color: 'var(--color-text-light)',
                         fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
@@ -146,9 +154,9 @@ export default function AdminTracking() {
                 </thead>
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan={10} style={{ ...cellStyle, textAlign: 'center', padding: 40 }}>Carregando...</td></tr>
+                    <tr><td colSpan={9} style={{ ...cellStyle, textAlign: 'center', padding: 40 }}>Carregando...</td></tr>
                   ) : visits.length === 0 ? (
-                    <tr><td colSpan={10} style={{ ...cellStyle, textAlign: 'center', padding: 40, color: 'var(--color-text-light)' }}>Nenhuma visita encontrada</td></tr>
+                    <tr><td colSpan={9} style={{ ...cellStyle, textAlign: 'center', padding: 40, color: 'var(--color-text-light)' }}>Nenhuma visita encontrada</td></tr>
                   ) : visits.map(v => (
                     <>
                       <tr
@@ -164,11 +172,27 @@ export default function AdminTracking() {
                             /{v.slug || '—'}
                           </code>
                         </td>
+                        <td style={cellStyle}>
+                          {v.geo_city ? (
+                            <div>
+                              <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>{v.geo_city}, {v.geo_state || '?'}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                                <div style={{
+                                  width: 6, height: 6, borderRadius: '50%',
+                                  background: v.geo_source === 'cakto' ? '#75fbc6' : '#ffc832',
+                                }} />
+                                <span style={{ fontSize: '0.65rem', color: 'var(--color-text-light)' }}>
+                                  {v.geo_source === 'cakto' ? 'Cakto' : 'IP'}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.15)' }}>—</span>
+                          )}
+                        </td>
                         <td style={cellStyle}><UtmCell value={v.utm_source} /></td>
-                        <td style={cellStyle}><UtmCell value={v.utm_medium} /></td>
                         <td style={cellStyle}><UtmCell value={v.utm_campaign} /></td>
                         <td style={cellStyle}><UtmCell value={v.src} /></td>
-                        <td style={cellStyle}><UtmCell value={v.xcod} /></td>
                         <td style={cellStyle}>
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                             {v.events.length === 0 ? (
@@ -210,10 +234,10 @@ export default function AdminTracking() {
                           { label: 'external_id', value: v.sck, weight: 'medio' as const, score: 0.5 },
                           { label: 'fn (Nome)', value: pd.first_name || null, weight: 'medio' as const, score: 0.5 },
                           { label: 'ln (Sobrenome)', value: pd.last_name || null, weight: 'medio' as const, score: 0.5 },
-                          { label: 'ct (Cidade)', value: pd.city || null, weight: 'baixo' as const, score: 0.25 },
-                          { label: 'st (Estado)', value: pd.state || null, weight: 'baixo' as const, score: 0.25 },
-                          { label: 'zp (CEP)', value: pd.zip || null, weight: 'baixo' as const, score: 0.25 },
-                          { label: 'country (País)', value: pd.country || null, weight: 'baixo' as const, score: 0.25 },
+                          { label: 'ct (Cidade)', value: pd.city || v.geo_city || null, weight: 'baixo' as const, score: 0.25 },
+                          { label: 'st (Estado)', value: pd.state || v.geo_state || null, weight: 'baixo' as const, score: 0.25 },
+                          { label: 'zp (CEP)', value: pd.zip || v.geo_zip || null, weight: 'baixo' as const, score: 0.25 },
+                          { label: 'country (País)', value: pd.country || v.geo_country || null, weight: 'baixo' as const, score: 0.25 },
                         ];
                         const totalScore = params.reduce((sum, p) => sum + (p.value ? p.score : 0), 0);
                         const maxScore = params.reduce((sum, p) => sum + p.score, 0);
@@ -225,7 +249,7 @@ export default function AdminTracking() {
 
                         return (
                         <tr key={`${v.id}-detail`}>
-                          <td colSpan={10} style={{ padding: '20px 24px', background: 'rgba(117,251,198,0.02)', borderBottom: '1px solid var(--color-border)' }}>
+                          <td colSpan={9} style={{ padding: '20px 24px', background: 'rgba(117,251,198,0.02)', borderBottom: '1px solid var(--color-border)' }}>
                             {/* EMQ Score Badge */}
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                               <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
