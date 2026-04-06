@@ -4,6 +4,7 @@
 @theme {
   --color-bg-primary: #1a1a1a;
   --color-bg-secondary: #202020;
+  --color-secondary: #202020;
   --color-bg-dark: #111111;
   --color-bg-card: rgba(255, 255, 255, 0.04);
   --color-text-primary: #FFFFFF;
@@ -195,7 +196,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 #section-hero {
   min-height: 100vh; display: flex; align-items: center;
   position: relative; overflow: hidden; padding-top: 72px;
-  background: linear-gradient(135deg, var(--color-bg-primary) 0%, #202020 50%, var(--color-bg-primary) 100%);
+  background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-secondary) 50%, var(--color-bg-primary) 100%);
 }
 .hero-glow {
   position: absolute; width: 500px; height: 500px; border-radius: 50%;
