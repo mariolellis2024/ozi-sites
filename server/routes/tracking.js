@@ -23,17 +23,39 @@ router.post('/visit', async (req, res) => {
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
     const user_agent = req.headers['user-agent'] || '';
 
-    const { rows } = await pool.query(
-      `INSERT INTO visits (sck, page_id, slug, utm_source, utm_medium, utm_campaign, utm_content, utm_term, src, xcod, fbclid, gclid, ip, user_agent, referrer, fbp, fbc)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-       RETURNING id`,
-      [sck, page_id || null, slug || null, utm_source || null, utm_medium || null, utm_campaign || null, utm_content || null, utm_term || null, src || null, xcod || null, fbclid || null, gclid || null, ip, user_agent, referrer || null, fbp || null, fbc || null]
+    // Check if this SCK already visited this page recently (30min window)
+    const { rows: existing } = await pool.query(
+      `SELECT id FROM visits 
+       WHERE sck = $1 AND slug = $2 AND created_at > NOW() - INTERVAL '30 minutes'
+       ORDER BY created_at DESC LIMIT 1`,
+      [sck, slug || null]
     );
 
-    // Fire-and-forget: geo lookup in background (never blocks response)
-    lookupGeo(rows[0].id, ip).catch(() => {});
+    let visitId;
 
-    // Also create a page_view event for the timeline
+    if (existing.length > 0) {
+      // Same person, same page, within 30min → just update timestamp + browser IDs
+      visitId = existing[0].id;
+      await pool.query(
+        `UPDATE visits SET ip = $1, user_agent = $2, fbp = COALESCE($3, fbp), fbc = COALESCE($4, fbc), 
+         referrer = COALESCE($5, referrer) WHERE id = $6`,
+        [ip, user_agent, fbp || null, fbc || null, referrer || null, visitId]
+      );
+    } else {
+      // New visit (different page or first time or >30min ago)
+      const { rows } = await pool.query(
+        `INSERT INTO visits (sck, page_id, slug, utm_source, utm_medium, utm_campaign, utm_content, utm_term, src, xcod, fbclid, gclid, ip, user_agent, referrer, fbp, fbc)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+         RETURNING id`,
+        [sck, page_id || null, slug || null, utm_source || null, utm_medium || null, utm_campaign || null, utm_content || null, utm_term || null, src || null, xcod || null, fbclid || null, gclid || null, ip, user_agent, referrer || null, fbp || null, fbc || null]
+      );
+      visitId = rows[0].id;
+
+      // Fire-and-forget: geo lookup in background (only for new visits)
+      lookupGeo(visitId, ip).catch(() => {});
+    }
+
+    // page_view event always fires (for the timeline)
     pool.query(
       'INSERT INTO events (sck, page_id, event_type) VALUES ($1,$2,$3)',
       [sck, page_id || null, 'page_view']
