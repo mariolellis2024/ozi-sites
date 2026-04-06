@@ -124,34 +124,27 @@ router.get('/stats-all', authMiddleware, async (_req, res) => {
 });
 
 /**
- * GET /api/track/stats/:pageId — Detailed stats for a single page
- * Admin only.
+ * GET /api/track/stats/:pageId — Detailed stats for a single page (unique users)
+ * Admin only. All metrics count DISTINCT sck (unique visitors).
  */
 router.get('/stats/:pageId', authMiddleware, async (req, res) => {
   try {
     const pageId = parseInt(req.params.pageId);
 
-    const [visitResult, eventResult] = await Promise.all([
-      pool.query(`SELECT COUNT(*)::int AS total FROM visits WHERE page_id = $1`, [pageId]),
-      pool.query(
-        `SELECT event_type, COUNT(*)::int AS count FROM events WHERE page_id = $1 GROUP BY event_type`,
-        [pageId]
-      ),
+    const [viewsResult, comprarResult, pixResult, cardResult, purchasesResult] = await Promise.all([
+      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM visits WHERE page_id = $1`, [pageId]),
+      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM events WHERE page_id = $1 AND event_type = 'comprar'`, [pageId]),
+      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM events WHERE page_id = $1 AND event_type = 'pix_click'`, [pageId]),
+      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM events WHERE page_id = $1 AND event_type = 'card_click'`, [pageId]),
+      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM visits WHERE page_id = $1 AND purchased = true`, [pageId]),
     ]);
 
-    const eventMap = {};
-    for (const row of eventResult.rows) {
-      eventMap[row.event_type] = row.count;
-    }
-
-    const totalVisits = visitResult.rows[0]?.total || 0;
-
     res.json({
-      total_visits: totalVisits,
-      comprar: eventMap.comprar || 0,
-      pix_click: eventMap.pix_click || 0,
-      card_click: eventMap.card_click || 0,
-      purchases: (await pool.query(`SELECT COUNT(*)::int AS total FROM visits WHERE page_id = $1 AND purchased = true`, [pageId])).rows[0]?.total || 0,
+      total_visits: viewsResult.rows[0]?.total || 0,
+      comprar: comprarResult.rows[0]?.total || 0,
+      pix_click: pixResult.rows[0]?.total || 0,
+      card_click: cardResult.rows[0]?.total || 0,
+      purchases: purchasesResult.rows[0]?.total || 0,
     });
   } catch (err) {
     console.error('[Track] Stats error:', err);
