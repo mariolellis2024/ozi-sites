@@ -7,6 +7,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminPages from './pages/AdminPages';
 import AdminPageEditor from './pages/AdminPageEditor';
 import AdminIntegrations from './pages/AdminIntegrations';
+import AdminTemplate from './pages/AdminTemplate';
 import DynamicPage from './pages/DynamicPage';
 import DynamicObrigado from './pages/DynamicObrigado';
 
@@ -25,6 +26,7 @@ function AppRoutes() {
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/pages" element={<AdminPages />} />
       <Route path="/admin/pages/:id" element={<AdminPageEditor />} />
+      <Route path="/admin/template" element={<AdminTemplate />} />
       <Route path="/admin/integrations" element={<AdminIntegrations />} />
 
       {/* Public - dynamic (catch-all, must be last) */}

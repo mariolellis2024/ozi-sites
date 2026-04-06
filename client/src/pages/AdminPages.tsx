@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3 } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 interface Page {
   id: number;
@@ -38,6 +39,7 @@ function AdminSidebar({ active }: { active: string }) {
   const items = [
     { id: 'dashboard', label: 'Dashboard', icon: <Shield size={18} />, path: '/admin/dashboard' },
     { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
+    { id: 'template', label: 'Modelo Base', icon: <LayoutTemplate size={18} />, path: '/admin/template' },
     { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
     { id: 'password', label: 'Alterar Senha', icon: <KeyRound size={18} />, path: '/admin/dashboard' },
   ];
@@ -69,6 +71,7 @@ export default function AdminPages() {
   const [newName, setNewName] = useState('');
   const [newSlug, setNewSlug] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('admin_token');
@@ -106,11 +109,11 @@ export default function AdminPages() {
     } catch { toast.error('Erro ao criar página'); }
   };
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Deletar "${name}"? Esta ação é irreversível.`)) return;
+  const handleDelete = async (id: number) => {
     try {
       await fetch(`/api/pages/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
       toast.success('Página deletada');
+      setDeleteTarget(null);
       fetchPages();
     } catch { toast.error('Erro ao deletar'); }
   };
@@ -191,7 +194,7 @@ export default function AdminPages() {
                             padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
                             background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
                           }}><ExternalLink size={14} /></a>
-                          <button onClick={() => handleDelete(page.id, page.name)} title="Deletar" style={{
+                          <button onClick={() => setDeleteTarget({ id: page.id, name: page.name })} title="Deletar" style={{
                             padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(255,107,107,0.3)',
                             background: 'transparent', color: '#ff6b6b', cursor: 'pointer',
                           }}><Trash2 size={14} /></button>
@@ -246,6 +249,18 @@ export default function AdminPages() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirm Modal */}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Deletar página"
+        message={`Tem certeza que deseja deletar "${deleteTarget?.name}"? Esta ação é irreversível.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        danger
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget.id)}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

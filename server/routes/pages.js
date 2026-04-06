@@ -4,8 +4,8 @@ import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-// Default content for new pages
-const DEFAULT_INDEX = {
+// Hardcoded fallbacks (only used if template not yet saved in DB)
+const FALLBACK_INDEX = {
   seo_title: 'Alanis | A Área de Membros do Futuro',
   seo_description: 'A plataforma que transforma conteúdo em máquina de crescimento.',
   hero_title: 'A área de membros que transforma as suas aulas em <span class="accent">uma máquina de dinheiro.</span>',
@@ -20,13 +20,27 @@ const DEFAULT_INDEX = {
   card_detail: 'no cartão',
 };
 
-const DEFAULT_OBRIGADO = {
+const FALLBACK_OBRIGADO = {
   title: 'Alô, parabéns!',
   subtitle: 'Sua compra foi <span class="accent">confirmada</span>.',
   message: 'Por favor, clique no botão abaixo e crie sua conta com o <strong style="color:#FFFFFF;">mesmo e-mail usado na compra</strong>.',
   cta_text: 'Acessar Área de Membros',
   cta_link: 'https://app.alanis.digital/#/cadastro',
 };
+
+/** Fetch page template from DB, fall back to hardcoded if not saved yet */
+async function getTemplate() {
+  try {
+    const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'page_template'");
+    if (rows.length > 0 && rows[0].value?.content_index) {
+      return {
+        content_index: rows[0].value.content_index,
+        content_obrigado: rows[0].value.content_obrigado,
+      };
+    }
+  } catch { /* fall through */ }
+  return { content_index: FALLBACK_INDEX, content_obrigado: FALLBACK_OBRIGADO };
+}
 
 // ======== ADMIN (protected) ========
 
@@ -49,21 +63,18 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Nome e slug são obrigatórios' });
     }
 
-    // Validate slug format
     const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
-    if (!cleanSlug) {
-      return res.status(400).json({ error: 'Slug inválido' });
-    }
+    if (!cleanSlug) return res.status(400).json({ error: 'Slug inválido' });
 
-    // Reserved slugs
     const reserved = ['admin', 'obrigado', 'api'];
-    if (reserved.includes(cleanSlug)) {
-      return res.status(400).json({ error: 'Slug reservado' });
-    }
+    if (reserved.includes(cleanSlug)) return res.status(400).json({ error: 'Slug reservado' });
+
+    // Clone from template stored in DB
+    const template = await getTemplate();
 
     const { rows } = await pool.query(
       'INSERT INTO pages (name, slug, content_index, content_obrigado) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, cleanSlug, JSON.stringify(DEFAULT_INDEX), JSON.stringify(DEFAULT_OBRIGADO)]
+      [name, cleanSlug, JSON.stringify(template.content_index), JSON.stringify(template.content_obrigado)]
     );
 
     res.status(201).json(rows[0]);
