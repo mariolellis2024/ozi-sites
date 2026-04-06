@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings, Eye, MousePointerClick, Activity } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings, Eye, MousePointerClick, Activity, Copy } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import ConfirmModal from '../components/ui/ConfirmModal';
+import DeletePageModal from '../components/ui/DeletePageModal';
 import { useSiteConfig } from '../context/SiteConfigContext';
 
 interface Page {
@@ -48,6 +48,7 @@ function AdminSidebar({ active }: { active: string }) {
   const items = [
     { id: 'dashboard', label: 'Dashboard', icon: <Shield size={18} />, path: '/admin/dashboard' },
     { id: 'pages', label: 'Páginas', icon: <FileText size={18} />, path: '/admin/pages' },
+    { id: 'models', label: 'Modelos', icon: <Copy size={18} />, path: '/admin/models' },
     { id: 'template', label: 'Modelo Base', icon: <LayoutTemplate size={18} />, path: '/admin/template' },
     { id: 'integrations', label: 'Integrações', icon: <BarChart3 size={18} />, path: '/admin/integrations' },
     { id: 'tracking', label: 'Tracking', icon: <Activity size={18} />, path: '/admin/tracking' },
@@ -129,13 +130,44 @@ export default function AdminPages() {
     } catch { toast.error('Erro ao criar página'); }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDeleteOnly = async () => {
+    if (!deleteTarget) return;
     try {
-      await fetch(`/api/pages/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      await fetch(`/api/pages/${deleteTarget.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
       toast.success('Página deletada');
       setDeleteTarget(null);
       fetchPages();
     } catch { toast.error('Erro ao deletar'); }
+  };
+
+  const handleSaveAndDelete = async (templateName: string) => {
+    if (!deleteTarget) return;
+    try {
+      // Fetch the full page data first
+      const pageRes = await fetch(`/api/pages/${deleteTarget.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!pageRes.ok) throw new Error('Erro ao buscar página');
+      const pageData = await pageRes.json();
+
+      // Save as template
+      const tplRes = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: templateName,
+          content_index: pageData.content_index,
+          content_obrigado: pageData.content_obrigado,
+        }),
+      });
+      if (!tplRes.ok) throw new Error('Erro ao salvar modelo');
+
+      // Now delete
+      await fetch(`/api/pages/${deleteTarget.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      toast.success('Modelo salvo e página deletada!');
+      setDeleteTarget(null);
+      fetchPages();
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao processar');
+    }
   };
 
   const handleLogout = () => {
@@ -285,15 +317,12 @@ export default function AdminPages() {
         </div>
       )}
 
-      {/* Delete Confirm Modal */}
-      <ConfirmModal
+      {/* Delete Page Modal (with save-as-model option) */}
+      <DeletePageModal
         isOpen={!!deleteTarget}
-        title="Deletar página"
-        message={`Tem certeza que deseja deletar "${deleteTarget?.name}"? Esta ação é irreversível.`}
-        confirmText="Deletar"
-        cancelText="Cancelar"
-        danger
-        onConfirm={() => deleteTarget && handleDelete(deleteTarget.id)}
+        pageName={deleteTarget?.name || ''}
+        onDeleteOnly={handleDeleteOnly}
+        onSaveAndDelete={handleSaveAndDelete}
         onCancel={() => setDeleteTarget(null)}
       />
     </div>

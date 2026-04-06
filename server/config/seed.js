@@ -90,6 +90,17 @@ export async function seed() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_page_type ON events(page_id, event_type)`);
 
+    // Ensure page_templates table exists (saved page models)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS page_templates (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        content_index JSONB DEFAULT '{}',
+        content_obrigado JSONB DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
     // Seed page template if not exists
     const { rows: tmpl } = await pool.query("SELECT id FROM settings WHERE key = 'page_template'");
     if (tmpl.length === 0) {

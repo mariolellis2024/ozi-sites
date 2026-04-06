@@ -11,6 +11,7 @@ import AdminIntegrations from './pages/AdminIntegrations';
 import AdminTemplate from './pages/AdminTemplate';
 import AdminSettings from './pages/AdminSettings';
 import AdminTracking from './pages/AdminTracking';
+import AdminModels from './pages/AdminModels';
 import VisualEditor from './pages/VisualEditor';
 import DynamicPage from './pages/DynamicPage';
 import DynamicObrigado from './pages/DynamicObrigado';
@@ -35,6 +36,7 @@ function AppRoutes() {
       <Route path="/admin/integrations" element={<AdminIntegrations />} />
       <Route path="/admin/settings" element={<AdminSettings />} />
       <Route path="/admin/tracking" element={<AdminTracking />} />
+      <Route path="/admin/models" element={<AdminModels />} />
 
       {/* Public - dynamic (catch-all, must be last) */}
       <Route path="/:slug" element={<DynamicPage />} />
