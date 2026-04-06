@@ -197,22 +197,99 @@ export default function AdminTracking() {
                       </tr>
 
                       {/* Expanded detail row */}
-                      {expandedId === v.id && (
+                      {expandedId === v.id && (() => {
+                        // Extract PII from purchase_data if available
+                        const pd = v.purchase_data || {};
+                        const params = [
+                          { label: 'client_ip_address', value: v.ip, weight: 'alto' as const, score: 1 },
+                          { label: 'client_user_agent', value: 'Capturado no servidor', weight: 'alto' as const, score: 1 },
+                          { label: 'fbp (Browser ID)', value: v.fbp, weight: 'alto' as const, score: 1.5 },
+                          { label: 'fbc (Click ID)', value: v.fbc, weight: 'alto' as const, score: 1.5 },
+                          { label: 'em (Email)', value: pd.email || null, weight: 'alto' as const, score: 1.5 },
+                          { label: 'ph (Telefone)', value: pd.phone || null, weight: 'alto' as const, score: 1 },
+                          { label: 'external_id', value: v.sck, weight: 'medio' as const, score: 0.5 },
+                          { label: 'fn (Nome)', value: pd.first_name || null, weight: 'medio' as const, score: 0.5 },
+                          { label: 'ln (Sobrenome)', value: pd.last_name || null, weight: 'medio' as const, score: 0.5 },
+                          { label: 'ct (Cidade)', value: pd.city || null, weight: 'baixo' as const, score: 0.25 },
+                          { label: 'st (Estado)', value: pd.state || null, weight: 'baixo' as const, score: 0.25 },
+                          { label: 'zp (CEP)', value: pd.zip || null, weight: 'baixo' as const, score: 0.25 },
+                          { label: 'country (País)', value: pd.country || null, weight: 'baixo' as const, score: 0.25 },
+                        ];
+                        const totalScore = params.reduce((sum, p) => sum + (p.value ? p.score : 0), 0);
+                        const maxScore = params.reduce((sum, p) => sum + p.score, 0);
+                        const emq = Math.min(10, Math.round((totalScore / maxScore) * 10));
+                        const emqColor = emq >= 8 ? '#75fbc6' : emq >= 6 ? '#ffc832' : '#ff6b6b';
+
+                        const weightColors = { alto: '#ff6b6b', medio: '#ffc832', baixo: '#6ea8fe' };
+                        const weightLabels = { alto: 'ALTO', medio: 'MÉDIO', baixo: 'BAIXO' };
+
+                        return (
                         <tr key={`${v.id}-detail`}>
-                          <td colSpan={10} style={{ padding: '16px 20px', background: 'rgba(117,251,198,0.02)', borderBottom: '1px solid var(--color-border)' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '12px 24px', fontSize: '0.78rem' }}>
-                              <Detail label="IP" value={v.ip} />
-                              <Detail label="Referrer" value={v.referrer} />
-                              <Detail label="FBP" value={v.fbp} />
-                              <Detail label="FBC" value={v.fbc} />
-                              <Detail label="FBCLID" value={v.fbclid} />
-                              <Detail label="GCLID" value={v.gclid} />
-                              <Detail label="UTM Content" value={v.utm_content} />
-                              <Detail label="UTM Term" value={v.utm_term} />
-                              {v.purchased && v.purchase_data && (
-                                <Detail label="Dados da Compra" value={JSON.stringify(v.purchase_data, null, 2)} />
-                              )}
+                          <td colSpan={10} style={{ padding: '20px 24px', background: 'rgba(117,251,198,0.02)', borderBottom: '1px solid var(--color-border)' }}>
+                            {/* EMQ Score Badge */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                Parâmetros Meta — Event Match Quality
+                              </span>
+                              <div style={{
+                                display: 'flex', alignItems: 'center', gap: 10, padding: '6px 16px',
+                                borderRadius: 12, background: `${emqColor}15`, border: `1px solid ${emqColor}30`,
+                              }}>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: emqColor }}>EMQ Estimado</span>
+                                <span style={{ fontSize: '1.3rem', fontWeight: 800, color: emqColor }}>{emq}/10</span>
+                              </div>
                             </div>
+
+                            {/* Parameters Grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '8px' }}>
+                              {params.map(p => (
+                                <div key={p.label} style={{
+                                  display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
+                                  borderRadius: 8, background: p.value ? 'rgba(117,251,198,0.04)' : 'rgba(255,255,255,0.015)',
+                                  border: `1px solid ${p.value ? 'rgba(117,251,198,0.1)' : 'rgba(255,255,255,0.04)'}`,
+                                }}>
+                                  {p.value ? (
+                                    <CheckCircle size={14} style={{ color: '#75fbc6', flexShrink: 0 }} />
+                                  ) : (
+                                    <XCircle size={14} style={{ color: 'rgba(255,255,255,0.15)', flexShrink: 0 }} />
+                                  )}
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: p.value ? 'var(--color-text-primary)' : 'var(--color-text-light)' }}>
+                                        {p.label}
+                                      </span>
+                                      <span style={{
+                                        fontSize: '0.6rem', fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                                        background: `${weightColors[p.weight]}18`, color: weightColors[p.weight],
+                                        letterSpacing: '0.5px',
+                                      }}>{weightLabels[p.weight]}</span>
+                                    </div>
+                                    <div style={{
+                                      fontSize: '0.72rem', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                      color: p.value ? 'var(--color-text-secondary)' : 'rgba(255,255,255,0.12)',
+                                    }}>
+                                      {p.value || 'Não disponível'}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* UTMs + Extra tracking */}
+                            <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--color-border)' }}>
+                              <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                Dados de campanha
+                              </span>
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px 20px', marginTop: 8, fontSize: '0.78rem' }}>
+                                <Detail label="Referrer" value={v.referrer} />
+                                <Detail label="FBCLID" value={v.fbclid} />
+                                <Detail label="GCLID" value={v.gclid} />
+                                <Detail label="UTM Content" value={v.utm_content} />
+                                <Detail label="UTM Term" value={v.utm_term} />
+                              </div>
+                            </div>
+
+                            {/* Events Timeline */}
                             {v.events.length > 0 && (
                               <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--color-border)' }}>
                                 <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Timeline de eventos</span>
@@ -228,7 +305,8 @@ export default function AdminTracking() {
                             )}
                           </td>
                         </tr>
-                      )}
+                        );
+                      })()}
                     </>
                   ))}
                 </tbody>
