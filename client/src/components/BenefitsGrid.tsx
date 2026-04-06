@@ -55,7 +55,7 @@ function VideoBlock({ videoId, orientation, isEditing, onChangeVideoId, onChange
 
   return (
     <>
-      <div style={{ position: 'relative' }}>
+      <div className="vsl-container" style={{ position: 'relative' }}>
         {/* Orientation toggle - edit mode only */}
         {isEditing && (
           <div style={{

@@ -193,6 +193,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 
 /* ===== MOTOR + VSL ===== */
 .motor-img { display: block; width: 100%; max-width: 900px; margin: 48px auto; border-radius: var(--radius-small); }
+.vsl-container { margin-top: 80px; }
 .vsl-wrapper {
   position: relative; width: 100%; max-width: 400px; margin: 0 auto 24px;
   border-radius: var(--radius-medium); overflow: hidden;
@@ -452,6 +453,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
   .mobile-hero-logo { display: block; margin: 44px auto; height: 36px; }
   .qualificador-card h2 { font-size: 2rem; }
   .qualificador-card { padding: 40px 24px; }
+  .vsl-container { margin-top: 48px; }
 }
 
 @media (max-width: 640px) {
