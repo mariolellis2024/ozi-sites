@@ -274,6 +274,23 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 /* Ensure Plyr control bar sits above everything */
 .plyr--youtube .plyr__controls { z-index: 5; }
 
+/* Big play button — accent color */
+.plyr__control--overlaid {
+  background: #75fbc6 !important;
+  color: #1a1a1a !important;
+}
+.plyr__control--overlaid:hover {
+  background: #5de6b0 !important;
+}
+
+/* Progress bar: read-only — hide seek thumb, keep bar visible */
+.plyr__progress { pointer-events: none; }
+.plyr__progress input[type="range"] { pointer-events: none; }
+.plyr__progress input[type="range"]::-webkit-slider-thumb { display: none; }
+.plyr__progress input[type="range"]::-moz-range-thumb { display: none; }
+.plyr__progress input[type="range"]::-ms-thumb { display: none; }
+
+
 
 
 /* ===== BENEFITS GRID ===== */

@@ -65,8 +65,10 @@ export default function PlyrYouTubePlayer({ videoId, title = 'Vídeo', thumbnail
         'mute',
         'volume',
         'settings',
-        'fullscreen',
       ],
+      seekTime: 0,
+      clickToPlay: true,
+      disableContextMenu: true,
       settings: ['speed'],
       speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
       autoplay: true,
@@ -87,6 +89,17 @@ export default function PlyrYouTubePlayer({ videoId, title = 'Vídeo', thumbnail
 
     plyr.on('ready', () => {
       try { plyr.speed = 1; } catch { /* noop */ }
+      // Disable seeking — progress bar is read-only
+      const input = wrapper.querySelector('.plyr__progress input[type="range"]') as HTMLInputElement | null;
+      if (input) {
+        input.style.pointerEvents = 'none';
+        input.tabIndex = -1;
+      }
+      // Also block the progress container clicks
+      const progressContainer = wrapper.querySelector('.plyr__progress') as HTMLElement | null;
+      if (progressContainer) {
+        progressContainer.style.pointerEvents = 'none';
+      }
     });
 
     plyr.on('ended', () => {
