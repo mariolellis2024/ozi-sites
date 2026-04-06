@@ -104,6 +104,18 @@ export async function seed() {
     await pool.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS visit_id BIGINT`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_events_visit_id ON events(visit_id)`);
 
+    // Ensure video_retention table exists (video analytics cache)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS video_retention (
+        id SERIAL PRIMARY KEY,
+        key VARCHAR(255) UNIQUE NOT NULL,
+        data JSONB DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_retention_key ON video_retention(key)`);
+
     // Ensure page_templates table exists (saved page models)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS page_templates (

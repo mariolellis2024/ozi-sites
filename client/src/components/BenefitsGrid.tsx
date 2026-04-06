@@ -6,6 +6,7 @@ import EditableText from './ui/EditableText';
 import { useEdit } from '../context/EditContext';
 import TextEditModal from './ui/TextEditModal';
 import { Pencil, Image as ImageIcon } from 'lucide-react';
+import { useVideoRetention } from '../hooks/useVideoRetention';
 
 /** Extract YouTube video ID from various URL formats or raw ID */
 function extractVideoId(input: string): string {
@@ -32,6 +33,10 @@ function VideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVideoI
   const [showVideoModal, setShowVideoModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const edit = useEdit();
+
+  // Retention tracking — derive slug from URL
+  const slug = window.location.pathname.replace(/^\//, '') || 'home';
+  const { attachPlayer } = useVideoRetention(slug, videoId);
 
   const isVertical = orientation === 'vertical';
 
@@ -105,7 +110,7 @@ function VideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVideoI
           </div>
         )}
         <div style={wrapperStyle}>
-          <PlyrYouTubePlayer videoId={videoId} thumbnail={thumbnail} title="Vídeo" />
+          <PlyrYouTubePlayer videoId={videoId} thumbnail={thumbnail} title="Vídeo" onPlyrReady={attachPlayer} />
         </div>
       </div>
       <TextEditModal

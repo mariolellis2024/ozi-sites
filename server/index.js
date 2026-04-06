@@ -12,6 +12,7 @@ import trackingRouter from './routes/tracking.js';
 import templatesRouter from './routes/templates.js';
 import caktoRouter from './routes/cakto.js';
 import salesRouter from './routes/sales.js';
+import retentionRouter from './routes/retention.js';
 import { seed } from './config/seed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,6 +31,7 @@ app.use('/api/track', trackingRouter);
 app.use('/api/templates', templatesRouter);
 app.use('/api/cakto', caktoRouter);
 app.use('/api/sales', salesRouter);
+app.use('/api/retention', retentionRouter);
 app.use('/api', uploadRouter);
 
 // Serve React static build

@@ -12,9 +12,11 @@ interface PlyrYouTubePlayerProps {
   title?: string;
   /** Custom thumbnail URL. Falls back to YouTube auto-thumbnail if not provided */
   thumbnail?: string;
+  /** Called when Plyr instance is ready — use for retention tracking */
+  onPlyrReady?: (plyr: any) => void;
 }
 
-export default function PlyrYouTubePlayer({ videoId, title = 'Vídeo', thumbnail }: PlyrYouTubePlayerProps) {
+export default function PlyrYouTubePlayer({ videoId, title = 'Vídeo', thumbnail, onPlyrReady }: PlyrYouTubePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const plyrRef = useRef<Plyr | null>(null);
   const [phase, setPhase] = useState<'thumbnail' | 'playing' | 'ended'>('thumbnail');
@@ -111,6 +113,7 @@ export default function PlyrYouTubePlayer({ videoId, title = 'Vídeo', thumbnail
 
     plyrRef.current = plyr;
     trackVideoPlay(videoId);
+    if (onPlyrReady) onPlyrReady(plyr);
 
     return () => {
       try { plyr.destroy(); } catch { /* noop */ }

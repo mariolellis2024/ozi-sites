@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, LayoutTemplate, Settings, Eye, MousePointerClick, Activity, Copy, DollarSign } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import DeletePageModal from '../components/ui/DeletePageModal';
+import RetentionChartModal from '../components/admin/RetentionChartModal';
 import { useSiteConfig } from '../context/SiteConfigContext';
 
 interface Page {
@@ -85,6 +86,7 @@ export default function AdminPages() {
   const [newSlug, setNewSlug] = useState('');
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null);
+  const [retentionTarget, setRetentionTarget] = useState<{ slug: string; name: string; videoId: string } | null>(null);
   const [stats, setStats] = useState<Record<string, any>>({});
   const navigate = useNavigate();
 
@@ -262,6 +264,11 @@ export default function AdminPages() {
                             padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
                             background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
                           }}><ExternalLink size={14} /></a>
+                          <button onClick={() => setRetentionTarget({ slug: page.slug, name: page.name, videoId: '' })} title="Retenção do Vídeo" style={{
+                            padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                            background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center',
+                          }}><BarChart3 size={14} /></button>
                           <button onClick={() => setDeleteTarget({ id: page.id, name: page.name })} title="Deletar" style={{
                             padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(255,107,107,0.3)',
                             background: 'transparent', color: '#ff6b6b', cursor: 'pointer',
@@ -325,6 +332,15 @@ export default function AdminPages() {
         onDeleteOnly={handleDeleteOnly}
         onSaveAndDelete={handleSaveAndDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      {/* Retention Chart Modal */}
+      <RetentionChartModal
+        isOpen={!!retentionTarget}
+        onClose={() => setRetentionTarget(null)}
+        slug={retentionTarget?.slug || ''}
+        videoId={retentionTarget?.videoId || ''}
+        pageName={retentionTarget?.name || ''}
       />
     </div>
   );
