@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { Check, Trash2 } from 'lucide-react';
+import { Check, Trash2, Copy, Plus } from 'lucide-react';
+
+const actionBtnBase: React.CSSProperties = {
+  width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  opacity: 0.6, transition: 'opacity 150ms',
+};
+
 import ScrollFadeIn from './ui/ScrollFadeIn';
 import EditableText from './ui/EditableText';
 import EditableImage from './ui/EditableImage';
@@ -158,24 +165,37 @@ export default function TimelineSection({ dynamicContent: dc }: TimelineSectionP
                   >
                     <span>{item}</span>
                   </EditableText>
-                  <button
-                    onClick={(ev) => {
-                      ev.stopPropagation();
-                      edit!.updateField(step.itemsKey, step.items.filter((_, k) => k !== j));
-                    }}
-                    title="Remover item"
-                    style={{
-                      position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)',
-                      width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer',
-                      background: 'rgba(255,107,107,0.15)', color: '#ff6b6b',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      opacity: 0.6, transition: 'opacity 150ms',
-                    }}
-                    onMouseEnter={ev => { ev.currentTarget.style.opacity = '1'; }}
-                    onMouseLeave={ev => { ev.currentTarget.style.opacity = '0.6'; }}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <div style={{
+                    position: 'absolute', right: -16, top: '50%', transform: 'translateY(-50%)',
+                    display: 'flex', flexDirection: 'column', gap: 4,
+                  }}>
+                    <button
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        const newItems = [...step.items];
+                        newItems.splice(j + 1, 0, step.items[j]);
+                        edit!.updateField(step.itemsKey, newItems);
+                      }}
+                      title="Duplicar item"
+                      style={{ ...actionBtnBase, background: 'rgba(117,251,198,0.12)', color: '#75fbc6' }}
+                      onMouseEnter={ev => { ev.currentTarget.style.opacity = '1'; }}
+                      onMouseLeave={ev => { ev.currentTarget.style.opacity = '0.6'; }}
+                    >
+                      <Copy size={13} />
+                    </button>
+                    <button
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        edit!.updateField(step.itemsKey, step.items.filter((_, k) => k !== j));
+                      }}
+                      title="Remover item"
+                      style={{ ...actionBtnBase, background: 'rgba(255,107,107,0.15)', color: '#ff6b6b' }}
+                      onMouseEnter={ev => { ev.currentTarget.style.opacity = '1'; }}
+                      onMouseLeave={ev => { ev.currentTarget.style.opacity = '0.6'; }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </>
               ) : (
                 <span>{item}</span>
@@ -183,6 +203,23 @@ export default function TimelineSection({ dynamicContent: dc }: TimelineSectionP
             </li>
           ))}
         </ul>
+        {e && (
+          <button
+            onClick={() => edit!.updateField(step.itemsKey, [...step.items, 'Novo item — clique para editar'])}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              marginTop: 8, padding: '6px 14px', borderRadius: 8,
+              border: '1px dashed rgba(117,251,198,0.3)', cursor: 'pointer',
+              background: 'rgba(117,251,198,0.06)', color: '#75fbc6',
+              fontSize: '0.8rem', fontWeight: 500, fontFamily: 'Inter, sans-serif',
+              transition: 'all 150ms',
+            }}
+            onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(117,251,198,0.12)'; }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'rgba(117,251,198,0.06)'; }}
+          >
+            <Plus size={14} /> Adicionar item
+          </button>
+        )}
       </div>
     );
 

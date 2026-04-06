@@ -1,8 +1,14 @@
-import { Check, Trash2 } from 'lucide-react';
+import { Check, Trash2, Copy, Plus } from 'lucide-react';
 import ScrollFadeIn from './ui/ScrollFadeIn';
 import EditableText from './ui/EditableText';
 import EditableImage from './ui/EditableImage';
 import { useEdit } from '../context/EditContext';
+
+const actionBtnBase: React.CSSProperties = {
+  width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  opacity: 0.6, transition: 'opacity 150ms',
+};
 
 interface FeatureSectionProps {
   id: string;
@@ -32,7 +38,6 @@ export default function FeatureSection({ id, reverse = false, image, imageAlt, t
   if (savedArray && Array.isArray(savedArray)) {
     resolvedItems = savedArray;
   } else {
-    // Migrate: check for individually saved items
     resolvedItems = defaultItems.map((def, i) => {
       const saved = src?.[`${sectionKey}_item_${i}`];
       return saved || def;
@@ -45,6 +50,16 @@ export default function FeatureSection({ id, reverse = false, image, imageAlt, t
 
   const deleteItem = (index: number) => {
     saveItems(resolvedItems.filter((_, i) => i !== index));
+  };
+
+  const duplicateItem = (index: number) => {
+    const newItems = [...resolvedItems];
+    newItems.splice(index + 1, 0, resolvedItems[index]);
+    saveItems(newItems);
+  };
+
+  const addItem = () => {
+    saveItems([...resolvedItems, 'Novo item — clique para editar']);
   };
 
   const updateItem = (index: number, value: string) => {
@@ -95,21 +110,29 @@ export default function FeatureSection({ id, reverse = false, image, imageAlt, t
                         >
                           <span>{item}</span>
                         </EditableText>
-                        <button
-                          onClick={(ev) => { ev.stopPropagation(); deleteItem(i); }}
-                          title="Remover item"
-                          style={{
-                            position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)',
-                            width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer',
-                            background: 'rgba(255,107,107,0.15)', color: '#ff6b6b',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            opacity: 0.6, transition: 'opacity 150ms',
-                          }}
-                          onMouseEnter={ev => { ev.currentTarget.style.opacity = '1'; }}
-                          onMouseLeave={ev => { ev.currentTarget.style.opacity = '0.6'; }}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div style={{
+                          position: 'absolute', right: -16, top: '50%', transform: 'translateY(-50%)',
+                          display: 'flex', flexDirection: 'column', gap: 4,
+                        }}>
+                          <button
+                            onClick={(ev) => { ev.stopPropagation(); duplicateItem(i); }}
+                            title="Duplicar item"
+                            style={{ ...actionBtnBase, background: 'rgba(117,251,198,0.12)', color: '#75fbc6' }}
+                            onMouseEnter={ev => { ev.currentTarget.style.opacity = '1'; }}
+                            onMouseLeave={ev => { ev.currentTarget.style.opacity = '0.6'; }}
+                          >
+                            <Copy size={13} />
+                          </button>
+                          <button
+                            onClick={(ev) => { ev.stopPropagation(); deleteItem(i); }}
+                            title="Remover item"
+                            style={{ ...actionBtnBase, background: 'rgba(255,107,107,0.15)', color: '#ff6b6b' }}
+                            onMouseEnter={ev => { ev.currentTarget.style.opacity = '1'; }}
+                            onMouseLeave={ev => { ev.currentTarget.style.opacity = '0.6'; }}
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </>
                     ) : (
                       <span>{item}</span>
@@ -117,6 +140,23 @@ export default function FeatureSection({ id, reverse = false, image, imageAlt, t
                   </li>
                 ))}
               </ul>
+              {e && (
+                <button
+                  onClick={addItem}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    marginTop: 12, padding: '8px 16px', borderRadius: 8,
+                    border: '1px dashed rgba(117,251,198,0.3)', cursor: 'pointer',
+                    background: 'rgba(117,251,198,0.06)', color: '#75fbc6',
+                    fontSize: '0.85rem', fontWeight: 500, fontFamily: 'Inter, sans-serif',
+                    transition: 'all 150ms',
+                  }}
+                  onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(117,251,198,0.12)'; }}
+                  onMouseLeave={ev => { ev.currentTarget.style.background = 'rgba(117,251,198,0.06)'; }}
+                >
+                  <Plus size={16} /> Adicionar item
+                </button>
+              )}
             </div>
           </ScrollFadeIn>
         </div>
