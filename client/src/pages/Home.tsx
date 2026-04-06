@@ -88,7 +88,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
 
   return (
     <>
-      <Navbar onOpenModal={openModal} />
+      <Navbar onOpenModal={openModal} dynamicContent={dc} />
 
       <HeroSection onOpenModal={openModal} dynamicContent={dc} />
 
@@ -201,11 +201,11 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
         ]}
       />
 
-      <QualificadorSection onOpenModal={openModal} />
+      <QualificadorSection onOpenModal={openModal} dynamicContent={dc} />
       <CaseSection onOpenModal={openModal} dynamicContent={dc} />
-      <ComparisonSection onOpenModal={openModal} />
-      <FaqSection onOpenModal={openModal} />
-      <Footer />
+      <ComparisonSection onOpenModal={openModal} dynamicContent={dc} />
+      <FaqSection onOpenModal={openModal} dynamicContent={dc} />
+      <Footer dynamicContent={dc} />
       <PurchaseModal isOpen={modalOpen} onClose={closeModal} dynamicContent={dc} pageId={pageId} />
     </>
   );

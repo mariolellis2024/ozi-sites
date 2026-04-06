@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { Check } from 'lucide-react';
 import ScrollFadeIn from './ui/ScrollFadeIn';
+import EditableText from './ui/EditableText';
+import EditableImage from './ui/EditableImage';
+import { useEdit } from '../context/EditContext';
 
-const steps = [
+const defaultSteps = [
   {
     number: 1,
-    image: 'passo-1.webp',
+    image: '/images/passo-1.webp',
     items: [
       'Código próprio, resultado de 1 ano de desenvolvimento intenso',
       'Validado pelos maiores infoprodutores do mercado',
@@ -14,7 +17,7 @@ const steps = [
   },
   {
     number: 2,
-    image: 'passo-2.webp',
+    image: '/images/passo-2.webp',
     items: [
       'Siga o guia amigável',
       'Em 30 minutos sua Alanis está no ar e funcionando',
@@ -23,7 +26,7 @@ const steps = [
   },
   {
     number: 3,
-    image: 'passo-3.webp',
+    image: '/images/passo-3.webp',
     items: [
       'Coloque sua logo, cores e domínio, 100% white label',
       'Integre seu Pixel do Facebook e ferramentas de analytics',
@@ -32,7 +35,7 @@ const steps = [
   },
   {
     number: 4,
-    image: 'passo-4.webp',
+    image: '/images/passo-4.webp',
     items: [
       'Upload de vídeos, áudios, PDFs e materiais de forma intuitiva',
       'Organize em trilhas de carreira com sequência definida',
@@ -41,7 +44,7 @@ const steps = [
   },
   {
     number: 5,
-    image: 'passo-5.webp',
+    image: '/images/passo-5.webp',
     items: [
       'Leve seus alunos para a plataforma e a Alanis vende para você',
       '6 fontes de receita ativas 24h por dia, no automático',
@@ -50,10 +53,26 @@ const steps = [
   },
 ];
 
-export default function TimelineSection() {
+interface TimelineSectionProps {
+  dynamicContent?: Record<string, any>;
+}
+
+export default function TimelineSection({ dynamicContent: dc }: TimelineSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
+  const edit = useEdit();
+  const e = edit?.isEditing;
+  const src = e ? edit.content : dc;
+
+  const sectionTitle = src?.timeline_title || '5 passos para transformar sua operação.';
+
+  const steps = defaultSteps.map((def, i) => ({
+    number: def.number,
+    image: src?.[`step_${i + 1}_image`] || def.image,
+    items: def.items.map((item, j) => src?.[`step_${i + 1}_item_${j}`] || item),
+    imageKey: `step_${i + 1}_image`,
+  }));
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -105,59 +124,68 @@ export default function TimelineSection() {
     };
   }, []);
 
+  const renderStep = (step: typeof steps[0], i: number) => {
+    const stepContent = (
+      <div className="step-content">
+        <div className="step-number">{step.number}</div>
+        {e ? (
+          <EditableImage fieldKey={step.imageKey}>
+            <img src={step.image} alt={`Passo ${step.number}`} className="step-illustration" loading="lazy" decoding="async" />
+          </EditableImage>
+        ) : (
+          <img src={step.image} alt={`Passo ${step.number}`} className="step-illustration" loading="lazy" decoding="async" />
+        )}
+        <ul className="checklist">
+          {step.items.map((item, j) => (
+            <li key={j} className="check-item">
+              <Check size={20} />
+              {e ? (
+                <EditableText fieldKey={`step_${step.number}_item_${j}`} label={`Passo ${step.number}, Item ${j + 1}`}>
+                  <span>{item}</span>
+                </EditableText>
+              ) : (
+                <span>{item}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+
+    return (
+      <div className="timeline-step" key={step.number}>
+        {i % 2 === 0 ? (
+          <>
+            <ScrollFadeIn>{stepContent}</ScrollFadeIn>
+            <div className="timeline-dot" />
+          </>
+        ) : (
+          <>
+            <div className="timeline-dot" />
+            <ScrollFadeIn>{stepContent}</ScrollFadeIn>
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
     <section id="section-como-funciona" ref={sectionRef}>
       <div className="section-watermark">5 PASSOS</div>
       <div className="container">
         <ScrollFadeIn>
           <div className="section-header">
-            <h2>5 passos para transformar sua operação.</h2>
+            <h2>
+              {e ? (
+                <EditableText fieldKey="timeline_title" label="Título da Timeline">{sectionTitle}</EditableText>
+              ) : sectionTitle}
+            </h2>
           </div>
         </ScrollFadeIn>
         <div className="timeline">
           <div className="timeline-line" ref={lineRef} />
           <div className="timeline-line-fill" ref={fillRef} />
-          {steps.map((step, i) => (
-            <div className="timeline-step" key={step.number}>
-              {i % 2 === 0 ? (
-                <>
-                  <ScrollFadeIn>
-                    <div className="step-content">
-                      <div className="step-number">{step.number}</div>
-                      <img src={`/images/${step.image}`} alt={`Passo ${step.number}`} className="step-illustration" loading="lazy" decoding="async" />
-                      <ul className="checklist">
-                        {step.items.map((item, j) => (
-                          <li key={j} className="check-item">
-                            <Check size={20} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </ScrollFadeIn>
-                  <div className="timeline-dot" />
-                </>
-              ) : (
-                <>
-                  <div className="timeline-dot" />
-                  <ScrollFadeIn>
-                    <div className="step-content">
-                      <div className="step-number">{step.number}</div>
-                      <img src={`/images/${step.image}`} alt={`Passo ${step.number}`} className="step-illustration" loading="lazy" decoding="async" />
-                      <ul className="checklist">
-                        {step.items.map((item, j) => (
-                          <li key={j} className="check-item">
-                            <Check size={20} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </ScrollFadeIn>
-                </>
-              )}
-            </div>
-          ))}
+          {steps.map((step, i) => renderStep(step, i))}
         </div>
       </div>
     </section>

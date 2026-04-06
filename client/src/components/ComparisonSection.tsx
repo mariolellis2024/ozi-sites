@@ -1,7 +1,9 @@
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import ScrollFadeIn from './ui/ScrollFadeIn';
+import EditableText from './ui/EditableText';
 import { Wallet, BarChart3, Users, ShoppingCart, Gift, Route, PlayCircle, Flame } from 'lucide-react';
 import { useSiteConfig } from '../context/SiteConfigContext';
+import { useEdit } from '../context/EditContext';
 
 interface FeatureRow {
   icon: React.ReactNode;
@@ -12,7 +14,7 @@ interface FeatureRow {
   outrasStatus: 'check' | 'cross' | { pill: string; color: 'green' | 'red' | 'yellow' };
 }
 
-const features: FeatureRow[] = [
+const defaultFeatures: FeatureRow[] = [
   { icon: <Wallet size={26} />, name: 'Fontes de receita', descAlanis: 'Monetize de 6 formas diferentes', descOutras: 'Apenas taxa sobre vendas', alanisStatus: { pill: '6', color: 'green' }, outrasStatus: { pill: '1', color: 'red' } },
   { icon: <BarChart3 size={26} />, name: 'Analytics por aula', descAlanis: 'Saiba onde cada aluno abandona', descOutras: 'Sem dados granulares', alanisStatus: 'check', outrasStatus: 'cross' },
   { icon: <Users size={26} />, name: 'Sistema viral de indicação', descAlanis: 'Cada aluno traz novos alunos', descOutras: 'Não oferece', alanisStatus: 'check', outrasStatus: 'cross' },
@@ -46,11 +48,20 @@ function StatusIcon({ status }: { status: FeatureRow['alanisStatus'] }) {
 
 interface ComparisonSectionProps {
   onOpenModal: () => void;
+  dynamicContent?: Record<string, any>;
 }
 
-export default function ComparisonSection({ onOpenModal }: ComparisonSectionProps) {
+export default function ComparisonSection({ onOpenModal, dynamicContent: dc }: ComparisonSectionProps) {
   const { ref, isVisible } = useIntersectionObserver({ threshold: 0.05 });
   const { logo_url } = useSiteConfig();
+  const edit = useEdit();
+  const e = edit?.isEditing;
+  const src = e ? edit.content : dc;
+
+  const title = src?.comparison_title || 'Alanis vs <span style="color:#FF0049">o resto do mercado</span>.';
+  const subtitle = src?.comparison_subtitle || 'Funcionalidade por funcionalidade, a diferença fica clara.';
+  const btnText = src?.comparison_btn || 'Quero a Minha Alanis →';
+  const noteText = src?.comparison_note || 'Baseado em análise competitiva de Fevereiro 2026.';
 
   return (
     <section id="section-comparativo">
@@ -58,10 +69,19 @@ export default function ComparisonSection({ onOpenModal }: ComparisonSectionProp
         <ScrollFadeIn>
           <div className="section-header">
             <h2>
-              Alanis vs{' '}
-              <span style={{ color: '#FF0049' }}>o resto do mercado</span>.
+              {e ? (
+                <EditableText fieldKey="comparison_title" label="Título do Comparativo" html>
+                  <span dangerouslySetInnerHTML={{ __html: title }} />
+                </EditableText>
+              ) : (
+                <span dangerouslySetInnerHTML={{ __html: title }} />
+              )}
             </h2>
-            <p className="section-subtitle">Funcionalidade por funcionalidade, a diferença fica clara.</p>
+            <p className="section-subtitle">
+              {e ? (
+                <EditableText fieldKey="comparison_subtitle" label="Subtítulo do Comparativo">{subtitle}</EditableText>
+              ) : subtitle}
+            </p>
           </div>
         </ScrollFadeIn>
 
@@ -74,7 +94,7 @@ export default function ComparisonSection({ onOpenModal }: ComparisonSectionProp
               <p className="comp-col__tagline">Plataforma completa</p>
             </div>
             <div className="comp-col__body">
-              {features.map((f, i) => (
+              {defaultFeatures.map((f, i) => (
                 <div key={i} className="comp-feature">
                   <div className="comp-feature__icon">{f.icon}</div>
                   <div className="comp-feature__info">
@@ -103,7 +123,7 @@ export default function ComparisonSection({ onOpenModal }: ComparisonSectionProp
               <p className="comp-col__tagline">Funcionalidade limitada</p>
             </div>
             <div className="comp-col__body">
-              {features.map((f, i) => (
+              {defaultFeatures.map((f, i) => (
                 <div key={i} className="comp-feature">
                   <div className="comp-feature__icon">{f.icon}</div>
                   <div className="comp-feature__info">
@@ -126,10 +146,16 @@ export default function ComparisonSection({ onOpenModal }: ComparisonSectionProp
           </div>
         </div>
 
-        <p className="comparison-note">Baseado em análise competitiva de Fevereiro 2026.</p>
+        <p className="comparison-note">
+          {e ? (
+            <EditableText fieldKey="comparison_note" label="Nota do Comparativo">{noteText}</EditableText>
+          ) : noteText}
+        </p>
         <div style={{ textAlign: 'center', marginTop: 32 }}>
-          <a href="#" onClick={(e) => { e.preventDefault(); onOpenModal(); }} className="btn-primary">
-            Quero a Minha Alanis →
+          <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal(); }} className="btn-primary">
+            {e ? (
+              <EditableText fieldKey="comparison_btn" label="Botão do Comparativo">{btnText}</EditableText>
+            ) : btnText}
           </a>
         </div>
       </div>

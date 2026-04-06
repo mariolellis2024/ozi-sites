@@ -1,7 +1,23 @@
 import { useSiteConfig } from '../context/SiteConfigContext';
+import EditableText from './ui/EditableText';
+import { useEdit } from '../context/EditContext';
 
-export default function Footer() {
+interface FooterProps {
+  dynamicContent?: Record<string, any>;
+}
+
+export default function Footer({ dynamicContent: dc }: FooterProps) {
   const { logo_url } = useSiteConfig();
+  const edit = useEdit();
+  const e = edit?.isEditing;
+  const src = e ? edit.content : dc;
+
+  const footerDesc = src?.footer_desc || 'Alanis, a plataforma de educação profissional com monetização nativa. Transforme conteúdo em máquina de vendas e sorrisos.';
+  const footerEmail = src?.footer_email || 'contato@alanis.digital';
+  const footerWhatsapp = src?.footer_whatsapp || 'https://wa.me/5511984866827?text=Ol%C3%A1%2C%20quero%20garantir%20minha%20c%C3%B3pia%20da%20Alanis.';
+  const footerCopyright = src?.footer_copyright || '© 2026 Alanis. Todos os direitos reservados.';
+  const footerInstagram = src?.footer_instagram || 'https://www.instagram.com/alanis.digital1/';
+
   return (
     <footer id="footer">
       <div className="container">
@@ -10,9 +26,13 @@ export default function Footer() {
             <a href="#" className="nav-logo">
               <img src={logo_url} alt="Logo" style={{ height: 32 }} />
             </a>
-            <p>Alanis, a plataforma de educação profissional com monetização nativa. Transforme conteúdo em máquina de vendas e sorrisos.</p>
+            <p>
+              {e ? (
+                <EditableText fieldKey="footer_desc" label="Descrição do Footer">{footerDesc}</EditableText>
+              ) : footerDesc}
+            </p>
             <div className="footer-social">
-              <a href="https://www.instagram.com/alanis.digital1/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <a href={footerInstagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" />
                   <circle cx="12" cy="12" r="5" />
@@ -40,14 +60,33 @@ export default function Footer() {
           <div className="footer-col">
             <h4>Contato</h4>
             <ul>
-              <li><a href="mailto:contato@alanis.digital">contato@alanis.digital</a></li>
-              <li><a href="https://wa.me/5511984866827?text=Ol%C3%A1%2C%20quero%20garantir%20minha%20c%C3%B3pia%20da%20Alanis." target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-              <li><a href="#">Telefone</a></li>
+              <li>
+                {e ? (
+                  <EditableText fieldKey="footer_email" label="Email do Footer">
+                    <a href={`mailto:${footerEmail}`}>{footerEmail}</a>
+                  </EditableText>
+                ) : (
+                  <a href={`mailto:${footerEmail}`}>{footerEmail}</a>
+                )}
+              </li>
+              <li>
+                {e ? (
+                  <EditableText fieldKey="footer_whatsapp" label="Link do WhatsApp">
+                    <a href={footerWhatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                  </EditableText>
+                ) : (
+                  <a href={footerWhatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                )}
+              </li>
             </ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2026 Alanis. Todos os direitos reservados.</p>
+          <p>
+            {e ? (
+              <EditableText fieldKey="footer_copyright" label="Copyright">{footerCopyright}</EditableText>
+            ) : footerCopyright}
+          </p>
         </div>
       </div>
     </footer>

@@ -1,15 +1,23 @@
 import { useState } from 'react';
 import { useScrollPosition } from '../hooks/useScrollPosition';
 import { useSiteConfig } from '../context/SiteConfigContext';
+import EditableText from './ui/EditableText';
+import { useEdit } from '../context/EditContext';
 
 interface NavbarProps {
   onOpenModal: () => void;
+  dynamicContent?: Record<string, any>;
 }
 
-export default function Navbar({ onOpenModal }: NavbarProps) {
+export default function Navbar({ onOpenModal, dynamicContent: dc }: NavbarProps) {
   const scrollY = useScrollPosition();
   const [menuOpen, setMenuOpen] = useState(false);
   const { logo_url } = useSiteConfig();
+  const edit = useEdit();
+  const e = edit?.isEditing;
+  const src = e ? edit.content : dc;
+
+  const navCta = src?.nav_cta || 'Quero a Minha Alanis';
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const closeMenu = () => setMenuOpen(false);
@@ -27,8 +35,10 @@ export default function Navbar({ onOpenModal }: NavbarProps) {
             <li><a href="#section-faq">FAQ</a></li>
           </ul>
           <div className="nav-actions">
-            <a href="#" onClick={(e) => { e.preventDefault(); onOpenModal(); }} className="btn-primary">
-              Quero a Minha Alanis
+            <a href="#" onClick={(ev) => { ev.preventDefault(); if (!e) onOpenModal(); }} className="btn-primary">
+              {e ? (
+                <EditableText fieldKey="nav_cta" label="CTA da Navbar">{navCta}</EditableText>
+              ) : navCta}
             </a>
             <button className="hamburger" aria-label="Menu" onClick={toggleMenu}>
               <span /><span /><span />
@@ -38,8 +48,8 @@ export default function Navbar({ onOpenModal }: NavbarProps) {
       </nav>
 
       {/* Mobile Menu */}
-      <div className={`mobile-menu${menuOpen ? ' active' : ''}`} onClick={(e) => {
-        if ((e.target as HTMLElement).tagName === 'A') closeMenu();
+      <div className={`mobile-menu${menuOpen ? ' active' : ''}`} onClick={(ev) => {
+        if ((ev.target as HTMLElement).tagName === 'A') closeMenu();
       }}>
         <a href="#section-quick-benefits">Funcionalidades</a>
         <a href="#section-comparativo">Diferenciais</a>
@@ -47,8 +57,8 @@ export default function Navbar({ onOpenModal }: NavbarProps) {
         <a href="#" className="btn-login" style={{ border: '1px solid var(--color-border)', padding: '12px 32px', borderRadius: 'var(--radius-full)' }}>
           Login
         </a>
-        <a href="#" onClick={(e) => { e.preventDefault(); onOpenModal(); closeMenu(); }} className="btn-primary">
-          Garantir Minha Cópia
+        <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal(); closeMenu(); }} className="btn-primary">
+          {navCta}
         </a>
       </div>
 
