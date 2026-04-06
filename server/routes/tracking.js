@@ -131,19 +131,17 @@ router.get('/stats/:pageId', authMiddleware, async (req, res) => {
   try {
     const pageId = parseInt(req.params.pageId);
 
-    const [viewsResult, comprarResult, pixResult, cardResult, purchasesResult] = await Promise.all([
+    const [viewsResult, comprarResult, checkoutResult, purchasesResult] = await Promise.all([
       pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM visits WHERE page_id = $1`, [pageId]),
       pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM events WHERE page_id = $1 AND event_type = 'comprar'`, [pageId]),
-      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM events WHERE page_id = $1 AND event_type = 'pix_click'`, [pageId]),
-      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM events WHERE page_id = $1 AND event_type = 'card_click'`, [pageId]),
+      pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM events WHERE page_id = $1 AND event_type IN ('pix_click', 'card_click')`, [pageId]),
       pool.query(`SELECT COUNT(DISTINCT sck)::int AS total FROM visits WHERE page_id = $1 AND purchased = true`, [pageId]),
     ]);
 
     res.json({
       total_visits: viewsResult.rows[0]?.total || 0,
       comprar: comprarResult.rows[0]?.total || 0,
-      pix_click: pixResult.rows[0]?.total || 0,
-      card_click: cardResult.rows[0]?.total || 0,
+      checkout_click: checkoutResult.rows[0]?.total || 0,
       purchases: purchasesResult.rows[0]?.total || 0,
     });
   } catch (err) {

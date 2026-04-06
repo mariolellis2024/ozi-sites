@@ -14,8 +14,7 @@ interface Page {
 interface FunnelStats {
   total_visits: number;
   comprar: number;
-  pix_click: number;
-  card_click: number;
+  checkout_click: number;
   purchases: number;
 }
 
@@ -104,13 +103,10 @@ export default function AdminDashboard() {
     },
     {
       label: 'Pix / Cartão',
-      value: stats.pix_click + stats.card_click,
+      value: stats.checkout_click,
       icon: <CreditCard size={20} />,
       color: '#fbbf24', // amber
       gradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-      breakdown: stats.pix_click > 0 || stats.card_click > 0
-        ? `Pix: ${fmtNum(stats.pix_click)} · Cartão: ${fmtNum(stats.card_click)}`
-        : undefined,
     },
     {
       label: 'Compras',
@@ -295,14 +291,7 @@ export default function AdminDashboard() {
                             </div>
                           </div>
 
-                          {/* Breakdown label */}
-                          {stage.breakdown && (
-                            <div style={{
-                              fontSize: '0.75rem', color: 'var(--color-text-light)', marginTop: 4,
-                            }}>
-                              {stage.breakdown}
-                            </div>
-                          )}
+
                         </div>
                       </div>
                     </div>
