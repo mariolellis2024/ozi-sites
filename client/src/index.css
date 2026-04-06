@@ -257,9 +257,51 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
   transform: scale(1.04);
 }
 
+/* Pause overlay — covers YouTube's native pause UI (title, channel, share) */
+.plyr-pause-overlay {
+  position: absolute; inset: 0; z-index: 4;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer; border-radius: inherit;
+  animation: plyrFadeIn 0.2s ease;
+}
+.plyr-pause-overlay .plyr-play-btn {
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+  transition: transform 0.2s ease;
+}
+.plyr-pause-overlay:hover .plyr-play-btn {
+  transform: scale(1.1);
+}
+@keyframes plyrFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 /* Plyr overrides for rounded corners */
 .plyr--video { border-radius: inherit; overflow: hidden; }
 .plyr__video-wrapper { border-radius: inherit; }
+
+/* Force zoom mechanism to hide YouTube branding (title, logo, watermark) */
+.plyr--youtube .plyr__video-embed__container,
+.plyr__video-embed > .plyr__video-embed__container {
+  padding-bottom: 240% !important;
+  position: relative !important;
+  transform: translateY(-38.28125%) !important;
+}
+
+/* Hide YouTube pause overlay (title + share buttons that appear on pause) */
+.plyr__video-embed iframe {
+  pointer-events: none;
+}
+.plyr--youtube.plyr--paused .plyr__controls,
+.plyr--youtube.plyr--playing .plyr__controls {
+  pointer-events: auto;
+}
+.plyr--youtube .plyr__control--overlaid {
+  pointer-events: auto;
+}
+
+/* Ensure Plyr control bar captures clicks over the iframe */
+.plyr--youtube .plyr__controls { pointer-events: auto; z-index: 5; }
+.plyr--youtube .plyr__control { pointer-events: auto; }
+
 
 /* ===== BENEFITS GRID ===== */
 #section-quick-benefits { background: var(--color-bg-secondary); padding: 7rem 0; position: relative; }
