@@ -65,4 +65,19 @@ router.get('/public/site_config', async (_req, res) => {
   }
 });
 
+// GET /api/settings/public/meta — public endpoint for Meta Pixel ID (no auth, no token exposed)
+router.get('/public/meta', async (_req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'meta'");
+    if (rows.length === 0 || !rows[0].value?.pixel_id) {
+      return res.json({ pixel_id: null });
+    }
+    // Only expose pixel_id, never the access_token
+    res.json({ pixel_id: rows[0].value.pixel_id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
 export default router;

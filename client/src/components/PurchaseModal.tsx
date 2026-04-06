@@ -1,4 +1,5 @@
 import { trackPaymentSelect, trackLead } from '../hooks/useGA4';
+import { trackMetaLead } from '../hooks/useMetaPixel';
 
 interface DynamicIndex {
   pix_link: string;
@@ -41,7 +42,7 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc }: P
         </div>
         <div className="purchase-modal__options">
           {/* PIX */}
-          <a href={pixLink} className="purchase-modal__option purchase-modal__option--pix" onClick={() => { trackPaymentSelect('pix'); trackLead('pix_click'); }}>
+          <a href={pixLink} className="purchase-modal__option purchase-modal__option--pix" onClick={() => { trackPaymentSelect('pix'); trackLead('pix_click'); trackMetaLead('pix'); }}>
             <div className="purchase-modal__badge">🔥 Melhor oferta</div>
             <div className="purchase-modal__icon-wrap">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -57,7 +58,7 @@ export default function PurchaseModal({ isOpen, onClose, dynamicContent: dc }: P
             <span className="purchase-modal__cta-text">Pagar com Pix →</span>
           </a>
           {/* Cartão */}
-          <a href={cardLink} className="purchase-modal__option purchase-modal__option--card" onClick={() => { trackPaymentSelect('card'); trackLead('card_click'); }}>
+          <a href={cardLink} className="purchase-modal__option purchase-modal__option--card" onClick={() => { trackPaymentSelect('card'); trackLead('card_click'); trackMetaLead('card'); }}>
             <div className="purchase-modal__icon-wrap">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <rect x="2" y="5" width="20" height="14" rx="2" />

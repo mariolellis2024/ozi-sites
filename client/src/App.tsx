@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useGA4 } from './hooks/useGA4';
+import { useMetaPixel } from './hooks/useMetaPixel';
 import { SiteConfigProvider } from './context/SiteConfigContext';
 import Splash from './pages/Splash';
 import AdminLogin from './pages/AdminLogin';
@@ -16,6 +17,7 @@ import DynamicObrigado from './pages/DynamicObrigado';
 function AppRoutes() {
   // Initialize GA4 tracking (only fires on public pages)
   useGA4();
+  useMetaPixel();
 
   return (
     <Routes>
