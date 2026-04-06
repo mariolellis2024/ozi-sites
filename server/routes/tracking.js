@@ -34,12 +34,26 @@ router.post('/visit', async (req, res) => {
     let visitId;
 
     if (existing.length > 0) {
-      // Same person, same page, within 30min → just update timestamp + browser IDs
+      // Same person, same page, within 30min → update with latest data
       visitId = existing[0].id;
       await pool.query(
-        `UPDATE visits SET ip = $1, user_agent = $2, fbp = COALESCE($3, fbp), fbc = COALESCE($4, fbc), 
-         referrer = COALESCE($5, referrer) WHERE id = $6`,
-        [ip, user_agent, fbp || null, fbc || null, referrer || null, visitId]
+        `UPDATE visits SET 
+         ip = $1, user_agent = $2, 
+         fbp = COALESCE($3, fbp), fbc = COALESCE($4, fbc), 
+         referrer = COALESCE($5, referrer),
+         utm_source = COALESCE($6, utm_source),
+         utm_medium = COALESCE($7, utm_medium),
+         utm_campaign = COALESCE($8, utm_campaign),
+         utm_content = COALESCE($9, utm_content),
+         utm_term = COALESCE($10, utm_term),
+         fbclid = COALESCE($11, fbclid),
+         gclid = COALESCE($12, gclid),
+         src = COALESCE($13, src)
+         WHERE id = $14`,
+        [ip, user_agent, fbp || null, fbc || null, referrer || null,
+         utm_source || null, utm_medium || null, utm_campaign || null, 
+         utm_content || null, utm_term || null, fbclid || null, gclid || null,
+         src || null, visitId]
       );
     } else {
       // New visit (different page or first time or >30min ago)
