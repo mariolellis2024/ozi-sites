@@ -348,6 +348,43 @@ export default function AdminTracking() {
                                 </div>
                               </div>
                             )}
+
+                            {/* Meta Events sent to Facebook */}
+                            {v.events.length > 0 && (() => {
+                              const metaEvents: { name: string; time: string; color: string }[] = [];
+                              for (const ev of v.events) {
+                                if (ev.type === 'page_view') {
+                                  metaEvents.push({ name: 'PageView', time: new Date(ev.at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), color: '#a0a0ff' });
+                                }
+                                if (ev.type === 'pix_click' || ev.type === 'card_click') {
+                                  metaEvents.push({ name: 'InitiateCheckout', time: new Date(ev.at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), color: '#ffc832' });
+                                }
+                              }
+                              if (v.meta_synced) {
+                                metaEvents.push({ name: 'Purchase', time: v.meta_synced_at ? new Date(v.meta_synced_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '—', color: '#75fbc6' });
+                              }
+                              if (metaEvents.length === 0) return null;
+                              return (
+                                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--color-border)' }}>
+                                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--color-text-light)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Eventos enviados ao Meta
+                                  </span>
+                                  <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
+                                    {metaEvents.map((me, i) => (
+                                      <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.75rem' }}>
+                                        <span style={{
+                                          display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 12,
+                                          background: 'rgba(66,103,178,0.12)', color: me.color, fontSize: '0.7rem', fontWeight: 600, whiteSpace: 'nowrap',
+                                        }}>
+                                          <Send size={9} /> {me.name}
+                                        </span>
+                                        <span style={{ color: 'var(--color-text-secondary)' }}>{me.time}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })()}
                           </td>
                         </tr>
                         );
