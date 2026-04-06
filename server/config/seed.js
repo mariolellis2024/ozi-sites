@@ -155,6 +155,12 @@ export async function seed() {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_event ON sales(event)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_sales_created ON sales(created_at DESC)`);
 
+    // Gender detection columns (IBGE API) + split name
+    await pool.query(`ALTER TABLE sales ADD COLUMN IF NOT EXISTS customer_first_name VARCHAR(100)`);
+    await pool.query(`ALTER TABLE sales ADD COLUMN IF NOT EXISTS customer_last_name VARCHAR(150)`);
+    await pool.query(`ALTER TABLE sales ADD COLUMN IF NOT EXISTS gender VARCHAR(30)`);
+    await pool.query(`ALTER TABLE sales ADD COLUMN IF NOT EXISTS gender_source VARCHAR(10) DEFAULT 'ibge'`);
+
     const { rows: tmpl } = await pool.query("SELECT id FROM settings WHERE key = 'page_template'");
     if (tmpl.length === 0) {
       const defaultTemplate = {

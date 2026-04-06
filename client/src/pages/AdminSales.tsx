@@ -11,9 +11,12 @@ interface Sale {
   event: string;
   status: string;
   customer_name: string;
+  customer_first_name: string;
+  customer_last_name: string;
   customer_email: string;
   customer_phone: string;
   customer_doc: string;
+  gender: string;
   address_city: string;
   address_state: string;
   address_zip: string;
@@ -89,6 +92,17 @@ export default function AdminSales() {
 
   const fmtCurrency = (v: number) => (v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const genderLabel = (g: string) => {
+    const map: Record<string, string> = {
+      masculino: '♂️ Masculino',
+      feminino: '♀️ Feminino',
+      'provavelmente masculino': '♂️ Prov. Masculino',
+      'provavelmente feminino': '♀️ Prov. Feminino',
+      ambiguo: '⚪ Ambíguo',
+      desconhecido: '—',
+    };
+    return map[g] || g;
+  };
 
   const statusConfig: Record<string, { color: string; bg: string; label: string }> = {
     approved: { color: '#75fbc6', bg: 'rgba(117,251,198,0.1)', label: 'Aprovada' },
@@ -262,10 +276,12 @@ export default function AdminSales() {
                         fontSize: '0.78rem',
                       }}>
                         <DetailGroup label="Cliente" items={[
-                          ['Nome', sale.customer_name],
+                          ['Nome', sale.customer_first_name],
+                          ['Sobrenome', sale.customer_last_name],
                           ['Email', sale.customer_email],
                           ['Telefone', sale.customer_phone],
                           ['CPF/CNPJ', sale.customer_doc],
+                          ['Gênero', sale.gender ? genderLabel(sale.gender) : null],
                         ]} />
                         <DetailGroup label="Localização" items={[
                           ['Cidade', sale.address_city],

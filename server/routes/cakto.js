@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import crypto from 'crypto';
 import pool from '../config/db.js';
+import { detectAndSaveGender, genderToMeta } from '../services/gender.js';
 
 const router = Router();
 
@@ -112,11 +113,15 @@ router.post('/webhook', async (req, res) => {
       }
     }
 
-    // 4. Insert sale
+    // 4. Split name into first/last
+    const { fn: firstName, ln: lastName } = splitName(customer.name);
+
+    // 5. Insert sale
     const { rows: insertedRows } = await pool.query(
       `INSERT INTO sales (
         cakto_id, ref_id, event, status,
-        customer_name, customer_email, customer_phone, customer_doc,
+        customer_name, customer_first_name, customer_last_name,
+        customer_email, customer_phone, customer_doc,
         address_street, address_number, address_complement, address_neighborhood,
         address_city, address_state, address_zip, address_country,
         payment_method, payment_amount, payment_currency, payment_installments,
@@ -124,11 +129,12 @@ router.post('/webhook', async (req, res) => {
         sck, utm_source, utm_medium, utm_campaign, utm_content, utm_term, src,
         raw_payload
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32
       ) RETURNING id`,
       [
         caktoId, refId, event, status,
-        customer.name || null, customer.email || null, customer.phone || null, customer.docNumber || customer.document || null,
+        customer.name || null, firstName, lastName,
+        customer.email || null, customer.phone || null, customer.docNumber || customer.document || null,
         address.street || null, address.number || null, address.complement || null, address.neighborhood || null,
         address.city || null, address.state || null, address.zipCode || null, address.country || 'BR',
         payment.method || payment.type || null, data.amount || payment.amount || null, data.currency || payment.currency || 'BRL', payment.installments || 1,
@@ -141,7 +147,11 @@ router.post('/webhook', async (req, res) => {
     const saleId = insertedRows[0].id;
     console.log(`[Cakto] Sale #${saleId} created: ${event} (sck: ${sck || 'none'})`);
 
-    // 5. For approved purchases: SCK lookup + Meta sync
+    // 6. Detect gender via IBGE (fire-and-forget for non-purchase, blocking for purchase to include in Meta)
+    let detectedGender = 'desconhecido';
+    if (firstName) {
+      detectedGender = await detectAndSaveGender(saleId, customer.name);
+    }
     if (event === 'purchase_approved' && sck) {
       // Find the visit by SCK
       const { rows: visitRows } = await pool.query(
@@ -194,6 +204,7 @@ router.post('/webhook', async (req, res) => {
               amount: data.amount || payment.amount,
               currency: data.currency || payment.currency || 'BRL',
               sck,
+              gender: detectedGender,
             });
 
             if (metaResult) {
@@ -223,7 +234,7 @@ router.post('/webhook', async (req, res) => {
 /**
  * Send Meta CAPI Purchase event with enriched data
  */
-async function sendMetaPurchase({ visit, customer, address, amount, currency, sck }) {
+async function sendMetaPurchase({ visit, customer, address, amount, currency, sck, gender }) {
   // Get Meta config
   const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'meta'");
   if (!rows.length || !rows[0].value?.pixel_id || !rows[0].value?.access_token) {
@@ -251,6 +262,10 @@ async function sendMetaPurchase({ visit, customer, address, amount, currency, sc
   if (phone) user_data.ph = sha256(phone);
   if (fn) user_data.fn = sha256(fn);
   if (ln) user_data.ln = sha256(ln);
+
+  // Gender from IBGE (only if not ambiguous)
+  const metaGender = genderToMeta(gender);
+  if (metaGender) user_data.ge = sha256(metaGender);
 
   const city = address.city || visit.geo_city;
   const state = address.state || visit.geo_state;
