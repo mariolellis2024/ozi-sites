@@ -33,9 +33,9 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   const videoThumbnail = src?.vsl_thumbnail;
 
   const titleContent = heroTitle ? (
-    <h1 dangerouslySetInnerHTML={{ __html: heroTitle }} />
+    <h1 dangerouslySetInnerHTML={{ __html: heroTitle }} style={hideNavbar ? { margin: 0 } : undefined} />
   ) : (
-    <h1>
+    <h1 style={hideNavbar ? { margin: 0 } : undefined}>
       A área de membros<br />
       que transforma as suas aulas em{' '}
       <span className="accent">uma máquina de dinheiro.</span>
@@ -43,9 +43,9 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   );
 
   const subtitleContent = heroSubtitle ? (
-    <p className="subheadline">{heroSubtitle}</p>
+    <p className="subheadline" style={hideNavbar ? { margin: 0 } : undefined}>{heroSubtitle}</p>
   ) : (
-    <p className="subheadline">
+    <p className="subheadline" style={hideNavbar ? { margin: 0 } : undefined}>
       Enquanto áreas de membros "estilo Netflix" confundem seus alunos e matam seu faturamento, a Alanis guia cada aluno pelo caminho certo, com 6 fontes de receita extras, engajamento por IA e um sistema viral que cresce sozinho.
     </p>
   );
@@ -78,32 +78,36 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   // ─── Página Fechada: centered layout with video ───
   if (hideNavbar) {
     return (
-      <section id="section-hero" style={{ paddingTop: 80, paddingBottom: 60 }}>
+      <section id="section-hero" style={{ minHeight: 'auto', paddingTop: 40, paddingBottom: 48 }}>
         <div className="hero-glow hero-glow-1" />
         <div className="hero-glow hero-glow-2" />
         <div className="container">
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             textAlign: 'center', position: 'relative', zIndex: 2, maxWidth: 900, margin: '0 auto',
-            gap: 40,
+            gap: 20,
           }}>
             {/* Headline + Subheadline */}
-            <div className="hero-text" style={{ maxWidth: 800, margin: '0 auto' }}>
-              {e ? (
-                <EditableText fieldKey="hero_title" label="Título do Hero" html>
-                  {titleContent}
-                </EditableText>
-              ) : titleContent}
+            <div style={{ maxWidth: 800, margin: '0 auto' }}>
+              <div style={{ marginBottom: 0 }}>
+                {e ? (
+                  <EditableText fieldKey="hero_title" label="Título do Hero" html>
+                    {titleContent}
+                  </EditableText>
+                ) : titleContent}
+              </div>
 
-              {e ? (
-                <EditableText fieldKey="hero_subtitle" label="Subtítulo do Hero">
-                  {subtitleContent}
-                </EditableText>
-              ) : subtitleContent}
+              <div style={{ marginTop: 12 }}>
+                {e ? (
+                  <EditableText fieldKey="hero_subtitle" label="Subtítulo do Hero">
+                    {subtitleContent}
+                  </EditableText>
+                ) : subtitleContent}
+              </div>
             </div>
 
             {/* Video */}
-            <div style={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
+            <div style={{ width: '100%', maxWidth: 900 }}>
               <VideoBlock
                 videoId={videoId}
                 orientation={videoOrientation as 'vertical' | 'horizontal'}
@@ -116,7 +120,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
             </div>
 
             {/* CTA */}
-            <div className="hero-cta-group" style={{ margin: '0 auto' }}>
+            <div>
               {ctaButton}
             </div>
           </div>
