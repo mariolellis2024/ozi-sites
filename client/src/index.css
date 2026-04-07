@@ -578,6 +578,8 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
   .qualificador-card h2 { font-size: 2rem; }
   .qualificador-card { padding: 40px 24px; }
   .vsl-container { margin-top: 48px; }
+  .btn-primary { justify-content: center; text-align: center; }
+  .hero-cta-group { display: flex; justify-content: center; }
 }
 
 @media (max-width: 640px) {
