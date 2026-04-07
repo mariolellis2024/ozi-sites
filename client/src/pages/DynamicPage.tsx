@@ -9,6 +9,7 @@ interface PageContent {
   slug: string;
   palette_id?: string;
   base_template_id?: number;
+  reveal_seconds?: number;
   content_index: {
     seo_title: string;
     seo_description: string;

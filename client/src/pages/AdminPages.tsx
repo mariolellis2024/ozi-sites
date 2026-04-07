@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, MousePointerClick, Activity, Copy, DollarSign } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, MousePointerClick, Activity, Copy, DollarSign, Timer } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import DeletePageModal from '../components/ui/DeletePageModal';
 import RetentionChartModal from '../components/admin/RetentionChartModal';
@@ -20,6 +20,7 @@ interface Page {
   status: string;
   palette_id?: string;
   base_template_id?: number;
+  reveal_seconds?: number;
   created_at: string;
 }
 
@@ -88,6 +89,52 @@ function AdminSidebar({ active }: { active: string }) {
 
 export { AdminNav, AdminSidebar };
 
+function RevealTimerInputs({ initialSeconds, onSave, onCancel }: { initialSeconds: number; onSave: (seconds: number) => void; onCancel: () => void }) {
+  const [mins, setMins] = useState(Math.floor(initialSeconds / 60));
+  const [secs, setSecs] = useState(initialSeconds % 60);
+  const total = mins * 60 + secs;
+
+  const inputStyle: React.CSSProperties = {
+    width: 70, padding: '10px 12px', borderRadius: 8, border: '1px solid var(--color-border)',
+    background: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', fontSize: '1.1rem',
+    fontWeight: 700, textAlign: 'center', fontFamily: 'var(--font-body)',
+  };
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <input type="number" min={0} max={59} value={mins} onChange={e => setMins(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))} style={inputStyle} />
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-text-light)', textTransform: 'uppercase' }}>Minutos</span>
+        </div>
+        <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: 16 }}>:</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <input type="number" min={0} max={59} value={secs} onChange={e => setSecs(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))} style={inputStyle} />
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-text-light)', textTransform: 'uppercase' }}>Segundos</span>
+        </div>
+      </div>
+      <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', marginBottom: 20, fontSize: '0.82rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+        {total > 0
+          ? <>O conteúdo será revelado após <strong style={{ color: '#fbbf24' }}>{mins > 0 ? `${mins}m ` : ''}{secs > 0 ? `${secs}s` : ''}</strong> de vídeo assistido.</>
+          : <>Sem gate — todo o conteúdo será exibido imediatamente.</>
+        }
+      </div>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <button onClick={onCancel} style={{
+          flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid var(--color-border)',
+          background: 'transparent', color: 'var(--color-text-secondary)', cursor: 'pointer',
+          fontSize: '0.85rem', fontWeight: 600, fontFamily: 'var(--font-body)',
+        }}>Cancelar</button>
+        <button onClick={() => onSave(total)} style={{
+          flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
+          background: '#fbbf24', color: '#1a1a2e', cursor: 'pointer',
+          fontSize: '0.85rem', fontWeight: 700, fontFamily: 'var(--font-body)',
+        }}>Salvar</button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPages() {
   const [pages, setPages] = useState<Page[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -101,6 +148,7 @@ export default function AdminPages() {
   const [baseTemplates, setBaseTemplates] = useState<BaseTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [selectedPaletteId, setSelectedPaletteId] = useState(COLOR_PALETTES[0].id);
+  const [revealTarget, setRevealTarget] = useState<{ id: number; name: string; reveal_seconds: number } | null>(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('admin_token');
@@ -225,6 +273,22 @@ export default function AdminPages() {
     finally { setSavingPalette(null); }
   };
 
+  const handleRevealSave = async (pageId: number, seconds: number) => {
+    try {
+      const res = await fetch(`/api/pages/${pageId}/reveal`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reveal_seconds: seconds }),
+      });
+      if (!res.ok) throw new Error();
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, reveal_seconds: seconds } : p));
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      toast.success(seconds > 0 ? `Gate definido: ${mins}m${secs > 0 ? ` ${secs}s` : ''} de vídeo` : 'Gate removido');
+      setRevealTarget(null);
+    } catch { toast.error('Erro ao salvar tempo de liberação'); }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" toastOptions={{ style: { background: '#202020', color: '#fff', border: '1px solid rgba(255,255,255,0.08)' } }} />
@@ -341,6 +405,14 @@ export default function AdminPages() {
                             background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
                             display: 'flex', alignItems: 'center',
                           }}><BarChart3 size={14} /></button>
+                          {page.base_template_id === 2 && (
+                            <button onClick={() => setRevealTarget({ id: page.id, name: page.name, reveal_seconds: page.reveal_seconds || 0 })} title="Tempo de Liberação" style={{
+                              padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(251,191,36,0.4)',
+                              background: (page.reveal_seconds || 0) > 0 ? 'rgba(251,191,36,0.12)' : 'transparent',
+                              color: '#fbbf24', cursor: 'pointer',
+                              display: 'flex', alignItems: 'center',
+                            }}><Timer size={14} /></button>
+                          )}
                           <button onClick={() => setDeleteTarget({ id: page.id, name: page.name })} title="Deletar" style={{
                             padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(255,107,107,0.3)',
                             background: 'transparent', color: '#ff6b6b', cursor: 'pointer',
@@ -474,6 +546,30 @@ export default function AdminPages() {
         videoId={retentionTarget?.videoId || ''}
         pageName={retentionTarget?.name || ''}
       />
+
+      {/* Reveal Timer Modal */}
+      {revealTarget && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={() => setRevealTarget(null)} />
+          <div style={{
+            position: 'relative', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-large)', padding: 32, maxWidth: 420, width: '90%',
+          }}>
+            <h3 style={{ margin: '0 0 8px', fontSize: '1.1rem', color: 'var(--color-text-primary)' }}>
+              <Timer size={16} style={{ verticalAlign: 'middle', marginRight: 8, color: '#fbbf24' }} />
+              Tempo de Liberação
+            </h3>
+            <p style={{ margin: '0 0 20px', fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+              Defina quanto tempo de vídeo o visitante precisa assistir antes do conteúdo da página ser revelado.
+            </p>
+            <RevealTimerInputs
+              initialSeconds={revealTarget.reveal_seconds}
+              onSave={(seconds) => handleRevealSave(revealTarget.id, seconds)}
+              onCancel={() => setRevealTarget(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

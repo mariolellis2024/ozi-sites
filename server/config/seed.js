@@ -39,6 +39,11 @@ export async function seed() {
       ALTER TABLE pages ADD COLUMN IF NOT EXISTS base_template_id INTEGER
     `);
 
+    // Ensure reveal_seconds column exists (content gate timer for Página Fechada)
+    await pool.query(`
+      ALTER TABLE pages ADD COLUMN IF NOT EXISTS reveal_seconds INTEGER DEFAULT 0
+    `);
+
     // Ensure settings table exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS settings (

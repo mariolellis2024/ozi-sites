@@ -47,7 +47,7 @@ async function getTemplate() {
 // GET /api/pages — list all pages
 router.get('/', authMiddleware, async (_req, res) => {
   try {
-    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, base_template_id, created_at, updated_at FROM pages ORDER BY created_at DESC');
+    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, base_template_id, reveal_seconds, created_at, updated_at FROM pages ORDER BY created_at DESC');
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -154,13 +154,30 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// PUT /api/pages/:id/reveal — update reveal_seconds for content gate timer
+router.put('/:id/reveal', authMiddleware, async (req, res) => {
+  try {
+    const { reveal_seconds } = req.body;
+    const seconds = Math.max(0, Math.floor(Number(reveal_seconds) || 0));
+    const { rows } = await pool.query(
+      'UPDATE pages SET reveal_seconds = $1, updated_at = NOW() WHERE id = $2 RETURNING id, reveal_seconds',
+      [seconds, req.params.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Página não encontrada' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
 // ======== PUBLIC ========
 
 // GET /api/p/:slug — public page index content
 router.get('/p/:slug', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      "SELECT id, name, slug, palette_id, base_template_id, content_index, content_obrigado FROM pages WHERE slug = $1 AND status = 'active'",
+      "SELECT id, name, slug, palette_id, base_template_id, reveal_seconds, content_index, content_obrigado FROM pages WHERE slug = $1 AND status = 'active'",
       [req.params.slug]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Página não encontrada' });

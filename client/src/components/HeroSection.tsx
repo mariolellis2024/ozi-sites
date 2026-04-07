@@ -6,6 +6,7 @@ import EditableImage from './ui/EditableImage';
 import PlyrYouTubePlayer from './ui/PlyrYouTubePlayer';
 import TextEditModal from './ui/TextEditModal';
 import { useVideoRetention } from '../hooks/useVideoRetention';
+import { useVideoGateTimer } from '../hooks/useVideoGateTimer';
 import { Pencil, Image as ImageIcon } from 'lucide-react';
 
 /** Extract YouTube video ID from various URL formats or raw ID */
@@ -26,7 +27,7 @@ function extractVideoId(input: string): string {
  * NO wrapper margin (avoids extra 24px bottom margin).
  * Spacing is 100% controlled by the parent flex gap.
  */
-function HeroVideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVideoId, onChangeOrientation, onChangeThumbnail }: {
+function HeroVideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVideoId, onChangeOrientation, onChangeThumbnail, onGateTimerAttach }: {
   videoId: string;
   orientation: 'vertical' | 'horizontal';
   thumbnail?: string;
@@ -34,6 +35,7 @@ function HeroVideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVi
   onChangeVideoId: (id: string) => void;
   onChangeOrientation: (o: 'vertical' | 'horizontal') => void;
   onChangeThumbnail: (url: string) => void;
+  onGateTimerAttach?: (plyr: any) => void;
 }) {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,7 +112,7 @@ function HeroVideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVi
           </div>
         )}
         <div style={wrapperStyle}>
-          <PlyrYouTubePlayer videoId={videoId} thumbnail={thumbnail} title="Vídeo" onPlyrReady={attachPlayer} />
+          <PlyrYouTubePlayer videoId={videoId} thumbnail={thumbnail} title="Vídeo" onPlyrReady={(plyr: any) => { attachPlayer(plyr); onGateTimerAttach?.(plyr); }} />
         </div>
       </div>
       <TextEditModal
@@ -127,6 +129,9 @@ function HeroVideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVi
 interface HeroSectionProps {
   onOpenModal: () => void;
   hideNavbar?: boolean;
+  revealSeconds?: number;
+  contentRevealed?: boolean;
+  onReveal?: () => void;
   dynamicContent?: {
     hero_title: string;
     hero_subtitle: string;
@@ -136,7 +141,7 @@ interface HeroSectionProps {
   };
 }
 
-export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavbar }: HeroSectionProps) {
+export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavbar, revealSeconds = 0, contentRevealed = true, onReveal }: HeroSectionProps) {
   const edit = useEdit();
   const e = edit?.isEditing;
   const { logo_url } = useSiteConfig();
@@ -197,6 +202,12 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   // ─── Página Fechada: centered layout with video ───
   if (hideNavbar) {
     const spacing = 24;
+    const slug = typeof window !== 'undefined' ? window.location.pathname.replace(/^\//, '') || 'home' : 'home';
+    const { attachGateTimer } = useVideoGateTimer(revealSeconds, slug, onReveal || (() => {}));
+
+    // In editor, always show everything
+    const showCta = e || contentRevealed;
+
     return (
       <section id="section-hero" style={{ minHeight: 'auto', paddingTop: 40, paddingBottom: 48 }}>
         <div className="hero-glow hero-glow-1" />
@@ -234,11 +245,18 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
                 onChangeVideoId={(id: string) => edit?.updateField('vsl_video_id', id)}
                 onChangeOrientation={(o: 'vertical' | 'horizontal') => edit?.updateField('vsl_orientation', o)}
                 onChangeThumbnail={(url: string) => edit?.updateField('vsl_thumbnail', url)}
+                onGateTimerAttach={revealSeconds > 0 ? attachGateTimer : undefined}
               />
             </div>
 
-            {/* CTA */}
-            <div>
+            {/* CTA — hidden until reveal */}
+            <div style={{
+              opacity: showCta ? 1 : 0,
+              maxHeight: showCta ? '200px' : 0,
+              overflow: 'hidden',
+              transition: 'opacity 0.6s ease, max-height 0.5s ease',
+              pointerEvents: showCta ? 'auto' : 'none',
+            }}>
               {ctaButton}
             </div>
           </div>

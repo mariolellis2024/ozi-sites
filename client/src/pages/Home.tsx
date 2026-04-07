@@ -38,7 +38,18 @@ interface HomeProps {
 export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
   const dc = dynamicContent?.content_index;
   const hideNavbar = dynamicContent?.base_template_id === 2;
+  const revealSeconds = dynamicContent?.reveal_seconds || 0;
+  const isGated = hideNavbar && revealSeconds > 0;
   const [modalOpen, setModalOpen] = useState(false);
+  const [contentRevealed, setContentRevealed] = useState(() => {
+    if (!isGated) return true;
+    return typeof window !== 'undefined' && localStorage.getItem(`ozi_revealed_${slug}`) === '1';
+  });
+
+  const onReveal = useCallback(() => {
+    setContentRevealed(true);
+    if (slug) localStorage.setItem(`ozi_revealed_${slug}`, '1');
+  }, [slug]);
 
   // Server-side tracking
   useServerTracking(pageId, slug);
@@ -91,7 +102,22 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
     <>
       {!hideNavbar && <Navbar onOpenModal={openModal} dynamicContent={dc} />}
 
-      <HeroSection onOpenModal={openModal} dynamicContent={dc} hideNavbar={hideNavbar} />
+      <HeroSection
+        onOpenModal={openModal}
+        dynamicContent={dc}
+        hideNavbar={hideNavbar}
+        revealSeconds={isGated ? revealSeconds : 0}
+        contentRevealed={contentRevealed}
+        onReveal={onReveal}
+      />
+
+      <div style={{
+        opacity: contentRevealed ? 1 : 0,
+        maxHeight: contentRevealed ? 'none' : 0,
+        overflow: contentRevealed ? 'visible' : 'hidden',
+        transition: 'opacity 0.8s ease, max-height 0.5s ease',
+        pointerEvents: contentRevealed ? 'auto' : 'none',
+      }}>
 
       <BenefitsGrid dynamicContent={dc} onOpenModal={openModal} hideVideoCta={hideNavbar} hideVideo={hideNavbar} />
 
@@ -214,6 +240,9 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
       <ComparisonSection onOpenModal={openModal} dynamicContent={dc} />
       <FaqSection onOpenModal={openModal} dynamicContent={dc} />
       <Footer dynamicContent={dc} />
+
+      </div>{/* end content gate wrapper */}
+
       <PurchaseModal isOpen={modalOpen} onClose={closeModal} dynamicContent={dc} pageId={pageId} />
     </>
   );
