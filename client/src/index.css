@@ -126,7 +126,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
   transition: background 300ms ease, box-shadow 300ms ease;
 }
 .navbar.scrolled {
-  background: rgba(26, 26, 26, 0.92);
+  background: var(--color-mobile-menu-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 1px 0 var(--color-border);
@@ -185,7 +185,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 /* ===== MOBILE MENU ===== */
 .mobile-menu {
   display: none; position: fixed; inset: 0;
-  background: rgba(6, 6, 24, 0.97); backdrop-filter: blur(20px);
+  background: var(--color-mobile-menu-bg); backdrop-filter: blur(20px);
   z-index: 999; flex-direction: column; align-items: center;
   justify-content: center; gap: 32px;
 }
