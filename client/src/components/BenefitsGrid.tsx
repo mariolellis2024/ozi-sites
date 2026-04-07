@@ -135,10 +135,11 @@ const defaultBenefits = [
 interface BenefitsGridProps {
   dynamicContent?: Record<string, any>;
   onOpenModal?: () => void;
+  hideVideoCta?: boolean;
 }
 
 
-export default function BenefitsGrid({ dynamicContent: dc, onOpenModal }: BenefitsGridProps) {
+export default function BenefitsGrid({ dynamicContent: dc, onOpenModal, hideVideoCta }: BenefitsGridProps) {
   const edit = useEdit();
   const e = edit?.isEditing;
   const src = e ? edit.content : dc;
@@ -204,15 +205,17 @@ export default function BenefitsGrid({ dynamicContent: dc, onOpenModal }: Benefi
             onChangeThumbnail={(url: string) => edit?.updateField('vsl_thumbnail', url)}
           />
         </ScrollFadeIn>
-        <ScrollFadeIn>
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal?.(); }} className="btn-primary">
-              {e ? (
-                <EditableText fieldKey="vsl_cta_text" label="Botão abaixo do vídeo">{vslCtaText}</EditableText>
-              ) : vslCtaText}
-            </a>
-          </div>
-        </ScrollFadeIn>
+        {!hideVideoCta && (
+          <ScrollFadeIn>
+            <div style={{ textAlign: 'center', marginTop: 32 }}>
+              <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal?.(); }} className="btn-primary">
+                {e ? (
+                  <EditableText fieldKey="vsl_cta_text" label="Botão abaixo do vídeo">{vslCtaText}</EditableText>
+                ) : vslCtaText}
+              </a>
+            </div>
+          </ScrollFadeIn>
+        )}
       </div>
     </section>
   );

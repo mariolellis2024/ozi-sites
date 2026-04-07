@@ -93,7 +93,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
 
       <HeroSection onOpenModal={openModal} dynamicContent={dc} hideNavbar={hideNavbar} />
 
-      <BenefitsGrid dynamicContent={dc} onOpenModal={openModal} />
+      <BenefitsGrid dynamicContent={dc} onOpenModal={openModal} hideVideoCta={hideNavbar} />
 
       <FeatureSection
         id="section-monetizacao"
