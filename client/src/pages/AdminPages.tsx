@@ -332,6 +332,20 @@ export default function AdminPages() {
     setDupSlug(`${page.slug}-copia`);
   };
 
+  const handleTemplateChange = async (pageId: number, templateId: number) => {
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ base_template_id: templateId }),
+      });
+      if (!res.ok) throw new Error();
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, base_template_id: templateId } : p));
+      const tplName = baseTemplates.find(t => t.id === templateId)?.name || '';
+      toast.success(`Template alterado para ${tplName}`);
+    } catch { toast.error('Erro ao alterar template'); }
+  };
+
   const handleDuplicate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!duplicateTarget) return;
@@ -387,7 +401,7 @@ export default function AdminPages() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                    {['Nome', 'Slug', 'Status', 'Cor', '👁 Visitas', '🖱 Modal', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
+                    {['Nome', 'Slug', 'Status', 'Template', 'Cor', '👁 Visitas', '🖱 Modal', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
                       <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--color-text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                     ))}
                   </tr>
@@ -450,6 +464,25 @@ export default function AdminPages() {
                           color: page.status === 'active' ? 'var(--color-accent)' : '#ffc832',
                           padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.78rem', fontWeight: 600,
                         }}>{page.status === 'active' ? 'Ativo' : 'Rascunho'}</span>
+                      </td>
+                      {/* Template selector */}
+                      <td style={{ padding: '14px 12px' }}>
+                        <select
+                          value={page.base_template_id || 1}
+                          onChange={e => handleTemplateChange(page.id, Number(e.target.value))}
+                          style={{
+                            padding: '4px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
+                            background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-secondary)',
+                            fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', outline: 'none',
+                            fontFamily: 'var(--font-body)', maxWidth: 120,
+                          }}
+                        >
+                          {baseTemplates.map(tpl => (
+                            <option key={tpl.id} value={tpl.id} style={{ background: '#1a1a1a', color: '#fff' }}>
+                              {tpl.name}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       {/* Palette picker */}
                       <td style={{ padding: '14px 12px' }}>

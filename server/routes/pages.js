@@ -147,7 +147,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // PUT /api/pages/:id — update page
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, slug, status, palette_id, content_index, content_obrigado } = req.body;
+    const { name, slug, status, palette_id, base_template_id, content_index, content_obrigado } = req.body;
 
     const { rows: current } = await pool.query('SELECT * FROM pages WHERE id = $1', [req.params.id]);
     if (current.length === 0) return res.status(404).json({ error: 'Página não encontrada' });
@@ -156,12 +156,13 @@ router.put('/:id', authMiddleware, async (req, res) => {
     const updatedSlug = slug ? slug.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-') : current[0].slug;
     const updatedStatus = status || current[0].status;
     const updatedPalette = palette_id || current[0].palette_id || 'mint';
+    const updatedTemplateId = base_template_id !== undefined ? base_template_id : current[0].base_template_id;
     const updatedIndex = content_index ? JSON.stringify(content_index) : JSON.stringify(current[0].content_index);
     const updatedObrigado = content_obrigado ? JSON.stringify(content_obrigado) : JSON.stringify(current[0].content_obrigado);
 
     const { rows } = await pool.query(
-      'UPDATE pages SET name=$1, slug=$2, status=$3, palette_id=$4, content_index=$5, content_obrigado=$6, updated_at=NOW() WHERE id=$7 RETURNING *',
-      [updatedName, updatedSlug, updatedStatus, updatedPalette, updatedIndex, updatedObrigado, req.params.id]
+      'UPDATE pages SET name=$1, slug=$2, status=$3, palette_id=$4, base_template_id=$5, content_index=$6, content_obrigado=$7, updated_at=NOW() WHERE id=$8 RETURNING *',
+      [updatedName, updatedSlug, updatedStatus, updatedPalette, updatedTemplateId, updatedIndex, updatedObrigado, req.params.id]
     );
 
     res.json(rows[0]);
