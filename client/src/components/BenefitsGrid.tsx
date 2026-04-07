@@ -21,7 +21,7 @@ function extractVideoId(input: string): string {
 }
 
 /** Video block with Plyr player, custom thumbnail, orientation toggle */
-function VideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVideoId, onChangeOrientation, onChangeThumbnail }: {
+export function VideoBlock({ videoId, orientation, thumbnail, isEditing, onChangeVideoId, onChangeOrientation, onChangeThumbnail }: {
   videoId: string;
   orientation: 'vertical' | 'horizontal';
   thumbnail?: string;
@@ -136,10 +136,11 @@ interface BenefitsGridProps {
   dynamicContent?: Record<string, any>;
   onOpenModal?: () => void;
   hideVideoCta?: boolean;
+  hideVideo?: boolean;
 }
 
 
-export default function BenefitsGrid({ dynamicContent: dc, onOpenModal, hideVideoCta }: BenefitsGridProps) {
+export default function BenefitsGrid({ dynamicContent: dc, onOpenModal, hideVideoCta, hideVideo }: BenefitsGridProps) {
   const edit = useEdit();
   const e = edit?.isEditing;
   const src = e ? edit.content : dc;
@@ -194,18 +195,20 @@ export default function BenefitsGrid({ dynamicContent: dc, onOpenModal, hideVide
             </ScrollFadeIn>
           ))}
         </div>
-        <ScrollFadeIn>
-          <VideoBlock
-            videoId={src?.vsl_video_id || 'OvV-GvWhQ7s'}
-            orientation={src?.vsl_orientation || 'horizontal'}
-            thumbnail={src?.vsl_thumbnail}
-            isEditing={!!e}
-            onChangeVideoId={(id: string) => edit?.updateField('vsl_video_id', id)}
-            onChangeOrientation={(o: 'vertical' | 'horizontal') => edit?.updateField('vsl_orientation', o)}
-            onChangeThumbnail={(url: string) => edit?.updateField('vsl_thumbnail', url)}
-          />
-        </ScrollFadeIn>
-        {!hideVideoCta && (
+        {!hideVideo && (
+          <ScrollFadeIn>
+            <VideoBlock
+              videoId={src?.vsl_video_id || 'OvV-GvWhQ7s'}
+              orientation={src?.vsl_orientation || 'horizontal'}
+              thumbnail={src?.vsl_thumbnail}
+              isEditing={!!e}
+              onChangeVideoId={(id: string) => edit?.updateField('vsl_video_id', id)}
+              onChangeOrientation={(o: 'vertical' | 'horizontal') => edit?.updateField('vsl_orientation', o)}
+              onChangeThumbnail={(url: string) => edit?.updateField('vsl_thumbnail', url)}
+            />
+          </ScrollFadeIn>
+        )}
+        {!hideVideoCta && !hideVideo && (
           <ScrollFadeIn>
             <div style={{ textAlign: 'center', marginTop: 32 }}>
               <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal?.(); }} className="btn-primary">

@@ -2,6 +2,7 @@ import { useEdit } from '../context/EditContext';
 import { useSiteConfig } from '../context/SiteConfigContext';
 import EditableText from './ui/EditableText';
 import EditableImage from './ui/EditableImage';
+import { VideoBlock } from './BenefitsGrid';
 
 interface HeroSectionProps {
   onOpenModal: () => void;
@@ -25,6 +26,11 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   const heroSubtitle = e ? (edit.content.hero_subtitle || dc?.hero_subtitle) : dc?.hero_subtitle;
   const heroImage = e ? (edit.content.hero_image || dc?.hero_image) : dc?.hero_image;
   const ctaText = e ? (edit.content.cta_text || dc?.cta_text) : dc?.cta_text;
+
+  const src = e ? edit.content : dc;
+  const videoId = src?.vsl_video_id || 'OvV-GvWhQ7s';
+  const videoOrientation = src?.vsl_orientation || 'horizontal';
+  const videoThumbnail = src?.vsl_thumbnail;
 
   const titleContent = heroTitle ? (
     <h1 dangerouslySetInnerHTML={{ __html: heroTitle }} />
@@ -57,13 +63,75 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
     />
   );
 
+  const ctaButton = e ? (
+    <EditableText fieldKey="cta_text" label="Texto do CTA">
+      <a href="#" onClick={(ev) => { ev.preventDefault(); if (!e) onOpenModal(); }} className="btn-primary">
+        {ctaText || 'Quero Minha Plataforma Própria →'}
+      </a>
+    </EditableText>
+  ) : (
+    <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal(); }} className="btn-primary">
+      {ctaText || 'Quero Minha Plataforma Própria →'}
+    </a>
+  );
+
+  // ─── Página Fechada: centered layout with video ───
+  if (hideNavbar) {
+    return (
+      <section id="section-hero" style={{ paddingTop: 0 }}>
+        <div className="hero-glow hero-glow-1" />
+        <div className="hero-glow hero-glow-2" />
+        <div className="container">
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            textAlign: 'center', position: 'relative', zIndex: 2, maxWidth: 900, margin: '0 auto',
+          }}>
+            {/* Headline */}
+            <div className="hero-text" style={{ maxWidth: 800 }}>
+              {e ? (
+                <EditableText fieldKey="hero_title" label="Título do Hero" html>
+                  {titleContent}
+                </EditableText>
+              ) : titleContent}
+
+              {e ? (
+                <EditableText fieldKey="hero_subtitle" label="Subtítulo do Hero">
+                  {subtitleContent}
+                </EditableText>
+              ) : subtitleContent}
+            </div>
+
+            {/* Video */}
+            <div style={{ width: '100%', marginTop: 24, marginBottom: 32 }}>
+              <VideoBlock
+                videoId={videoId}
+                orientation={videoOrientation as 'vertical' | 'horizontal'}
+                thumbnail={videoThumbnail}
+                isEditing={!!e}
+                onChangeVideoId={(id: string) => edit?.updateField('vsl_video_id', id)}
+                onChangeOrientation={(o: 'vertical' | 'horizontal') => edit?.updateField('vsl_orientation', o)}
+                onChangeThumbnail={(url: string) => edit?.updateField('vsl_thumbnail', url)}
+              />
+            </div>
+
+            {/* CTA */}
+            <div className="hero-cta-group">
+              {ctaButton}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ─── Página Aberta: original grid layout ───
   return (
-    <section id="section-hero" style={hideNavbar ? { paddingTop: 0 } : undefined}>
+    <section id="section-hero">
       <div className="hero-glow hero-glow-1" />
       <div className="hero-glow hero-glow-2" />
       <div className="container">
-        {/* Mobile-only logo (navbar is hidden on mobile) — also hidden for closed-page template */}
-        {!hideNavbar && <img src={logo_url} alt="Logo" className="mobile-hero-logo" />}
+        {/* Mobile-only logo (navbar is hidden on mobile) */}
+        <img src={logo_url} alt="Logo" className="mobile-hero-logo" />
         <div className="hero-content">
           <div className="hero-text">
             {e ? (
@@ -79,17 +147,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
             ) : subtitleContent}
 
             <div className="hero-cta-group">
-              {e ? (
-                <EditableText fieldKey="cta_text" label="Texto do CTA">
-                  <a href="#" onClick={(ev) => { ev.preventDefault(); if (!e) onOpenModal(); }} className="btn-primary">
-                    {ctaText || 'Quero Minha Plataforma Própria →'}
-                  </a>
-                </EditableText>
-              ) : (
-                <a href="#" onClick={(ev) => { ev.preventDefault(); onOpenModal(); }} className="btn-primary">
-                  {ctaText || 'Quero Minha Plataforma Própria →'}
-                </a>
-              )}
+              {ctaButton}
             </div>
           </div>
           <div className="hero-visual">
