@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, Activity, Copy, DollarSign, Timer } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, Activity, Copy, DollarSign, Timer, Radio } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import DeletePageModal from '../components/ui/DeletePageModal';
 import RetentionChartModal from '../components/admin/RetentionChartModal';
@@ -21,6 +21,7 @@ interface Page {
   palette_id?: string;
   base_template_id?: number;
   reveal_seconds?: number;
+  campaigns_active?: boolean;
   created_at: string;
 }
 
@@ -346,6 +347,19 @@ export default function AdminPages() {
     } catch { toast.error('Erro ao alterar template'); }
   };
 
+  const handleCampaignsToggle = async (pageId: number, current: boolean) => {
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ campaigns_active: !current }),
+      });
+      if (!res.ok) throw new Error();
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, campaigns_active: !current } : p));
+      toast.success(!current ? 'Campanhas marcadas como ativas' : 'Campanhas desmarcadas');
+    } catch { toast.error('Erro ao atualizar status'); }
+  };
+
   const handleDuplicate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!duplicateTarget) return;
@@ -397,19 +411,22 @@ export default function AdminPages() {
               <p>Nenhuma página criada ainda</p>
             </div>
           ) : (
-            <div style={{ borderRadius: 'var(--radius-medium)', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                    {['Nome', 'Slug', 'Status', 'Template', 'Cor', '👁 Visitas', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
-                      <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--color-text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {pages.map(page => (
-                    <tr key={page.id} style={{ borderTop: '1px solid var(--color-border)' }}>
-                      <td style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {pages.map(page => {
+                const isCampaign = page.campaigns_active || false;
+                return (
+                  <div key={page.id} style={{
+                    borderRadius: 'var(--radius-medium)', border: '1px solid var(--color-border)',
+                    background: 'var(--color-bg-secondary)', overflow: 'hidden',
+                    transition: 'border-color 0.2s ease',
+                  }}>
+                    {/* ── Row 1: Main info ── */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px',
+                      flexWrap: 'wrap',
+                    }}>
+                      {/* Name (editable) */}
+                      <div style={{ minWidth: 120 }}>
                         {editingName?.id === page.id ? (
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                             <input
@@ -418,8 +435,8 @@ export default function AdminPages() {
                               onChange={e => setEditingName({ ...editingName, value: e.target.value })}
                               onKeyDown={e => { if (e.key === 'Enter') handleSaveName(page.id, editingName.value); if (e.key === 'Escape') setEditingName(null); }}
                               style={{
-                                width: 140, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
-                                background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)', fontSize: '0.85rem',
+                                width: 160, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
+                                background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)', fontSize: '0.9rem',
                                 fontWeight: 600, outline: 'none', fontFamily: 'var(--font-body)',
                               }}
                             />
@@ -427,12 +444,18 @@ export default function AdminPages() {
                             <button onClick={() => setEditingName(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 2 }}>✗</button>
                           </div>
                         ) : (
-                          <span onClick={() => setEditingName({ id: page.id, value: page.name })} style={{ cursor: 'pointer', borderBottom: '1px dashed rgba(255,255,255,0.15)' }} title="Clique para editar">
+                          <span
+                            onClick={() => setEditingName({ id: page.id, value: page.name })}
+                            style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem', color: 'var(--color-text-primary)', borderBottom: '1px dashed rgba(255,255,255,0.12)' }}
+                            title="Clique para editar"
+                          >
                             {page.name}
                           </span>
                         )}
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
+                      </div>
+
+                      {/* Slug (editable) */}
+                      <div>
                         {editingSlug?.id === page.id ? (
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                             <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}>/</span>
@@ -442,7 +465,7 @@ export default function AdminPages() {
                               onChange={e => setEditingSlug({ ...editingSlug, value: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                               onKeyDown={e => { if (e.key === 'Enter') handleSaveSlug(page.id, editingSlug.value); if (e.key === 'Escape') setEditingSlug(null); }}
                               style={{
-                                width: 120, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
+                                width: 140, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
                                 background: 'rgba(255,255,255,0.04)', color: 'var(--color-accent)', fontSize: '0.85rem',
                                 fontWeight: 500, outline: 'none', fontFamily: 'monospace',
                               }}
@@ -453,20 +476,58 @@ export default function AdminPages() {
                         ) : (
                           <code
                             onClick={() => setEditingSlug({ id: page.id, value: page.slug })}
-                            style={{ background: 'rgba(117,251,198,0.08)', color: 'var(--color-accent)', padding: '2px 8px', borderRadius: 4, fontSize: '0.85rem', cursor: 'pointer', borderBottom: '1px dashed rgba(117,251,198,0.3)' }}
+                            style={{ background: 'rgba(117,251,198,0.08)', color: 'var(--color-accent)', padding: '3px 10px', borderRadius: 6, fontSize: '0.82rem', cursor: 'pointer', borderBottom: '1px dashed rgba(117,251,198,0.25)' }}
                             title="Clique para editar"
                           >/{page.slug}</code>
                         )}
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
+                      </div>
+
+                      {/* Status badge */}
+                      <span style={{
+                        background: page.status === 'active' ? 'rgba(117,251,198,0.12)' : 'rgba(255,200,50,0.12)',
+                        color: page.status === 'active' ? 'var(--color-accent)' : '#ffc832',
+                        padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 600,
+                      }}>{page.status === 'active' ? 'Ativo' : 'Rascunho'}</span>
+
+                      {/* Campaign live indicator */}
+                      {isCampaign && (
                         <span style={{
-                          background: page.status === 'active' ? 'rgba(117,251,198,0.12)' : 'rgba(255,200,50,0.12)',
-                          color: page.status === 'active' ? 'var(--color-accent)' : '#ffc832',
-                          padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.78rem', fontWeight: 600,
-                        }}>{page.status === 'active' ? 'Ativo' : 'Rascunho'}</span>
-                      </td>
+                          display: 'inline-flex', alignItems: 'center', gap: 5,
+                          padding: '3px 10px', borderRadius: 'var(--radius-full)',
+                          background: 'rgba(52,211,153,0.1)', color: '#34d399',
+                          fontSize: '0.72rem', fontWeight: 600,
+                          animation: 'pulse 2s ease-in-out infinite',
+                        }}>
+                          <Radio size={11} /> Ao vivo
+                        </span>
+                      )}
+
+                      {/* Spacer */}
+                      <div style={{ flex: 1 }} />
+
+                      {/* Stats */}
+                      <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
+                          <Eye size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.total_visits)}
+                        </span>
+                        <span style={{ fontSize: '0.85rem', color: '#75fbc6', fontWeight: 600 }} title="Pix">
+                          💳 {fmtNum(stats[page.id]?.pix_click)}
+                        </span>
+                        <span style={{ fontSize: '0.85rem', color: '#6ea8fe', fontWeight: 600 }} title="Cartão">
+                          💳 {fmtNum(stats[page.id]?.card_click)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ── Row 2: Config + Actions ── */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 16, padding: '12px 20px',
+                      borderTop: '1px solid rgba(255,255,255,0.04)',
+                      background: 'rgba(0,0,0,0.15)', flexWrap: 'wrap',
+                    }}>
                       {/* Template selector */}
-                      <td style={{ padding: '14px 12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', fontWeight: 500 }}>Template</span>
                         <select
                           value={page.base_template_id || 1}
                           onChange={e => handleTemplateChange(page.id, Number(e.target.value))}
@@ -474,7 +535,7 @@ export default function AdminPages() {
                             padding: '4px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
                             background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-secondary)',
                             fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', outline: 'none',
-                            fontFamily: 'var(--font-body)', maxWidth: 120,
+                            fontFamily: 'var(--font-body)',
                           }}
                         >
                           {baseTemplates.map(tpl => (
@@ -483,87 +544,109 @@ export default function AdminPages() {
                             </option>
                           ))}
                         </select>
-                      </td>
-                      {/* Palette picker */}
-                      <td style={{ padding: '14px 12px' }}>
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', position: 'relative' }}>
-                          {COLOR_PALETTES.map(palette => {
-                            const isActive = (page.palette_id || 'mint') === palette.id;
-                            return (
-                              <button
-                                key={palette.id}
-                                title={palette.name}
-                                disabled={savingPalette === page.id}
-                                onClick={() => handlePaletteChange(page.id, palette.id)}
-                                style={{
-                                  width: isActive ? 24 : 20, height: isActive ? 24 : 20, borderRadius: '50%',
-                                  border: isActive ? '2px solid #fff' : '1.5px solid rgba(255,255,255,0.15)',
-                                  background: palette.swatch,
-                                  cursor: savingPalette === page.id ? 'wait' : 'pointer',
-                                  padding: 0, flexShrink: 0,
-                                  transition: 'all 0.2s ease',
-                                  boxShadow: isActive ? `0 0 8px ${palette.swatch}60` : 'none',
-                                  opacity: savingPalette === page.id ? 0.5 : 1,
-                                }}
-                              />
-                            );
-                          })}
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Eye size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.total_visits)}</span>
-                      </td>
+                      </div>
 
-                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#75fbc6', fontWeight: 600 }}>
-                        {fmtNum(stats[page.id]?.pix_click)}
-                      </td>
-                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#6ea8fe', fontWeight: 600 }}>
-                        {fmtNum(stats[page.id]?.card_click)}
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button onClick={() => navigate(`/admin/pages/${page.id}/visual/index`)} title="Editar Landing Page" style={{
-                            padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                            background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
-                            fontSize: '0.75rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
-                          }}><Pencil size={12} /> Index</button>
-                          <button onClick={() => navigate(`/admin/pages/${page.id}/visual/obrigado`)} title="Editar Página de Obrigado" style={{
-                            padding: '6px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                            background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
-                            fontSize: '0.75rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
-                          }}><Pencil size={12} /> Obrigado</button>
-                          <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer" title="Abrir" style={{
-                            padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
-                            background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
-                          }}><ExternalLink size={14} /></a>
-                          <button onClick={() => openDuplicate(page)} title="Duplicar Página" style={{
-                            padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                            background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                      {/* Separator */}
+                      <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)' }} />
+
+                      {/* Palette picker */}
+                      <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                        {COLOR_PALETTES.map(palette => {
+                          const isActive = (page.palette_id || 'mint') === palette.id;
+                          return (
+                            <button
+                              key={palette.id}
+                              title={palette.name}
+                              disabled={savingPalette === page.id}
+                              onClick={() => handlePaletteChange(page.id, palette.id)}
+                              style={{
+                                width: isActive ? 22 : 18, height: isActive ? 22 : 18, borderRadius: '50%',
+                                border: isActive ? '2px solid #fff' : '1.5px solid rgba(255,255,255,0.15)',
+                                background: palette.swatch,
+                                cursor: savingPalette === page.id ? 'wait' : 'pointer',
+                                padding: 0, flexShrink: 0,
+                                transition: 'all 0.2s ease',
+                                boxShadow: isActive ? `0 0 6px ${palette.swatch}50` : 'none',
+                                opacity: savingPalette === page.id ? 0.5 : 1,
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      {/* Separator */}
+                      <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)' }} />
+
+                      {/* Campaigns checkbox */}
+                      <label style={{
+                        display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+                        fontSize: '0.75rem', color: isCampaign ? '#34d399' : 'var(--color-text-light)',
+                        fontWeight: 500, userSelect: 'none',
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={isCampaign}
+                          onChange={() => handleCampaignsToggle(page.id, isCampaign)}
+                          style={{ accentColor: '#34d399', width: 14, height: 14, cursor: 'pointer' }}
+                        />
+                        Campanhas rodando
+                      </label>
+
+                      {/* Spacer */}
+                      <div style={{ flex: 1 }} />
+
+                      {/* Actions */}
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <button onClick={() => navigate(`/admin/pages/${page.id}/visual/index`)} title="Editar Landing Page" style={{
+                          padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                          background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
+                          fontSize: '0.73rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
+                        }}><Pencil size={11} /> Index</button>
+                        <button onClick={() => navigate(`/admin/pages/${page.id}/visual/obrigado`)} title="Editar Página de Obrigado" style={{
+                          padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                          background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
+                          fontSize: '0.73rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
+                        }}><Pencil size={11} /> Obrigado</button>
+                        <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer" title="Abrir" style={{
+                          padding: '5px 7px', borderRadius: 6, border: '1px solid var(--color-border)',
+                          background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
+                        }}><ExternalLink size={13} /></a>
+                        <button onClick={() => openDuplicate(page)} title="Duplicar" style={{
+                          padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                          background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center',
+                        }}><Copy size={13} /></button>
+                        <button onClick={() => setRetentionTarget({ slug: page.slug, name: page.name, videoId: '' })} title="Retenção" style={{
+                          padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                          background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center',
+                        }}><BarChart3 size={13} /></button>
+                        {page.base_template_id === 2 && (
+                          <button onClick={() => setRevealTarget({ id: page.id, name: page.name, reveal_seconds: page.reveal_seconds || 0 })} title="Tempo de Liberação" style={{
+                            padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(251,191,36,0.4)',
+                            background: (page.reveal_seconds || 0) > 0 ? 'rgba(251,191,36,0.12)' : 'transparent',
+                            color: '#fbbf24', cursor: 'pointer',
                             display: 'flex', alignItems: 'center',
-                          }}><Copy size={14} /></button>
-                          <button onClick={() => setRetentionTarget({ slug: page.slug, name: page.name, videoId: '' })} title="Retenção do Vídeo" style={{
-                            padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                            background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                          }}><Timer size={13} /></button>
+                        )}
+                        <button
+                          onClick={() => !isCampaign && setDeleteTarget({ id: page.id, name: page.name })}
+                          title={isCampaign ? 'Desative "Campanhas rodando" para deletar' : 'Deletar'}
+                          disabled={isCampaign}
+                          style={{
+                            padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(255,107,107,0.3)',
+                            background: 'transparent',
+                            color: isCampaign ? 'rgba(255,107,107,0.25)' : '#ff6b6b',
+                            cursor: isCampaign ? 'not-allowed' : 'pointer',
                             display: 'flex', alignItems: 'center',
-                          }}><BarChart3 size={14} /></button>
-                          {page.base_template_id === 2 && (
-                            <button onClick={() => setRevealTarget({ id: page.id, name: page.name, reveal_seconds: page.reveal_seconds || 0 })} title="Tempo de Liberação" style={{
-                              padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(251,191,36,0.4)',
-                              background: (page.reveal_seconds || 0) > 0 ? 'rgba(251,191,36,0.12)' : 'transparent',
-                              color: '#fbbf24', cursor: 'pointer',
-                              display: 'flex', alignItems: 'center',
-                            }}><Timer size={14} /></button>
-                          )}
-                          <button onClick={() => setDeleteTarget({ id: page.id, name: page.name })} title="Deletar" style={{
-                            padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(255,107,107,0.3)',
-                            background: 'transparent', color: '#ff6b6b', cursor: 'pointer',
-                          }}><Trash2 size={14} /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            opacity: isCampaign ? 0.5 : 1,
+                          }}
+                        ><Trash2 size={13} /></button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </main>

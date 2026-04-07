@@ -47,7 +47,7 @@ async function getTemplate() {
 // GET /api/pages — list all pages
 router.get('/', authMiddleware, async (_req, res) => {
   try {
-    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, base_template_id, reveal_seconds, created_at, updated_at FROM pages ORDER BY created_at DESC');
+    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, base_template_id, reveal_seconds, campaigns_active, created_at, updated_at FROM pages ORDER BY created_at DESC');
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -147,7 +147,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // PUT /api/pages/:id — update page
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, slug, status, palette_id, base_template_id, content_index, content_obrigado } = req.body;
+    const { name, slug, status, palette_id, base_template_id, campaigns_active, content_index, content_obrigado } = req.body;
 
     const { rows: current } = await pool.query('SELECT * FROM pages WHERE id = $1', [req.params.id]);
     if (current.length === 0) return res.status(404).json({ error: 'Página não encontrada' });
@@ -157,12 +157,13 @@ router.put('/:id', authMiddleware, async (req, res) => {
     const updatedStatus = status || current[0].status;
     const updatedPalette = palette_id || current[0].palette_id || 'mint';
     const updatedTemplateId = base_template_id !== undefined ? base_template_id : current[0].base_template_id;
+    const updatedCampaigns = campaigns_active !== undefined ? campaigns_active : (current[0].campaigns_active || false);
     const updatedIndex = content_index ? JSON.stringify(content_index) : JSON.stringify(current[0].content_index);
     const updatedObrigado = content_obrigado ? JSON.stringify(content_obrigado) : JSON.stringify(current[0].content_obrigado);
 
     const { rows } = await pool.query(
-      'UPDATE pages SET name=$1, slug=$2, status=$3, palette_id=$4, base_template_id=$5, content_index=$6, content_obrigado=$7, updated_at=NOW() WHERE id=$8 RETURNING *',
-      [updatedName, updatedSlug, updatedStatus, updatedPalette, updatedTemplateId, updatedIndex, updatedObrigado, req.params.id]
+      'UPDATE pages SET name=$1, slug=$2, status=$3, palette_id=$4, base_template_id=$5, campaigns_active=$6, content_index=$7, content_obrigado=$8, updated_at=NOW() WHERE id=$9 RETURNING *',
+      [updatedName, updatedSlug, updatedStatus, updatedPalette, updatedTemplateId, updatedCampaigns, updatedIndex, updatedObrigado, req.params.id]
     );
 
     res.json(rows[0]);

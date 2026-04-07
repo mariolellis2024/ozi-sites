@@ -44,6 +44,11 @@ export async function seed() {
       ALTER TABLE pages ADD COLUMN IF NOT EXISTS reveal_seconds INTEGER DEFAULT 0
     `);
 
+    // Ensure campaigns_active column exists (protects page from accidental deletion)
+    await pool.query(`
+      ALTER TABLE pages ADD COLUMN IF NOT EXISTS campaigns_active BOOLEAN DEFAULT false
+    `);
+
     // Ensure settings table exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS settings (
