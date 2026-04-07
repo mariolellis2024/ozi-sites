@@ -78,16 +78,17 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   // ─── Página Fechada: centered layout with video ───
   if (hideNavbar) {
     return (
-      <section id="section-hero" style={{ paddingTop: 0 }}>
+      <section id="section-hero" style={{ paddingTop: 80, paddingBottom: 60 }}>
         <div className="hero-glow hero-glow-1" />
         <div className="hero-glow hero-glow-2" />
         <div className="container">
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             textAlign: 'center', position: 'relative', zIndex: 2, maxWidth: 900, margin: '0 auto',
+            gap: 40,
           }}>
-            {/* Headline */}
-            <div className="hero-text" style={{ maxWidth: 800 }}>
+            {/* Headline + Subheadline */}
+            <div className="hero-text" style={{ maxWidth: 800, margin: '0 auto' }}>
               {e ? (
                 <EditableText fieldKey="hero_title" label="Título do Hero" html>
                   {titleContent}
@@ -102,7 +103,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
             </div>
 
             {/* Video */}
-            <div style={{ width: '100%', marginTop: 24, marginBottom: 32 }}>
+            <div style={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
               <VideoBlock
                 videoId={videoId}
                 orientation={videoOrientation as 'vertical' | 'horizontal'}
@@ -115,7 +116,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
             </div>
 
             {/* CTA */}
-            <div className="hero-cta-group">
+            <div className="hero-cta-group" style={{ margin: '0 auto' }}>
               {ctaButton}
             </div>
           </div>

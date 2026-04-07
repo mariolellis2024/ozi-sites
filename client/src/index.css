@@ -209,7 +209,7 @@ button { cursor: pointer; border: none; font-family: var(--font-body); }
 .hero-content { display: grid; grid-template-columns: 55% 45%; align-items: center; gap: 60px; position: relative; z-index: 2; }
 .hero-text h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 24px; letter-spacing: -1px; }
 .hero-text h1 .accent { color: var(--color-accent); }
-.hero-text .subheadline { font-size: 1.125rem; color: var(--color-text-secondary); max-width: 540px; margin-bottom: 40px; line-height: 1.7; }
+.hero-text .subheadline { font-size: 1.125rem; color: var(--color-text-secondary); max-width: 540px; margin: 0 auto 40px; line-height: 1.7; }
 .hero-visual { position: relative; display: flex; align-items: center; justify-content: center; }
 .hero-image { width: 100%; max-width: 560px; border-radius: var(--radius-medium); display: block; }
 .mobile-hero-logo { display: none; }
