@@ -256,6 +256,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
               overflow: showCta ? 'visible' : 'hidden',
               transition: 'opacity 0.6s ease, max-height 0.5s ease',
               pointerEvents: showCta ? 'auto' : 'none',
+              padding: showCta ? '8px 0' : 0,
             }}>
               {ctaButton}
             </div>
