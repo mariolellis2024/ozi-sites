@@ -33,9 +33,9 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   const videoThumbnail = src?.vsl_thumbnail;
 
   const titleContent = heroTitle ? (
-    <h1 dangerouslySetInnerHTML={{ __html: heroTitle }} style={hideNavbar ? { margin: 0 } : undefined} />
+    <h1 dangerouslySetInnerHTML={{ __html: heroTitle }} style={hideNavbar ? { marginTop: 0, marginBottom: 20 } : undefined} />
   ) : (
-    <h1 style={hideNavbar ? { margin: 0 } : undefined}>
+    <h1 style={hideNavbar ? { marginTop: 0, marginBottom: 20 } : undefined}>
       A área de membros<br />
       que transforma as suas aulas em{' '}
       <span className="accent">uma máquina de dinheiro.</span>
@@ -88,22 +88,18 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
             gap: 20,
           }}>
             {/* Headline + Subheadline */}
-            <div style={{ maxWidth: 800, margin: '0 auto' }}>
-              <div style={{ marginBottom: 0 }}>
-                {e ? (
-                  <EditableText fieldKey="hero_title" label="Título do Hero" html>
-                    {titleContent}
-                  </EditableText>
-                ) : titleContent}
-              </div>
+            <div className="hero-text" style={{ maxWidth: 800, margin: '0 auto' }}>
+              {e ? (
+                <EditableText fieldKey="hero_title" label="Título do Hero" html>
+                  {titleContent}
+                </EditableText>
+              ) : titleContent}
 
-              <div style={{ marginTop: 12 }}>
-                {e ? (
-                  <EditableText fieldKey="hero_subtitle" label="Subtítulo do Hero">
-                    {subtitleContent}
-                  </EditableText>
-                ) : subtitleContent}
-              </div>
+              {e ? (
+                <EditableText fieldKey="hero_subtitle" label="Subtítulo do Hero">
+                  {subtitleContent}
+                </EditableText>
+              ) : subtitleContent}
             </div>
 
             {/* Video */}
