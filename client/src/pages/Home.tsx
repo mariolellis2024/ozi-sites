@@ -38,6 +38,7 @@ interface HomeProps {
 export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
   const dc = dynamicContent?.content_index;
   const hideNavbar = dynamicContent?.base_template_id === 2;
+  const hideVideoSection = hideNavbar || dynamicContent?.base_template_id === 3;
   const revealSeconds = dynamicContent?.reveal_seconds || 0;
   const isGated = hideNavbar && revealSeconds > 0;
   const [modalOpen, setModalOpen] = useState(false);
@@ -119,7 +120,7 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
         pointerEvents: contentRevealed ? 'auto' : 'none',
       }}>
 
-      <BenefitsGrid dynamicContent={dc} onOpenModal={openModal} hideVideoCta={hideNavbar} hideVideo={hideNavbar} />
+      <BenefitsGrid dynamicContent={dc} onOpenModal={openModal} hideVideoCta={hideVideoSection} hideVideo={hideVideoSection} />
 
       <FeatureSection
         id="section-monetizacao"

@@ -181,6 +181,18 @@ export async function seed() {
       console.log('  ✅ Base template "Página Fechada" seeded');
     }
 
+    // Seed "Página Aberta sem Vídeo" if it doesn't exist yet
+    const { rows: pavCheck } = await pool.query("SELECT id FROM base_templates WHERE name = 'Página Aberta sem Vídeo' LIMIT 1");
+    if (pavCheck.length === 0) {
+      const { rows: paRows2 } = await pool.query("SELECT content_index, content_obrigado FROM base_templates WHERE name = 'Página Aberta' LIMIT 1");
+      const paContent2 = paRows2.length > 0 ? paRows2[0] : { content_index: '{}', content_obrigado: '{}' };
+      await pool.query(
+        `INSERT INTO base_templates (name, description, content_index, content_obrigado) VALUES ($1, $2, $3, $4)`,
+        ['Página Aberta sem Vídeo', 'Página aberta sem bloco de vídeo', JSON.stringify(paContent2.content_index), JSON.stringify(paContent2.content_obrigado)]
+      );
+      console.log('  ✅ Base template "Página Aberta sem Vídeo" seeded');
+    }
+
     // Ensure sales table exists (Cakto webhook data)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS sales (
