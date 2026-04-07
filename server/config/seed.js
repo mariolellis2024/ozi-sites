@@ -49,6 +49,21 @@ export async function seed() {
       ALTER TABLE pages ADD COLUMN IF NOT EXISTS campaigns_active BOOLEAN DEFAULT false
     `);
 
+    // Ensure page_groups table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS page_groups (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Ensure group_id column exists on pages
+    await pool.query(`
+      ALTER TABLE pages ADD COLUMN IF NOT EXISTS group_id INTEGER REFERENCES page_groups(id) ON DELETE SET NULL
+    `);
+
     // Ensure settings table exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS settings (

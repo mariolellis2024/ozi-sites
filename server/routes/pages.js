@@ -47,7 +47,7 @@ async function getTemplate() {
 // GET /api/pages — list all pages
 router.get('/', authMiddleware, async (_req, res) => {
   try {
-    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, base_template_id, reveal_seconds, campaigns_active, created_at, updated_at FROM pages ORDER BY created_at DESC');
+    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, base_template_id, reveal_seconds, campaigns_active, group_id, created_at, updated_at FROM pages ORDER BY created_at DESC');
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -147,7 +147,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // PUT /api/pages/:id — update page
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { name, slug, status, palette_id, base_template_id, campaigns_active, content_index, content_obrigado } = req.body;
+    const { name, slug, status, palette_id, base_template_id, campaigns_active, group_id, content_index, content_obrigado } = req.body;
 
     const { rows: current } = await pool.query('SELECT * FROM pages WHERE id = $1', [req.params.id]);
     if (current.length === 0) return res.status(404).json({ error: 'Página não encontrada' });
@@ -158,12 +158,13 @@ router.put('/:id', authMiddleware, async (req, res) => {
     const updatedPalette = palette_id || current[0].palette_id || 'mint';
     const updatedTemplateId = base_template_id !== undefined ? base_template_id : current[0].base_template_id;
     const updatedCampaigns = campaigns_active !== undefined ? campaigns_active : (current[0].campaigns_active || false);
+    const updatedGroupId = group_id !== undefined ? group_id : current[0].group_id;
     const updatedIndex = content_index ? JSON.stringify(content_index) : JSON.stringify(current[0].content_index);
     const updatedObrigado = content_obrigado ? JSON.stringify(content_obrigado) : JSON.stringify(current[0].content_obrigado);
 
     const { rows } = await pool.query(
-      'UPDATE pages SET name=$1, slug=$2, status=$3, palette_id=$4, base_template_id=$5, campaigns_active=$6, content_index=$7, content_obrigado=$8, updated_at=NOW() WHERE id=$9 RETURNING *',
-      [updatedName, updatedSlug, updatedStatus, updatedPalette, updatedTemplateId, updatedCampaigns, updatedIndex, updatedObrigado, req.params.id]
+      'UPDATE pages SET name=$1, slug=$2, status=$3, palette_id=$4, base_template_id=$5, campaigns_active=$6, group_id=$7, content_index=$8, content_obrigado=$9, updated_at=NOW() WHERE id=$10 RETURNING *',
+      [updatedName, updatedSlug, updatedStatus, updatedPalette, updatedTemplateId, updatedCampaigns, updatedGroupId, updatedIndex, updatedObrigado, req.params.id]
     );
 
     res.json(rows[0]);
@@ -214,6 +215,65 @@ router.get('/p/:slug', async (req, res) => {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Página não encontrada' });
     res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+// ======== PAGE GROUPS ========
+
+// GET /api/pages/groups — list all groups
+router.get('/groups/list', authMiddleware, async (_req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM page_groups ORDER BY sort_order ASC, created_at ASC');
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
+// POST /api/pages/groups — create group
+router.post('/groups', authMiddleware, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Nome obrigatório' });
+    const { rows: maxRows } = await pool.query('SELECT COALESCE(MAX(sort_order), 0) + 1 as next FROM page_groups');
+    const { rows } = await pool.query(
+      'INSERT INTO page_groups (name, sort_order) VALUES ($1, $2) RETURNING *',
+      [name.trim(), maxRows[0].next]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
+// PUT /api/pages/groups/:id — rename group
+router.put('/groups/:id', authMiddleware, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Nome obrigatório' });
+    const { rows } = await pool.query(
+      'UPDATE page_groups SET name = $1 WHERE id = $2 RETURNING *',
+      [name.trim(), req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Grupo não encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
+// DELETE /api/pages/groups/:id — delete group (pages become ungrouped)
+router.delete('/groups/:id', authMiddleware, async (req, res) => {
+  try {
+    // Pages with this group_id will have it set to NULL via ON DELETE SET NULL
+    const { rowCount } = await pool.query('DELETE FROM page_groups WHERE id = $1', [req.params.id]);
+    if (!rowCount) return res.status(404).json({ error: 'Grupo não encontrado' });
+    res.json({ ok: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro interno' });

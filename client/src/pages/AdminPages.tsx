@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, Activity, Copy, DollarSign, Timer, Radio } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, Activity, Copy, DollarSign, Timer, Radio, FolderOpen, ChevronDown, ChevronRight } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import DeletePageModal from '../components/ui/DeletePageModal';
 import RetentionChartModal from '../components/admin/RetentionChartModal';
@@ -22,7 +22,14 @@ interface Page {
   base_template_id?: number;
   reveal_seconds?: number;
   campaigns_active?: boolean;
+  group_id?: number | null;
   created_at: string;
+}
+
+interface PageGroup {
+  id: number;
+  name: string;
+  sort_order: number;
 }
 
 /** Format a number compactly: 0, 12, 1.2k, 12.4k, 1.3M */
@@ -155,6 +162,13 @@ export default function AdminPages() {
   const [duplicateTarget, setDuplicateTarget] = useState<{ id: number; name: string; slug: string } | null>(null);
   const [dupName, setDupName] = useState('');
   const [dupSlug, setDupSlug] = useState('');
+  const [groups, setGroups] = useState<PageGroup[]>([]);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<number | null>>(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('ozi_collapsed_groups') || '[]')); } catch { return new Set(); }
+  });
+  const [newGroupName, setNewGroupName] = useState('');
+  const [showGroupInput, setShowGroupInput] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<{ id: number; name: string } | null>(null);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('admin_token');
@@ -165,6 +179,7 @@ export default function AdminPages() {
     fetchPages();
     fetchStats();
     fetchBaseTemplates();
+    fetchGroups();
   }, []);
 
   const fetchBaseTemplates = async () => {
@@ -192,6 +207,78 @@ export default function AdminPages() {
       setPages(await res.json());
     } catch { toast.error('Erro ao carregar páginas'); }
     finally { setLoading(false); }
+  };
+
+  const fetchGroups = async () => {
+    try {
+      const res = await fetch('/api/pages/groups/list', { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setGroups(await res.json());
+    } catch {}
+  };
+
+  const toggleGroupCollapse = (groupId: number | null) => {
+    setCollapsedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId); else next.add(groupId);
+      localStorage.setItem('ozi_collapsed_groups', JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  const handleCreateGroup = async () => {
+    if (!newGroupName.trim()) return;
+    try {
+      const res = await fetch('/api/pages/groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: newGroupName.trim() }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success('Grupo criado!');
+      setNewGroupName('');
+      setShowGroupInput(false);
+      fetchGroups();
+    } catch { toast.error('Erro ao criar grupo'); }
+  };
+
+  const handleRenameGroup = async (groupId: number, name: string) => {
+    if (!name.trim()) { setEditingGroup(null); return; }
+    try {
+      const res = await fetch(`/api/pages/groups/${groupId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      if (!res.ok) throw new Error();
+      setGroups(prev => prev.map(g => g.id === groupId ? { ...g, name: name.trim() } : g));
+      setEditingGroup(null);
+      toast.success('Grupo renomeado');
+    } catch { toast.error('Erro ao renomear grupo'); }
+  };
+
+  const handleDeleteGroup = async (groupId: number) => {
+    try {
+      const res = await fetch(`/api/pages/groups/${groupId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error();
+      toast.success('Grupo deletado');
+      fetchGroups();
+      fetchPages(); // refresh group_id on pages
+    } catch { toast.error('Erro ao deletar grupo'); }
+  };
+
+  const handleGroupChange = async (pageId: number, groupId: number | null) => {
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ group_id: groupId }),
+      });
+      if (!res.ok) throw new Error();
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, group_id: groupId } : p));
+    } catch { toast.error('Erro ao mover página'); }
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -394,9 +481,36 @@ export default function AdminPages() {
                 Gerencie suas landing pages
               </p>
             </div>
-            <button onClick={() => setShowCreate(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Plus size={16} /> Nova Página
-            </button>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {showGroupInput ? (
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input
+                    autoFocus
+                    value={newGroupName}
+                    onChange={e => setNewGroupName(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleCreateGroup(); if (e.key === 'Escape') { setShowGroupInput(false); setNewGroupName(''); } }}
+                    placeholder="Nome do grupo"
+                    style={{
+                      padding: '8px 14px', borderRadius: 8, border: '1px solid var(--color-border)',
+                      background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)',
+                      fontSize: '0.85rem', outline: 'none', fontFamily: 'var(--font-body)', width: 160,
+                    }}
+                  />
+                  <button onClick={handleCreateGroup} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--color-accent)', background: 'rgba(117,251,198,0.08)', color: 'var(--color-accent)', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, fontFamily: 'var(--font-body)' }}>Criar</button>
+                  <button onClick={() => { setShowGroupInput(false); setNewGroupName(''); }} style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid var(--color-border)', background: 'transparent', color: 'var(--color-text-light)', cursor: 'pointer', fontSize: '0.82rem', fontFamily: 'var(--font-body)' }}>✗</button>
+                </div>
+              ) : (
+                <button onClick={() => setShowGroupInput(true)} style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px',
+                  borderRadius: 'var(--radius-full)', border: '1px solid var(--color-border)',
+                  background: 'transparent', color: 'var(--color-text-secondary)', cursor: 'pointer',
+                  fontSize: '0.85rem', fontWeight: 600, fontFamily: 'var(--font-body)',
+                }}><FolderOpen size={16} /> Novo Grupo</button>
+              )}
+              <button onClick={() => setShowCreate(true)} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Plus size={16} /> Nova Página
+              </button>
+            </div>
           </div>
 
           {/* Pages table */}
@@ -411,239 +525,307 @@ export default function AdminPages() {
               <p>Nenhuma página criada ainda</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {pages.map(page => {
-                const isCampaign = page.campaigns_active || false;
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {/* Render each group */}
+              {[...groups, null].map(group => {
+                const groupId = group?.id ?? null;
+                const groupPages = pages.filter(p => (p.group_id ?? null) === groupId);
+                if (groupPages.length === 0 && group !== null) return null;
+                const isCollapsed = collapsedGroups.has(groupId);
+                const isUngrouped = group === null;
+
                 return (
-                  <div key={page.id} style={{
-                    borderRadius: 'var(--radius-medium)', border: '1px solid var(--color-border)',
-                    background: 'var(--color-bg-secondary)', overflow: 'hidden',
-                    transition: 'border-color 0.2s ease',
-                  }}>
-                    {/* ── Row 1: Main info ── */}
+                  <div key={groupId ?? 'ungrouped'}>
+                    {/* Group header */}
                     <div style={{
-                      display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px',
-                      flexWrap: 'wrap',
-                    }}>
-                      {/* Name (editable) */}
-                      <div style={{ minWidth: 120 }}>
-                        {editingName?.id === page.id ? (
-                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                            <input
-                              autoFocus
-                              value={editingName.value}
-                              onChange={e => setEditingName({ ...editingName, value: e.target.value })}
-                              onKeyDown={e => { if (e.key === 'Enter') handleSaveName(page.id, editingName.value); if (e.key === 'Escape') setEditingName(null); }}
-                              style={{
-                                width: 160, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
-                                background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)', fontSize: '0.9rem',
-                                fontWeight: 600, outline: 'none', fontFamily: 'var(--font-body)',
-                              }}
-                            />
-                            <button onClick={() => handleSaveName(page.id, editingName.value)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', padding: 2 }}>✓</button>
-                            <button onClick={() => setEditingName(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 2 }}>✗</button>
-                          </div>
-                        ) : (
-                          <span
-                            onClick={() => setEditingName({ id: page.id, value: page.name })}
-                            style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem', color: 'var(--color-text-primary)', borderBottom: '1px dashed rgba(255,255,255,0.12)' }}
-                            title="Clique para editar"
-                          >
-                            {page.name}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Slug (editable) */}
-                      <div>
-                        {editingSlug?.id === page.id ? (
-                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                            <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}>/</span>
-                            <input
-                              autoFocus
-                              value={editingSlug.value}
-                              onChange={e => setEditingSlug({ ...editingSlug, value: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                              onKeyDown={e => { if (e.key === 'Enter') handleSaveSlug(page.id, editingSlug.value); if (e.key === 'Escape') setEditingSlug(null); }}
-                              style={{
-                                width: 140, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
-                                background: 'rgba(255,255,255,0.04)', color: 'var(--color-accent)', fontSize: '0.85rem',
-                                fontWeight: 500, outline: 'none', fontFamily: 'monospace',
-                              }}
-                            />
-                            <button onClick={() => handleSaveSlug(page.id, editingSlug.value)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', padding: 2 }}>✓</button>
-                            <button onClick={() => setEditingSlug(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 2 }}>✗</button>
-                          </div>
-                        ) : (
-                          <code
-                            onClick={() => setEditingSlug({ id: page.id, value: page.slug })}
-                            style={{ background: 'rgba(117,251,198,0.08)', color: 'var(--color-accent)', padding: '3px 10px', borderRadius: 6, fontSize: '0.82rem', cursor: 'pointer', borderBottom: '1px dashed rgba(117,251,198,0.25)' }}
-                            title="Clique para editar"
-                          >/{page.slug}</code>
-                        )}
-                      </div>
-
-                      {/* Status badge */}
-                      <span style={{
-                        background: page.status === 'active' ? 'rgba(117,251,198,0.12)' : 'rgba(255,200,50,0.12)',
-                        color: page.status === 'active' ? 'var(--color-accent)' : '#ffc832',
-                        padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 600,
-                      }}>{page.status === 'active' ? 'Ativo' : 'Rascunho'}</span>
-
-                      {/* Campaign live indicator */}
-                      {isCampaign && (
-                        <span style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 5,
-                          padding: '3px 10px', borderRadius: 'var(--radius-full)',
-                          background: 'rgba(52,211,153,0.1)', color: '#34d399',
-                          fontSize: '0.72rem', fontWeight: 600,
-                          animation: 'pulse 2s ease-in-out infinite',
-                        }}>
-                          <Radio size={11} /> Ao vivo
+                      display: 'flex', alignItems: 'center', gap: 10, marginBottom: isCollapsed ? 0 : 10,
+                      padding: '8px 4px', cursor: 'pointer', userSelect: 'none',
+                    }} onClick={() => toggleGroupCollapse(groupId)}>
+                      {isCollapsed ? <ChevronRight size={16} style={{ color: 'var(--color-text-light)' }} /> : <ChevronDown size={16} style={{ color: 'var(--color-text-light)' }} />}
+                      {editingGroup?.id === groupId && !isUngrouped ? (
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }} onClick={e => e.stopPropagation()}>
+                          <input
+                            autoFocus
+                            value={editingGroup.name}
+                            onChange={e => setEditingGroup({ ...editingGroup, name: e.target.value })}
+                            onKeyDown={e => { if (e.key === 'Enter') handleRenameGroup(editingGroup.id, editingGroup.name); if (e.key === 'Escape') setEditingGroup(null); }}
+                            style={{
+                              padding: '3px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
+                              background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)',
+                              fontSize: '0.9rem', fontWeight: 600, outline: 'none', fontFamily: 'var(--font-body)',
+                            }}
+                          />
+                          <button onClick={() => handleRenameGroup(editingGroup.id, editingGroup.name)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer' }}>✓</button>
+                          <button onClick={() => setEditingGroup(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer' }}>✗</button>
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                          {isUngrouped ? 'Sem grupo' : group!.name}
                         </span>
                       )}
-
-                      {/* Spacer */}
-                      <div style={{ flex: 1 }} />
-
-                      {/* Stats */}
-                      <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
-                          <Eye size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.total_visits)}
-                        </span>
-                        <span style={{ fontSize: '0.85rem', color: '#75fbc6', fontWeight: 600 }} title="Pix">
-                          💳 {fmtNum(stats[page.id]?.pix_click)}
-                        </span>
-                        <span style={{ fontSize: '0.85rem', color: '#6ea8fe', fontWeight: 600 }} title="Cartão">
-                          💳 {fmtNum(stats[page.id]?.card_click)}
-                        </span>
-                      </div>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', fontWeight: 400 }}>
+                        ({groupPages.length} {groupPages.length === 1 ? 'página' : 'páginas'})
+                      </span>
+                      {!isUngrouped && (
+                        <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }} onClick={e => e.stopPropagation()}>
+                          <button onClick={() => setEditingGroup({ id: group!.id, name: group!.name })} title="Renomear" style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 4 }}><Pencil size={13} /></button>
+                          <button onClick={() => handleDeleteGroup(group!.id)} title="Deletar grupo" style={{ background: 'none', border: 'none', color: 'rgba(255,107,107,0.6)', cursor: 'pointer', padding: 4 }}><Trash2 size={13} /></button>
+                        </div>
+                      )}
                     </div>
 
-                    {/* ── Row 2: Config + Actions ── */}
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 16, padding: '12px 20px',
-                      borderTop: '1px solid rgba(255,255,255,0.04)',
-                      background: 'rgba(0,0,0,0.15)', flexWrap: 'wrap',
-                    }}>
-                      {/* Template selector */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', fontWeight: 500 }}>Template</span>
-                        <select
-                          value={page.base_template_id || 1}
-                          onChange={e => handleTemplateChange(page.id, Number(e.target.value))}
-                          style={{
-                            padding: '4px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
-                            background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-secondary)',
-                            fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', outline: 'none',
-                            fontFamily: 'var(--font-body)',
-                          }}
-                        >
-                          {baseTemplates.map(tpl => (
-                            <option key={tpl.id} value={tpl.id} style={{ background: '#1a1a1a', color: '#fff' }}>
-                              {tpl.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Separator */}
-                      <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)' }} />
-
-                      {/* Palette picker */}
-                      <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-                        {COLOR_PALETTES.map(palette => {
-                          const isActive = (page.palette_id || 'mint') === palette.id;
+                    {/* Group pages */}
+                    {!isCollapsed && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {groupPages.map(page => {
+                          const isCampaign = page.campaigns_active || false;
                           return (
-                            <button
-                              key={palette.id}
-                              title={palette.name}
-                              disabled={savingPalette === page.id}
-                              onClick={() => handlePaletteChange(page.id, palette.id)}
-                              style={{
-                                width: isActive ? 22 : 18, height: isActive ? 22 : 18, borderRadius: '50%',
-                                border: isActive ? '2px solid #fff' : '1.5px solid rgba(255,255,255,0.15)',
-                                background: palette.swatch,
-                                cursor: savingPalette === page.id ? 'wait' : 'pointer',
-                                padding: 0, flexShrink: 0,
-                                transition: 'all 0.2s ease',
-                                boxShadow: isActive ? `0 0 6px ${palette.swatch}50` : 'none',
-                                opacity: savingPalette === page.id ? 0.5 : 1,
-                              }}
-                            />
+                            <div key={page.id} style={{
+                              borderRadius: 'var(--radius-medium)', border: '1px solid var(--color-border)',
+                              background: 'var(--color-bg-secondary)', overflow: 'hidden',
+                              transition: 'border-color 0.2s ease',
+                            }}>
+                              {/* ── Row 1: Main info ── */}
+                              <div style={{
+                                display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px',
+                                flexWrap: 'wrap',
+                              }}>
+                                <div style={{ minWidth: 120 }}>
+                                  {editingName?.id === page.id ? (
+                                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                      <input
+                                        autoFocus
+                                        value={editingName.value}
+                                        onChange={e => setEditingName({ ...editingName, value: e.target.value })}
+                                        onKeyDown={e => { if (e.key === 'Enter') handleSaveName(page.id, editingName.value); if (e.key === 'Escape') setEditingName(null); }}
+                                        style={{
+                                          width: 160, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
+                                          background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)', fontSize: '0.9rem',
+                                          fontWeight: 600, outline: 'none', fontFamily: 'var(--font-body)',
+                                        }}
+                                      />
+                                      <button onClick={() => handleSaveName(page.id, editingName.value)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', padding: 2 }}>✓</button>
+                                      <button onClick={() => setEditingName(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 2 }}>✗</button>
+                                    </div>
+                                  ) : (
+                                    <span
+                                      onClick={() => setEditingName({ id: page.id, value: page.name })}
+                                      style={{ cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem', color: 'var(--color-text-primary)', borderBottom: '1px dashed rgba(255,255,255,0.12)' }}
+                                      title="Clique para editar"
+                                    >
+                                      {page.name}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div>
+                                  {editingSlug?.id === page.id ? (
+                                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                      <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}>/</span>
+                                      <input
+                                        autoFocus
+                                        value={editingSlug.value}
+                                        onChange={e => setEditingSlug({ ...editingSlug, value: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                                        onKeyDown={e => { if (e.key === 'Enter') handleSaveSlug(page.id, editingSlug.value); if (e.key === 'Escape') setEditingSlug(null); }}
+                                        style={{
+                                          width: 140, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
+                                          background: 'rgba(255,255,255,0.04)', color: 'var(--color-accent)', fontSize: '0.85rem',
+                                          fontWeight: 500, outline: 'none', fontFamily: 'monospace',
+                                        }}
+                                      />
+                                      <button onClick={() => handleSaveSlug(page.id, editingSlug.value)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', padding: 2 }}>✓</button>
+                                      <button onClick={() => setEditingSlug(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 2 }}>✗</button>
+                                    </div>
+                                  ) : (
+                                    <code
+                                      onClick={() => setEditingSlug({ id: page.id, value: page.slug })}
+                                      style={{ background: 'rgba(117,251,198,0.08)', color: 'var(--color-accent)', padding: '3px 10px', borderRadius: 6, fontSize: '0.82rem', cursor: 'pointer', borderBottom: '1px dashed rgba(117,251,198,0.25)' }}
+                                      title="Clique para editar"
+                                    >/{page.slug}</code>
+                                  )}
+                                </div>
+
+                                <span style={{
+                                  background: page.status === 'active' ? 'rgba(117,251,198,0.12)' : 'rgba(255,200,50,0.12)',
+                                  color: page.status === 'active' ? 'var(--color-accent)' : '#ffc832',
+                                  padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 600,
+                                }}>{page.status === 'active' ? 'Ativo' : 'Rascunho'}</span>
+
+                                {isCampaign && (
+                                  <span style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                                    padding: '3px 10px', borderRadius: 'var(--radius-full)',
+                                    background: 'rgba(52,211,153,0.1)', color: '#34d399',
+                                    fontSize: '0.72rem', fontWeight: 600,
+                                    animation: 'pulse 2s ease-in-out infinite',
+                                  }}>
+                                    <Radio size={11} /> Ao vivo
+                                  </span>
+                                )}
+
+                                <div style={{ flex: 1 }} />
+
+                                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
+                                    <Eye size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.total_visits)}
+                                  </span>
+                                  <span style={{ fontSize: '0.85rem', color: '#75fbc6', fontWeight: 600 }} title="Pix">
+                                    💳 {fmtNum(stats[page.id]?.pix_click)}
+                                  </span>
+                                  <span style={{ fontSize: '0.85rem', color: '#6ea8fe', fontWeight: 600 }} title="Cartão">
+                                    💳 {fmtNum(stats[page.id]?.card_click)}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* ── Row 2: Config + Actions ── */}
+                              <div style={{
+                                display: 'flex', alignItems: 'center', gap: 16, padding: '12px 20px',
+                                borderTop: '1px solid rgba(255,255,255,0.04)',
+                                background: 'rgba(0,0,0,0.15)', flexWrap: 'wrap',
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', fontWeight: 500 }}>Template</span>
+                                  <select
+                                    value={page.base_template_id || 1}
+                                    onChange={e => handleTemplateChange(page.id, Number(e.target.value))}
+                                    style={{
+                                      padding: '4px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
+                                      background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-secondary)',
+                                      fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer', outline: 'none',
+                                      fontFamily: 'var(--font-body)',
+                                    }}
+                                  >
+                                    {baseTemplates.map(tpl => (
+                                      <option key={tpl.id} value={tpl.id} style={{ background: '#1a1a1a', color: '#fff' }}>
+                                        {tpl.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)' }} />
+
+                                <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                                  {COLOR_PALETTES.map(palette => {
+                                    const isActive = (page.palette_id || 'mint') === palette.id;
+                                    return (
+                                      <button
+                                        key={palette.id}
+                                        title={palette.name}
+                                        disabled={savingPalette === page.id}
+                                        onClick={() => handlePaletteChange(page.id, palette.id)}
+                                        style={{
+                                          width: isActive ? 22 : 18, height: isActive ? 22 : 18, borderRadius: '50%',
+                                          border: isActive ? '2px solid #fff' : '1.5px solid rgba(255,255,255,0.15)',
+                                          background: palette.swatch,
+                                          cursor: savingPalette === page.id ? 'wait' : 'pointer',
+                                          padding: 0, flexShrink: 0,
+                                          transition: 'all 0.2s ease',
+                                          boxShadow: isActive ? `0 0 6px ${palette.swatch}50` : 'none',
+                                          opacity: savingPalette === page.id ? 0.5 : 1,
+                                        }}
+                                      />
+                                    );
+                                  })}
+                                </div>
+
+                                <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)' }} />
+
+                                <label style={{
+                                  display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+                                  fontSize: '0.75rem', color: isCampaign ? '#34d399' : 'var(--color-text-light)',
+                                  fontWeight: 500, userSelect: 'none',
+                                }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isCampaign}
+                                    onChange={() => handleCampaignsToggle(page.id, isCampaign)}
+                                    style={{ accentColor: '#34d399', width: 14, height: 14, cursor: 'pointer' }}
+                                  />
+                                  Campanhas rodando
+                                </label>
+
+                                {/* Group selector */}
+                                {groups.length > 0 && (
+                                  <>
+                                    <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)' }} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                      <FolderOpen size={12} style={{ color: 'var(--color-text-light)' }} />
+                                      <select
+                                        value={page.group_id ?? ''}
+                                        onChange={e => handleGroupChange(page.id, e.target.value ? Number(e.target.value) : null)}
+                                        style={{
+                                          padding: '3px 6px', borderRadius: 6, border: '1px solid var(--color-border)',
+                                          background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-secondary)',
+                                          fontSize: '0.72rem', fontWeight: 500, cursor: 'pointer', outline: 'none',
+                                          fontFamily: 'var(--font-body)',
+                                        }}
+                                      >
+                                        <option value="" style={{ background: '#1a1a1a', color: '#fff' }}>Sem grupo</option>
+                                        {groups.map(g => (
+                                          <option key={g.id} value={g.id} style={{ background: '#1a1a1a', color: '#fff' }}>{g.name}</option>
+                                        ))}
+                                      </select>
+                                    </div>
+                                  </>
+                                )}
+
+                                <div style={{ flex: 1 }} />
+
+                                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                                  <button onClick={() => navigate(`/admin/pages/${page.id}/visual/index`)} title="Editar Landing Page" style={{
+                                    padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                                    background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
+                                    fontSize: '0.73rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
+                                  }}><Pencil size={11} /> Index</button>
+                                  <button onClick={() => navigate(`/admin/pages/${page.id}/visual/obrigado`)} title="Editar Página de Obrigado" style={{
+                                    padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                                    background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
+                                    fontSize: '0.73rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
+                                  }}><Pencil size={11} /> Obrigado</button>
+                                  <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer" title="Abrir" style={{
+                                    padding: '5px 7px', borderRadius: 6, border: '1px solid var(--color-border)',
+                                    background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
+                                  }}><ExternalLink size={13} /></a>
+                                  <button onClick={() => openDuplicate(page)} title="Duplicar" style={{
+                                    padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                                    background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center',
+                                  }}><Copy size={13} /></button>
+                                  <button onClick={() => setRetentionTarget({ slug: page.slug, name: page.name, videoId: '' })} title="Retenção" style={{
+                                    padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                                    background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center',
+                                  }}><BarChart3 size={13} /></button>
+                                  {page.base_template_id === 2 && (
+                                    <button onClick={() => setRevealTarget({ id: page.id, name: page.name, reveal_seconds: page.reveal_seconds || 0 })} title="Tempo de Liberação" style={{
+                                      padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(251,191,36,0.4)',
+                                      background: (page.reveal_seconds || 0) > 0 ? 'rgba(251,191,36,0.12)' : 'transparent',
+                                      color: '#fbbf24', cursor: 'pointer',
+                                      display: 'flex', alignItems: 'center',
+                                    }}><Timer size={13} /></button>
+                                  )}
+                                  <button
+                                    onClick={() => !isCampaign && setDeleteTarget({ id: page.id, name: page.name })}
+                                    title={isCampaign ? 'Desative "Campanhas rodando" para deletar' : 'Deletar'}
+                                    disabled={isCampaign}
+                                    style={{
+                                      padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(255,107,107,0.3)',
+                                      background: 'transparent',
+                                      color: isCampaign ? 'rgba(255,107,107,0.25)' : '#ff6b6b',
+                                      cursor: isCampaign ? 'not-allowed' : 'pointer',
+                                      display: 'flex', alignItems: 'center',
+                                      opacity: isCampaign ? 0.5 : 1,
+                                    }}
+                                  ><Trash2 size={13} /></button>
+                                </div>
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
-
-                      {/* Separator */}
-                      <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.06)' }} />
-
-                      {/* Campaigns checkbox */}
-                      <label style={{
-                        display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
-                        fontSize: '0.75rem', color: isCampaign ? '#34d399' : 'var(--color-text-light)',
-                        fontWeight: 500, userSelect: 'none',
-                      }}>
-                        <input
-                          type="checkbox"
-                          checked={isCampaign}
-                          onChange={() => handleCampaignsToggle(page.id, isCampaign)}
-                          style={{ accentColor: '#34d399', width: 14, height: 14, cursor: 'pointer' }}
-                        />
-                        Campanhas rodando
-                      </label>
-
-                      {/* Spacer */}
-                      <div style={{ flex: 1 }} />
-
-                      {/* Actions */}
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        <button onClick={() => navigate(`/admin/pages/${page.id}/visual/index`)} title="Editar Landing Page" style={{
-                          padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                          background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
-                          fontSize: '0.73rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
-                        }}><Pencil size={11} /> Index</button>
-                        <button onClick={() => navigate(`/admin/pages/${page.id}/visual/obrigado`)} title="Editar Página de Obrigado" style={{
-                          padding: '5px 10px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                          background: 'rgba(117,251,198,0.06)', color: 'var(--color-accent)', cursor: 'pointer',
-                          fontSize: '0.73rem', fontWeight: 600, fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 4,
-                        }}><Pencil size={11} /> Obrigado</button>
-                        <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer" title="Abrir" style={{
-                          padding: '5px 7px', borderRadius: 6, border: '1px solid var(--color-border)',
-                          background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
-                        }}><ExternalLink size={13} /></a>
-                        <button onClick={() => openDuplicate(page)} title="Duplicar" style={{
-                          padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                          background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
-                          display: 'flex', alignItems: 'center',
-                        }}><Copy size={13} /></button>
-                        <button onClick={() => setRetentionTarget({ slug: page.slug, name: page.name, videoId: '' })} title="Retenção" style={{
-                          padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
-                          background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
-                          display: 'flex', alignItems: 'center',
-                        }}><BarChart3 size={13} /></button>
-                        {page.base_template_id === 2 && (
-                          <button onClick={() => setRevealTarget({ id: page.id, name: page.name, reveal_seconds: page.reveal_seconds || 0 })} title="Tempo de Liberação" style={{
-                            padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(251,191,36,0.4)',
-                            background: (page.reveal_seconds || 0) > 0 ? 'rgba(251,191,36,0.12)' : 'transparent',
-                            color: '#fbbf24', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center',
-                          }}><Timer size={13} /></button>
-                        )}
-                        <button
-                          onClick={() => !isCampaign && setDeleteTarget({ id: page.id, name: page.name })}
-                          title={isCampaign ? 'Desative "Campanhas rodando" para deletar' : 'Deletar'}
-                          disabled={isCampaign}
-                          style={{
-                            padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(255,107,107,0.3)',
-                            background: 'transparent',
-                            color: isCampaign ? 'rgba(255,107,107,0.25)' : '#ff6b6b',
-                            cursor: isCampaign ? 'not-allowed' : 'pointer',
-                            display: 'flex', alignItems: 'center',
-                            opacity: isCampaign ? 0.5 : 1,
-                          }}
-                        ><Trash2 size={13} /></button>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 );
               })}
