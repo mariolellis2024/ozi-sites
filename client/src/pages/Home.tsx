@@ -37,6 +37,7 @@ interface HomeProps {
 
 export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
   const dc = dynamicContent?.content_index;
+  const hideNavbar = dynamicContent?.base_template_id === 2;
   const [modalOpen, setModalOpen] = useState(false);
 
   // Server-side tracking
@@ -88,9 +89,9 @@ export default function Home({ dynamicContent, pageId, slug }: HomeProps) {
 
   return (
     <>
-      <Navbar onOpenModal={openModal} dynamicContent={dc} />
+      {!hideNavbar && <Navbar onOpenModal={openModal} dynamicContent={dc} />}
 
-      <HeroSection onOpenModal={openModal} dynamicContent={dc} />
+      <HeroSection onOpenModal={openModal} dynamicContent={dc} hideNavbar={hideNavbar} />
 
       <BenefitsGrid dynamicContent={dc} onOpenModal={openModal} />
 

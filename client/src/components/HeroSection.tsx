@@ -5,6 +5,7 @@ import EditableImage from './ui/EditableImage';
 
 interface HeroSectionProps {
   onOpenModal: () => void;
+  hideNavbar?: boolean;
   dynamicContent?: {
     hero_title: string;
     hero_subtitle: string;
@@ -14,7 +15,7 @@ interface HeroSectionProps {
   };
 }
 
-export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSectionProps) {
+export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavbar }: HeroSectionProps) {
   const edit = useEdit();
   const e = edit?.isEditing;
   const { logo_url } = useSiteConfig();
@@ -57,12 +58,12 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc }: HeroSec
   );
 
   return (
-    <section id="section-hero">
+    <section id="section-hero" style={hideNavbar ? { paddingTop: 0 } : undefined}>
       <div className="hero-glow hero-glow-1" />
       <div className="hero-glow hero-glow-2" />
       <div className="container">
-        {/* Mobile-only logo (navbar is hidden on mobile) */}
-        <img src={logo_url} alt="Logo" className="mobile-hero-logo" />
+        {/* Mobile-only logo (navbar is hidden on mobile) — also hidden for closed-page template */}
+        {!hideNavbar && <img src={logo_url} alt="Logo" className="mobile-hero-logo" />}
         <div className="hero-content">
           <div className="hero-text">
             {e ? (
