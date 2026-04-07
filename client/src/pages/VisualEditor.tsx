@@ -5,11 +5,14 @@ import toast, { Toaster } from 'react-hot-toast';
 import { EditProvider, useEdit } from '../context/EditContext';
 import Home from './Home';
 import DynamicObrigadoVisual from './DynamicObrigadoVisual';
+import { COLOR_PALETTES } from '../config/colorPalettes';
 
 interface PageData {
   id: number;
   name: string;
   slug: string;
+  palette_id?: string;
+  base_template_id?: number;
   content_index: Record<string, any>;
   content_obrigado: Record<string, any>;
 }
@@ -138,6 +141,17 @@ export default function VisualEditor() {
       .catch(() => navigate('/admin/pages'));
   }, [id, token, navigate]);
 
+  // Apply palette CSS variables when page loads
+  useEffect(() => {
+    if (!page?.palette_id || page.palette_id === 'mint') return;
+    const palette = COLOR_PALETTES.find(p => p.id === page.palette_id);
+    if (!palette) return;
+    const root = document.documentElement;
+    const entries = Object.entries(palette.variables);
+    entries.forEach(([key, value]) => root.style.setProperty(key, value));
+    return () => { entries.forEach(([key]) => root.style.removeProperty(key)); };
+  }, [page?.palette_id]);
+
   if (loading || !page) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1a1a1a' }}>
@@ -206,7 +220,7 @@ export default function VisualEditor() {
         <EditProvider pageId={page.id} pageType={isIndex ? 'index' : 'obrigado'} initialContent={content}>
           {isIndex ? (
             <>
-              <Home dynamicContent={{ content_index: content as any }} />
+              <Home dynamicContent={{ content_index: content as any, base_template_id: page.base_template_id }} />
               {checkoutOpen && <CheckoutPanel onClose={() => setCheckoutOpen(false)} />}
             </>
           ) : (

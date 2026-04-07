@@ -18,6 +18,7 @@ export default function TemplatePreview() {
   const paletteId = searchParams.get('palette');
 
   const [content, setContent] = useState<Record<string, any> | null>(null);
+  const [templateId, setTemplateId] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -58,6 +59,7 @@ export default function TemplatePreview() {
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
       .then(data => {
         setContent(data.content || {});
+        if (data.id) setTemplateId(data.id);
         if (data.type === 'obrigado') {
           import('./DynamicObrigadoVisual').then(mod => setObrigadoComponent(() => mod.default));
         } else {
@@ -95,7 +97,7 @@ export default function TemplatePreview() {
   }
 
   if (type === 'index' && HomeComponent && content) {
-    return <HomeComponent dynamicContent={{ content_index: content }} />;
+    return <HomeComponent dynamicContent={{ content_index: content, base_template_id: templateId }} />;
   }
 
   return null;

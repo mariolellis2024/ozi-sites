@@ -24,7 +24,7 @@ router.get('/:id/preview/:type', authMiddleware, async (req, res) => {
     const type = req.params.type;
     const content = type === 'obrigado' ? rows[0].content_obrigado : rows[0].content_index;
 
-    res.json({ name: rows[0].name, type, content: content || {} });
+    res.json({ id: rows[0].id, name: rows[0].name, type, content: content || {} });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao carregar preview' });
