@@ -102,6 +102,36 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// POST /api/pages/:id/duplicate — duplicate a page
+router.post('/:id/duplicate', authMiddleware, async (req, res) => {
+  try {
+    const { name, slug } = req.body;
+    if (!name || !slug) return res.status(400).json({ error: 'Nome e slug são obrigatórios' });
+
+    const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+    if (!cleanSlug) return res.status(400).json({ error: 'Slug inválido' });
+
+    const reserved = ['admin', 'obrigado', 'api'];
+    if (reserved.includes(cleanSlug)) return res.status(400).json({ error: 'Slug reservado' });
+
+    // Fetch original page
+    const { rows: original } = await pool.query('SELECT * FROM pages WHERE id = $1', [req.params.id]);
+    if (original.length === 0) return res.status(404).json({ error: 'Página original não encontrada' });
+
+    const src = original[0];
+    const { rows } = await pool.query(
+      'INSERT INTO pages (name, slug, content_index, content_obrigado, palette_id, base_template_id, reveal_seconds, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [name, cleanSlug, JSON.stringify(src.content_index), JSON.stringify(src.content_obrigado), src.palette_id, src.base_template_id, 0, 'active']
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Slug já existe' });
+    console.error(err);
+    res.status(500).json({ error: 'Erro interno' });
+  }
+});
+
 // GET /api/pages/:id — get page details
 router.get('/:id', authMiddleware, async (req, res) => {
   try {

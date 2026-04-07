@@ -149,6 +149,11 @@ export default function AdminPages() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const [selectedPaletteId, setSelectedPaletteId] = useState(COLOR_PALETTES[0].id);
   const [revealTarget, setRevealTarget] = useState<{ id: number; name: string; reveal_seconds: number } | null>(null);
+  const [editingName, setEditingName] = useState<{ id: number; value: string } | null>(null);
+  const [editingSlug, setEditingSlug] = useState<{ id: number; value: string } | null>(null);
+  const [duplicateTarget, setDuplicateTarget] = useState<{ id: number; name: string; slug: string } | null>(null);
+  const [dupName, setDupName] = useState('');
+  const [dupSlug, setDupSlug] = useState('');
   const navigate = useNavigate();
 
   const token = localStorage.getItem('admin_token');
@@ -289,6 +294,61 @@ export default function AdminPages() {
     } catch { toast.error('Erro ao salvar tempo de liberação'); }
   };
 
+  const handleSaveName = async (pageId: number, name: string) => {
+    if (!name.trim()) { toast.error('Nome não pode ser vazio'); return; }
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      if (!res.ok) throw new Error();
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, name: name.trim() } : p));
+      setEditingName(null);
+      toast.success('Nome atualizado');
+    } catch { toast.error('Erro ao salvar nome'); }
+  };
+
+  const handleSaveSlug = async (pageId: number, slug: string) => {
+    const clean = slug.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-');
+    if (!clean) { toast.error('Slug inválido'); return; }
+    try {
+      const res = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ slug: clean }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || 'Erro ao salvar slug'); return; }
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, slug: clean } : p));
+      setEditingSlug(null);
+      toast.success('Slug atualizado');
+    } catch { toast.error('Erro ao salvar slug'); }
+  };
+
+  const openDuplicate = (page: Page) => {
+    setDuplicateTarget({ id: page.id, name: page.name, slug: page.slug });
+    setDupName(`${page.name} (cópia)`);
+    setDupSlug(`${page.slug}-copia`);
+  };
+
+  const handleDuplicate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!duplicateTarget) return;
+    try {
+      const res = await fetch(`/api/pages/${duplicateTarget.id}/duplicate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: dupName, slug: dupSlug }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || 'Erro ao duplicar'); return; }
+      toast.success('Página duplicada!');
+      setDuplicateTarget(null);
+      fetchPages();
+    } catch { toast.error('Erro ao duplicar página'); }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" toastOptions={{ style: { background: '#202020', color: '#fff', border: '1px solid rgba(255,255,255,0.08)' } }} />
@@ -335,9 +395,54 @@ export default function AdminPages() {
                 <tbody>
                   {pages.map(page => (
                     <tr key={page.id} style={{ borderTop: '1px solid var(--color-border)' }}>
-                      <td style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{page.name}</td>
+                      <td style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                        {editingName?.id === page.id ? (
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <input
+                              autoFocus
+                              value={editingName.value}
+                              onChange={e => setEditingName({ ...editingName, value: e.target.value })}
+                              onKeyDown={e => { if (e.key === 'Enter') handleSaveName(page.id, editingName.value); if (e.key === 'Escape') setEditingName(null); }}
+                              style={{
+                                width: 140, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
+                                background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)', fontSize: '0.85rem',
+                                fontWeight: 600, outline: 'none', fontFamily: 'var(--font-body)',
+                              }}
+                            />
+                            <button onClick={() => handleSaveName(page.id, editingName.value)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', padding: 2 }}>✓</button>
+                            <button onClick={() => setEditingName(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 2 }}>✗</button>
+                          </div>
+                        ) : (
+                          <span onClick={() => setEditingName({ id: page.id, value: page.name })} style={{ cursor: 'pointer', borderBottom: '1px dashed rgba(255,255,255,0.15)' }} title="Clique para editar">
+                            {page.name}
+                          </span>
+                        )}
+                      </td>
                       <td style={{ padding: '14px 16px' }}>
-                        <code style={{ background: 'rgba(117,251,198,0.08)', color: 'var(--color-accent)', padding: '2px 8px', borderRadius: 4, fontSize: '0.85rem' }}>/{page.slug}</code>
+                        {editingSlug?.id === page.id ? (
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <span style={{ color: 'var(--color-text-light)', fontSize: '0.85rem' }}>/</span>
+                            <input
+                              autoFocus
+                              value={editingSlug.value}
+                              onChange={e => setEditingSlug({ ...editingSlug, value: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                              onKeyDown={e => { if (e.key === 'Enter') handleSaveSlug(page.id, editingSlug.value); if (e.key === 'Escape') setEditingSlug(null); }}
+                              style={{
+                                width: 120, padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-accent)',
+                                background: 'rgba(255,255,255,0.04)', color: 'var(--color-accent)', fontSize: '0.85rem',
+                                fontWeight: 500, outline: 'none', fontFamily: 'monospace',
+                              }}
+                            />
+                            <button onClick={() => handleSaveSlug(page.id, editingSlug.value)} style={{ background: 'none', border: 'none', color: 'var(--color-accent)', cursor: 'pointer', padding: 2 }}>✓</button>
+                            <button onClick={() => setEditingSlug(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-light)', cursor: 'pointer', padding: 2 }}>✗</button>
+                          </div>
+                        ) : (
+                          <code
+                            onClick={() => setEditingSlug({ id: page.id, value: page.slug })}
+                            style={{ background: 'rgba(117,251,198,0.08)', color: 'var(--color-accent)', padding: '2px 8px', borderRadius: 4, fontSize: '0.85rem', cursor: 'pointer', borderBottom: '1px dashed rgba(117,251,198,0.3)' }}
+                            title="Clique para editar"
+                          >/{page.slug}</code>
+                        )}
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <span style={{
@@ -400,6 +505,11 @@ export default function AdminPages() {
                             padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)',
                             background: 'transparent', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center',
                           }}><ExternalLink size={14} /></a>
+                          <button onClick={() => openDuplicate(page)} title="Duplicar Página" style={{
+                            padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
+                            background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center',
+                          }}><Copy size={14} /></button>
                           <button onClick={() => setRetentionTarget({ slug: page.slug, name: page.name, videoId: '' })} title="Retenção do Vídeo" style={{
                             padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(117,251,198,0.25)',
                             background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer',
@@ -567,6 +677,56 @@ export default function AdminPages() {
               onSave={(seconds) => handleRevealSave(revealTarget.id, seconds)}
               onCancel={() => setRevealTarget(null)}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate Modal */}
+      {duplicateTarget && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={() => setDuplicateTarget(null)} />
+          <div style={{
+            position: 'relative', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-large)', padding: 32, maxWidth: 480, width: '90%',
+          }}>
+            <h3 style={{ margin: '0 0 4px', fontSize: '1.1rem', color: 'var(--color-text-primary)' }}>
+              <Copy size={16} style={{ verticalAlign: 'middle', marginRight: 8, color: 'var(--color-accent)' }} />
+              Duplicar Página
+            </h3>
+            <p style={{ margin: '0 0 20px', fontSize: '0.82rem', color: 'var(--color-text-light)' }}>
+              Criando cópia independente de <strong style={{ color: 'var(--color-text-secondary)' }}>{duplicateTarget.name}</strong>
+            </p>
+            <form onSubmit={handleDuplicate} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginBottom: 6, fontWeight: 500 }}>Nome</label>
+                <input value={dupName} onChange={e => setDupName(e.target.value)} required style={{
+                  width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--color-border)',
+                  background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)', fontSize: '0.9rem',
+                  outline: 'none', boxSizing: 'border-box', fontFamily: 'var(--font-body)',
+                }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text-secondary)', marginBottom: 6, fontWeight: 500 }}>Slug</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                  <span style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--color-border)', borderRight: 'none', borderRadius: '8px 0 0 8px', fontSize: '0.82rem', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
+                    site.ozi.com.br/
+                  </span>
+                  <input value={dupSlug} onChange={e => setDupSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} required style={{
+                    flex: 1, padding: '10px 14px', borderRadius: '0 8px 8px 0', border: '1px solid var(--color-border)',
+                    background: 'rgba(255,255,255,0.04)', color: 'var(--color-text-primary)', fontSize: '0.9rem',
+                    outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace',
+                  }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                <button type="button" onClick={() => setDuplicateTarget(null)} style={{
+                  flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid var(--color-border)',
+                  background: 'transparent', color: 'var(--color-text-secondary)', cursor: 'pointer',
+                  fontSize: '0.85rem', fontWeight: 600, fontFamily: 'var(--font-body)',
+                }}>Cancelar</button>
+                <button type="submit" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Duplicar</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
