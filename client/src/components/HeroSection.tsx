@@ -162,9 +162,9 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
   );
 
   const subtitleContent = heroSubtitle ? (
-    <p className="subheadline" style={hideNavbar ? { margin: 0 } : undefined}>{heroSubtitle}</p>
+    <p className="subheadline" style={hideNavbar ? { margin: '0 auto' } : undefined}>{heroSubtitle}</p>
   ) : (
-    <p className="subheadline" style={hideNavbar ? { margin: 0 } : undefined}>
+    <p className="subheadline" style={hideNavbar ? { margin: '0 auto' } : undefined}>
       Enquanto áreas de membros "estilo Netflix" confundem seus alunos e matam seu faturamento, a Alanis guia cada aluno pelo caminho certo, com 6 fontes de receita extras, engajamento por IA e um sistema viral que cresce sozinho.
     </p>
   );
