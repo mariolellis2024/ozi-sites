@@ -253,7 +253,7 @@ export default function HeroSection({ onOpenModal, dynamicContent: dc, hideNavba
             <div style={{
               opacity: showCta ? 1 : 0,
               maxHeight: showCta ? '200px' : 0,
-              overflow: 'hidden',
+              overflow: showCta ? 'visible' : 'hidden',
               transition: 'opacity 0.6s ease, max-height 0.5s ease',
               pointerEvents: showCta ? 'auto' : 'none',
             }}>
