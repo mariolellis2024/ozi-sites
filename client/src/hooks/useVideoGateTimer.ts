@@ -1,12 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react';
 
 /**
- * useVideoGateTimer — Tracks video playback time and triggers content reveal.
+ * useVideoGateTimer — Triggers content reveal when video reaches a specific time.
  * 
- * Uses Plyr's `currentTime` to measure ACTUAL watch time (respects 2x speed, pause, seeks).
- * Checks every 5 seconds. When accumulated watched time >= revealSeconds, calls onReveal().
- * 
- * Does NOT interfere with useVideoRetention — both attach independently to the same Plyr instance.
+ * Uses `plyr.currentTime` directly — this is the VIDEO position, not wall-clock time.
+ * Works correctly at any playback speed (1x, 1.5x, 2x, etc.) and with seeks.
+ * Checks every 2 seconds while playing + on pause/ended events.
  */
 export function useVideoGateTimer(
   revealSeconds: number,
@@ -15,8 +14,6 @@ export function useVideoGateTimer(
 ) {
   const plyrRef = useRef<any>(null);
   const intervalRef = useRef<number | null>(null);
-  const lastTimeRef = useRef<number>(0);
-  const accumulatedRef = useRef<number>(0);
   const revealedRef = useRef(false);
 
   // Check if already revealed in localStorage
@@ -29,20 +26,9 @@ export function useVideoGateTimer(
 
     try {
       const currentTime = plyr.currentTime || 0;
-      const playing = plyr.playing;
 
-      if (playing && lastTimeRef.current > 0) {
-        // Calculate delta from last check
-        const delta = currentTime - lastTimeRef.current;
-        // Only accumulate if forward progress (skip backward seeks)
-        if (delta > 0 && delta < 15) {
-          accumulatedRef.current += delta;
-        }
-      }
-      lastTimeRef.current = currentTime;
-
-      // Check if threshold reached
-      if (accumulatedRef.current >= revealSeconds) {
+      // Simple threshold: if video position >= gate time, reveal
+      if (currentTime >= revealSeconds) {
         revealedRef.current = true;
         if (slug) localStorage.setItem(`ozi_revealed_${slug}`, '1');
         onReveal();
@@ -57,7 +43,8 @@ export function useVideoGateTimer(
 
   const startInterval = useCallback(() => {
     if (intervalRef.current || revealedRef.current) return;
-    intervalRef.current = window.setInterval(checkTime, 5000);
+    // Check every 2 seconds for responsive feel
+    intervalRef.current = window.setInterval(checkTime, 2000);
   }, [checkTime]);
 
   const attachGateTimer = useCallback((plyr: any) => {
@@ -65,19 +52,21 @@ export function useVideoGateTimer(
     plyrRef.current = plyr;
 
     plyr.on('playing', () => {
-      lastTimeRef.current = plyr.currentTime || 0;
       startInterval();
     });
     plyr.on('pause', () => {
-      checkTime(); // Record final delta
+      checkTime(); // Check on pause too
     });
     plyr.on('ended', () => {
       checkTime(); // Final check
     });
+    // Also check on seek (timeupdate fires frequently)
+    plyr.on('seeked', () => {
+      checkTime();
+    });
 
     // If already playing
     if (plyr.playing) {
-      lastTimeRef.current = plyr.currentTime || 0;
       startInterval();
     }
   }, [alreadyRevealed, revealSeconds, startInterval, checkTime]);
