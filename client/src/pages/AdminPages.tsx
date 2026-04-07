@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, MousePointerClick, Activity, Copy, DollarSign, Timer } from 'lucide-react';
+import { LogOut, FileText, KeyRound, Plus, ExternalLink, Pencil, Trash2, Shield, BarChart3, Settings, Eye, Activity, Copy, DollarSign, Timer } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import DeletePageModal from '../components/ui/DeletePageModal';
 import RetentionChartModal from '../components/admin/RetentionChartModal';
@@ -401,7 +401,7 @@ export default function AdminPages() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--color-bg-secondary)' }}>
-                    {['Nome', 'Slug', 'Status', 'Template', 'Cor', '👁 Visitas', '🖱 Modal', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
+                    {['Nome', 'Slug', 'Status', 'Template', 'Cor', '👁 Visitas', '💳 Pix', '💳 Cartão', 'Ações'].map(h => (
                       <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '0.8rem', color: 'var(--color-text-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                     ))}
                   </tr>
@@ -513,9 +513,7 @@ export default function AdminPages() {
                       <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Eye size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.total_visits)}</span>
                       </td>
-                      <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><MousePointerClick size={13} style={{ color: 'var(--color-text-light)' }} /> {fmtNum(stats[page.id]?.modal_open)}</span>
-                      </td>
+
                       <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#75fbc6', fontWeight: 600 }}>
                         {fmtNum(stats[page.id]?.pix_click)}
                       </td>
