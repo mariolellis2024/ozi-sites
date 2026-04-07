@@ -160,6 +160,7 @@ router.get('/visits', authMiddleware, async (req, res) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
     const offset = (page - 1) * limit;
     const slugFilter = req.query.slug || null;
+    const purchasedFilter = req.query.purchased;
 
     // Build WHERE clause
     const conditions = [];
@@ -167,6 +168,9 @@ router.get('/visits', authMiddleware, async (req, res) => {
     if (slugFilter) {
       params.push(slugFilter);
       conditions.push(`v.slug = $${params.length}`);
+    }
+    if (purchasedFilter === 'true') {
+      conditions.push(`v.purchased = true`);
     }
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 

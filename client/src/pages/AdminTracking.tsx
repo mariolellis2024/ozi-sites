@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Filter, Eye, MousePointerClick, CreditCard, CheckCircle, XCircle, Send } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter, Eye, MousePointerClick, CreditCard, CheckCircle, XCircle, Send, ShoppingCart } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import { AdminNav, AdminSidebar } from './AdminPages';
 
@@ -77,18 +77,20 @@ export default function AdminTracking() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [slugFilter, setSlugFilter] = useState('');
+  const [purchasedOnly, setPurchasedOnly] = useState(false);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!token) { navigate('/admin'); return; }
     fetchVisits();
-  }, [page, slugFilter]);
+  }, [page, slugFilter, purchasedOnly]);
 
   const fetchVisits = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(page), limit: '30' });
       if (slugFilter) params.set('slug', slugFilter);
+      if (purchasedOnly) params.set('purchased', 'true');
       const res = await fetch(`/api/track/visits?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -130,6 +132,21 @@ export default function AdminTracking() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Filter size={14} style={{ color: 'var(--color-text-light)' }} />
+              <button
+                onClick={() => { setPurchasedOnly(!purchasedOnly); setPage(1); }}
+                title={purchasedOnly ? 'Mostrando apenas vendas' : 'Filtrar por vendas'}
+                style={{
+                  padding: '7px 14px', borderRadius: 8, border: purchasedOnly ? '1px solid rgba(117,251,198,0.4)' : '1px solid var(--color-border)',
+                  background: purchasedOnly ? 'rgba(117,251,198,0.1)' : 'transparent',
+                  color: purchasedOnly ? '#75fbc6' : 'var(--color-text-secondary)',
+                  cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600,
+                  display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-body)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <ShoppingCart size={13} />
+                {purchasedOnly ? 'Vendas ✓' : 'Vendas'}
+              </button>
               <input
                 value={slugFilter}
                 onChange={e => { setSlugFilter(e.target.value); setPage(1); }}
