@@ -77,8 +77,8 @@ export function VideoBlock({ videoId, orientation, thumbnail, isEditing, onChang
   const toolBtnStyle = (active?: boolean): React.CSSProperties => ({
     padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
     fontSize: '0.8rem', fontWeight: 600, fontFamily: 'Inter, sans-serif',
-    background: active ? 'rgba(117,251,198,0.15)' : 'rgba(255,255,255,0.06)',
-    color: active ? '#75fbc6' : 'rgba(255,255,255,0.5)',
+    background: active ? 'rgba(117,251,198,0.25)' : 'rgba(30,30,30,0.85)',
+    color: active ? '#75fbc6' : 'rgba(255,255,255,0.8)',
     transition: 'all 150ms', display: 'flex', alignItems: 'center', gap: 6,
   });
 
