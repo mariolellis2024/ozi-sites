@@ -7,12 +7,19 @@ import RetentionChartModal from '../components/admin/RetentionChartModal';
 import { useSiteConfig } from '../context/SiteConfigContext';
 import { COLOR_PALETTES } from '../config/colorPalettes';
 
+interface BaseTemplate {
+  id: number;
+  name: string;
+  description: string;
+}
+
 interface Page {
   id: number;
   name: string;
   slug: string;
   status: string;
   palette_id?: string;
+  base_template_id?: number;
   created_at: string;
 }
 
@@ -91,6 +98,9 @@ export default function AdminPages() {
   const [retentionTarget, setRetentionTarget] = useState<{ slug: string; name: string; videoId: string } | null>(null);
   const [stats, setStats] = useState<Record<string, any>>({});
   const [savingPalette, setSavingPalette] = useState<number | null>(null);
+  const [baseTemplates, setBaseTemplates] = useState<BaseTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [selectedPaletteId, setSelectedPaletteId] = useState(COLOR_PALETTES[0].id);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('admin_token');
@@ -100,7 +110,19 @@ export default function AdminPages() {
     if (!token) { navigate('/admin'); return; }
     fetchPages();
     fetchStats();
+    fetchBaseTemplates();
   }, []);
+
+  const fetchBaseTemplates = async () => {
+    try {
+      const res = await fetch('/api/base-templates', { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        setBaseTemplates(data);
+        if (data.length > 0) setSelectedTemplateId(data[0].id);
+      }
+    } catch {}
+  };
 
   const fetchStats = async () => {
     try {
@@ -124,7 +146,12 @@ export default function AdminPages() {
       const res = await fetch('/api/pages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: newName, slug: newSlug }),
+        body: JSON.stringify({
+          name: newName,
+          slug: newSlug,
+          base_template_id: selectedTemplateId,
+          palette_id: selectedPaletteId,
+        }),
       });
       const data = await res.json();
       if (!res.ok) { toast.error(data.error); return; }
@@ -335,7 +362,7 @@ export default function AdminPages() {
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={() => setShowCreate(false)} />
           <div style={{
             position: 'relative', background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-large)', padding: 32, maxWidth: 440, width: '90%',
+            borderRadius: 'var(--radius-large)', padding: 32, maxWidth: 520, width: '90%',
           }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 24 }}>Nova Página</h2>
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -358,6 +385,66 @@ export default function AdminPages() {
                   }} />
                 </div>
               </div>
+
+              {/* Template selector */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: 8, fontWeight: 500 }}>Template</label>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(baseTemplates.length, 3)}, 1fr)`, gap: 10 }}>
+                  {baseTemplates.map(tpl => (
+                    <button
+                      key={tpl.id}
+                      type="button"
+                      onClick={() => setSelectedTemplateId(tpl.id)}
+                      style={{
+                        padding: '14px 12px', borderRadius: 'var(--radius-small)', cursor: 'pointer',
+                        border: selectedTemplateId === tpl.id ? '2px solid var(--color-accent)' : '1px solid var(--color-border)',
+                        background: selectedTemplateId === tpl.id ? 'rgba(117,251,198,0.06)' : 'rgba(255,255,255,0.02)',
+                        textAlign: 'center', transition: 'all 0.2s ease', fontFamily: 'var(--font-body)',
+                      }}
+                    >
+                      <Copy size={18} style={{ color: selectedTemplateId === tpl.id ? 'var(--color-accent)' : 'var(--color-text-light)', marginBottom: 6 }} />
+                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: selectedTemplateId === tpl.id ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}>
+                        {tpl.name}
+                      </div>
+                      {tpl.description && (
+                        <div style={{ fontSize: '0.7rem', color: 'var(--color-text-light)', marginTop: 3 }}>
+                          {tpl.description}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Palette selector */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: 8, fontWeight: 500 }}>Paleta de Cores</label>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  {COLOR_PALETTES.map(palette => (
+                    <button
+                      key={palette.id}
+                      type="button"
+                      title={palette.name}
+                      onClick={() => setSelectedPaletteId(palette.id)}
+                      style={{
+                        width: 32, height: 32, borderRadius: '50%',
+                        border: selectedPaletteId === palette.id ? '3px solid var(--color-text-primary)' : '2px solid var(--color-border)',
+                        background: palette.swatchBg, cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        transform: selectedPaletteId === palette.id ? 'scale(1.15)' : 'scale(1)',
+                        boxShadow: selectedPaletteId === palette.id ? `0 0 12px ${palette.swatch}40` : 'none',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
+                      }}
+                    >
+                      <div style={{ width: 18, height: 18, borderRadius: '50%', background: palette.swatch }} />
+                    </button>
+                  ))}
+                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', marginLeft: 4 }}>
+                    {COLOR_PALETTES.find(p => p.id === selectedPaletteId)?.name}
+                  </span>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
                 <button type="button" onClick={() => setShowCreate(false)} style={{
                   flex: 1, padding: '12px', borderRadius: 'var(--radius-small)', border: '1px solid var(--color-border)',

@@ -34,6 +34,11 @@ export async function seed() {
       ALTER TABLE pages ADD COLUMN IF NOT EXISTS palette_id VARCHAR(50) DEFAULT 'mint'
     `);
 
+    // Ensure base_template_id column exists (migration for existing DBs)
+    await pool.query(`
+      ALTER TABLE pages ADD COLUMN IF NOT EXISTS base_template_id INTEGER
+    `);
+
     // Ensure settings table exists
     await pool.query(`
       CREATE TABLE IF NOT EXISTS settings (
@@ -156,6 +161,19 @@ export async function seed() {
         ['Página Aberta', 'Template padrão para páginas de venda', tplData.content_index || '{}', tplData.content_obrigado || '{}']
       );
       console.log('  ✅ Base template "Página Aberta" seeded');
+    }
+
+    // Seed "Página Fechada" if it doesn't exist yet
+    const { rows: pfCheck } = await pool.query("SELECT id FROM base_templates WHERE name = 'Página Fechada' LIMIT 1");
+    if (pfCheck.length === 0) {
+      // Clone content from "Página Aberta"
+      const { rows: paRows } = await pool.query("SELECT content_index, content_obrigado FROM base_templates WHERE name = 'Página Aberta' LIMIT 1");
+      const paContent = paRows.length > 0 ? paRows[0] : { content_index: '{}', content_obrigado: '{}' };
+      await pool.query(
+        `INSERT INTO base_templates (name, description, content_index, content_obrigado) VALUES ($1, $2, $3, $4)`,
+        ['Página Fechada', 'Template para páginas com conteúdo restrito', JSON.stringify(paContent.content_index), JSON.stringify(paContent.content_obrigado)]
+      );
+      console.log('  ✅ Base template "Página Fechada" seeded');
     }
 
     // Ensure sales table exists (Cakto webhook data)

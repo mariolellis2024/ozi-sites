@@ -47,7 +47,7 @@ async function getTemplate() {
 // GET /api/pages — list all pages
 router.get('/', authMiddleware, async (_req, res) => {
   try {
-    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, created_at, updated_at FROM pages ORDER BY created_at DESC');
+    const { rows } = await pool.query('SELECT id, name, slug, status, palette_id, base_template_id, created_at, updated_at FROM pages ORDER BY created_at DESC');
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -58,7 +58,7 @@ router.get('/', authMiddleware, async (_req, res) => {
 // POST /api/pages — create page
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, slug } = req.body;
+    const { name, slug, base_template_id, palette_id } = req.body;
     if (!name || !slug) {
       return res.status(400).json({ error: 'Nome e slug são obrigatórios' });
     }
@@ -69,12 +69,27 @@ router.post('/', authMiddleware, async (req, res) => {
     const reserved = ['admin', 'obrigado', 'api'];
     if (reserved.includes(cleanSlug)) return res.status(400).json({ error: 'Slug reservado' });
 
-    // Clone from template stored in DB
-    const template = await getTemplate();
+    // Clone content from selected base template, or fallback to legacy template
+    let contentIndex, contentObrigado;
+    if (base_template_id) {
+      const { rows: btRows } = await pool.query('SELECT content_index, content_obrigado FROM base_templates WHERE id = $1', [base_template_id]);
+      if (btRows.length > 0) {
+        contentIndex = btRows[0].content_index;
+        contentObrigado = btRows[0].content_obrigado;
+      }
+    }
+    if (!contentIndex) {
+      const template = await getTemplate();
+      contentIndex = template.content_index;
+      contentObrigado = template.content_obrigado;
+    }
+
+    const paletteValue = palette_id || 'mint';
+    const templateIdValue = base_template_id || null;
 
     const { rows } = await pool.query(
-      'INSERT INTO pages (name, slug, content_index, content_obrigado) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, cleanSlug, JSON.stringify(template.content_index), JSON.stringify(template.content_obrigado)]
+      'INSERT INTO pages (name, slug, content_index, content_obrigado, palette_id, base_template_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [name, cleanSlug, JSON.stringify(contentIndex), JSON.stringify(contentObrigado), paletteValue, templateIdValue]
     );
 
     res.status(201).json(rows[0]);
